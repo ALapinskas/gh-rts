@@ -1,0 +1,933 @@
+import { GameStage, CONST } from "jsge";
+import { utils } from "jsge";
+import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT } from "./const.js";
+import { UnitPeasant, UnitBuilding } from "./units.js";
+
+const isPointInsidePolygon = utils.isPointInsidePolygon,
+	countDistance = utils.countDistance, 
+	randomFromArray = utils.randomFromArray;
+
+export class Stage2 extends GameStage {
+
+	#SLOW_SCROLL_POINT = 100;
+	#QUICK_SCROLL_POINT = 50;
+
+	#imageConverter = document.createElement("canvas");
+	#playerGold = 0;
+	#playerGoldCounter;
+	#playerWood = 0;
+	#playerWoodCounter;
+	#playerPeopleLimit = 5; // lets say town center increase limit to 5 and house to 3
+	#playerPeopleLimitCounter;
+	#playerUnits = [];
+	#playerBuildings = [];
+	#neutralBuildings = [];
+	#enemyUnits = [];
+	#enemyBuildings = [];
+
+	#treesLayer;
+	#treesCutHealth = new Map();
+	
+	#selectedItemText;
+	#buildItems;
+
+	#buildTemplate;
+	#isBuildPlaceClear;
+	#buildTemplateOverlap;
+
+	#mouseX;
+	#mouseY;
+
+	#unitsCount = 0;
+
+	#addUnitPosX = 0;
+	register() {
+    	this.iLoader.addTileMap("s_map", "./assets/level2.tmx");
+		this.iLoader.addImage(GAME_UNITS.GOLD_MINE.name, "./assets/Tiny Swords (Update 010)/Resources/Gold Mine/GoldMine_Inactive.png");
+		this.iLoader.addImage(GAME_UNITS.TOWN_CENTER.name, "./assets/Tiny Swords (Update 010)/Factions/Knights/Buildings/Castle/Castle_Blue.png");
+		this.iLoader.addImage(GAME_UNITS.HOUSE.name, "./assets/house128x192.png");
+
+		this.iLoader.addImage(GAME_UNITS.PEASANT.name, "./assets/Tiny Swords (Update 010)/Factions/Knights/Troops/Pawn/Blue/Pawn_Blue.png");
+
+		this.iLoader.addAudio("peasantWhat1", "./assets/audio/peasantwhat1.mp3");
+		this.iLoader.addAudio("peasantWhat2", "./assets/audio/peasantwhat2.mp3");
+		this.iLoader.addAudio("peasantWhat3", "./assets/audio/peasantwhat3.mp3");
+		this.iLoader.addAudio("needMoreGold", "./assets/audio/gruntnogold1.mp3");
+		this.iLoader.addAudio("needFood", "./assets/audio/upkeepring.mp3")
+		this.iLoader.addAudio("chopTree", "./assets/audio/axemediumchopwood2.mp3");
+		this.iLoader.addAudio("cantBuildHere" , "./assets/audio/peasantcannotbuildthere1.mp3");
+		this.timer = null;
+		this.eventsAggregator = new EventTarget();
+		document.body.style.margin = 0;
+	}
+    init() {
+		const [w, h] = this.stageData.canvasDimensions;
+    	// x, y, width, height, imageKey
+       	const water = this.draw.tiledLayer("water", "s_map", true),
+			water_anim = this.draw.tiledLayer("water_a", "s_map"),
+			ground = this.draw.tiledLayer("sand", "s_map");
+		//	cliff = this.draw.tiledLayer("cliff", "s_map", true),
+		//	bridge = this.draw.tiledLayer("bridge", "s_map");
+
+		this.#treesLayer = this.draw.tiledLayer("trees", "s_map", true);
+
+		this.goldMine1 = this.draw.image(850, 360, 192, 128, GAME_UNITS.GOLD_MINE.name, 0);
+		this.goldMine1.goldAmount = GOLD_MINE_GOLD_AMOUNT;
+
+		this.#neutralBuildings.push(this.goldMine1);
+
+		// this.shadowRect = this.draw.rect(0, 0, w, h, "rgba(0, 0, 0, 0.5)");  
+     	// this.shadowRect.blendFunc = [WebGLRenderingContext.ONE, WebGLRenderingContext.DST_COLOR];
+		// this.shadowRect.turnOffOffset();
+
+		// units
+
+		const townCenter = new UnitBuilding(600, 600, 320, 256, GAME_UNITS.TOWN_CENTER.name, 0, this.draw, this.eventsAggregator);
+		townCenter.sortIndex = 4;
+		this.#playerBuildings.push(townCenter);
+
+		const peasant1 = new UnitPeasant(800, 580, townCenter, this.draw, this.eventsAggregator),
+			peasant2 = new UnitPeasant(800, 640, townCenter, this.draw, this.eventsAggregator),
+			peasant3 = new UnitPeasant(800, 700, townCenter, this.draw, this.eventsAggregator);
+
+		this.addRenderObject(townCenter);
+		this.addRenderObject(peasant1);
+		this.addRenderObject(peasant2);
+		this.addRenderObject(peasant3);
+
+		this.#playerUnits.push(peasant1);
+		this.#playerUnits.push(peasant2);
+		this.#playerUnits.push(peasant3);
+
+		this.chopTreeSound = this.iLoader.getAudio("chopTree");
+		this.peasantWhatAudioArr = [this.iLoader.getAudio("peasantWhat1"), this.iLoader.getAudio("peasantWhat2"), this.iLoader.getAudio("peasantWhat3") ];
+       	
+		// this.personSightView = this.draw.conus(55, 250, 200, "rgba(0,0,0,1)", Math.PI/3);
+		// this.personSightView.rotation = -Math.PI/6;
+		// this.personSightView._isMask = true;
+		this.registerListeners();
+    }
+    start() {
+       	this.stageData.centerCameraPosition(100, 300);
+		this.registerListeners();
+		this.#createUserInterface();
+		setTimeout(() => {
+			const [w, h] = this.stageData.canvasDimensions;
+		},100);
+
+		this.#unitsCount = this.#playerUnits.length;
+		console.log("strategy started");
+    }
+
+	stop() {
+        this.unregisterListeners();
+		document.getElementById("sidebar").remove();
+    }
+	
+	registerListeners() {
+		this.#registerMouseListeners();
+        this.#registerKeyboardListeners();
+		this.#registerSystemEventsListeners();
+	}
+
+	unregisterListeners() {
+		this.#unregisterMouseListeners();
+        this.#unregisterKeyboardListeners();
+		this.#unregisterSystemEventsListeners();
+	}
+
+	#registerKeyboardListeners() {
+        document.addEventListener("keydown", this.#pressKeyAction);
+        document.addEventListener("keyup", this.#removeKeyAction);
+    }
+
+    #unregisterKeyboardListeners() {
+        document.removeEventListener("keydown", this.#pressKeyAction);
+        document.removeEventListener("keyup", this.#removeKeyAction);
+    }
+
+    #registerMouseListeners() {
+        document.addEventListener("mousemove", this.#mouseMoveAction);
+        document.addEventListener("click", this.#mouseClickAction);
+    }
+
+    #unregisterMouseListeners() {
+        document.removeEventListener("mousemove", this.#mouseMoveAction);
+        document.removeEventListener("click", this.#mouseClickAction);
+    }
+
+	#createUserInterface = () => {
+		const windowWidth = document.body.offsetWidth,
+			sidebar = document.createElement("div");
+		sidebar.id = "sidebar";
+		sidebar.style.width = windowWidth + "px";
+		sidebar.style.height = "48px";
+		sidebar.style.padding = "6px";
+		sidebar.style.backgroundColor = "#ccc";
+		sidebar.style.position = "fixed";
+		sidebar.style.top = 0 + "px";
+		sidebar.style.left = 0 + "px";
+		sidebar.style.display = "flex";
+		sidebar.style.fontSize = "1.4rem";
+		sidebar.style.fontWeight = "bold";
+		document.body.appendChild(sidebar);
+
+		const resourcesInfo = document.createElement("div");
+		resourcesInfo.style.display = "flex";
+		resourcesInfo.style.flexFlow = "column";
+		sidebar.appendChild(resourcesInfo);
+
+		const resourceWrap = document.createElement("div");
+		resourceWrap.style.display = "flex";
+
+		const playerGoldCounterText = document.createElement("div");
+		playerGoldCounterText.innerText = "Gold: ";
+		resourceWrap.appendChild(playerGoldCounterText);
+
+		this.#playerGoldCounter = document.createElement("div");
+		this.#playerGoldCounter.innerText = this.#playerGold.toString();
+		this.#playerGoldCounter.style.marginRight = "6px";
+		resourceWrap.appendChild(this.#playerGoldCounter);
+
+		const playerWoodCounterText = document.createElement("div");
+		playerWoodCounterText.innerText = "Wood: ";
+		resourceWrap.appendChild(playerWoodCounterText);
+
+		this.#playerWoodCounter = document.createElement("div");
+		this.#playerWoodCounter.innerText = this.#playerWood.toString();
+		this.#playerWoodCounter.style.marginRight = "6px";
+		resourceWrap.appendChild(this.#playerWoodCounter);
+
+		resourcesInfo.appendChild(resourceWrap);
+
+		const playerInfoWrap = document.createElement("div");
+		playerInfoWrap.style.display = "flex";
+		const playerPeopleCounterText = document.createElement("div");
+		playerPeopleCounterText.innerText = "People limits: ";
+		playerInfoWrap.appendChild(playerPeopleCounterText);
+		
+		
+		this.#playerPeopleLimitCounter = document.createElement("div");
+		this.#playerPeopleLimitCounter.innerText = this.#playerUnits.length + "/" + this.#playerPeopleLimit.toString();
+		playerInfoWrap.appendChild(this.#playerPeopleLimitCounter);
+		resourcesInfo.appendChild(playerInfoWrap);
+
+		const buildMenuContainer = document.createElement("div");
+		buildMenuContainer.style.display = "flex";
+		buildMenuContainer.style.marginLeft = "30px";
+		sidebar.appendChild(buildMenuContainer);
+
+		this.#selectedItemText = document.createElement("div");
+		this.#selectedItemText.innerText = "Nothing is selected";
+		buildMenuContainer.appendChild(this.#selectedItemText);
+
+		this.#buildItems = document.createElement("div");
+		buildMenuContainer.appendChild(this.#buildItems);
+
+	}
+	
+	#pressKeyAction = (event) => {
+        const code = event.code;
+		
+		console.log("pressed: ", code);
+		if (code === "Space") {
+			
+			const townCenter = this.#playerBuildings.find((building) => building.key === GAME_UNITS.TOWN_CENTER.name);
+			const newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.eventsAggregator);
+			const newPeasant2 = new UnitPeasant(0, 0, townCenter, this.draw, this.eventsAggregator);
+
+			newPeasant.x = townCenter.x - this.#addUnitPosX;
+			newPeasant.y = townCenter.y;
+			newPeasant2.x = townCenter.x - this.#addUnitPosX;
+			newPeasant2.y = townCenter.y - 16;
+			this.addRenderObject(newPeasant);
+			this.addRenderObject(newPeasant2);
+			this.#playerUnits.push(newPeasant);
+			this.#playerUnits.push(newPeasant2);
+			this.#unitsCount++;
+			this.#unitsCount++;
+			newPeasant.activateMoveToTargetPoint(1500, 1500);
+			newPeasant2.activateMoveToTargetPoint(1500, 1500);
+			console.log("units: ", this.#unitsCount);
+			this.#addUnitPosX -= 20;
+		}
+    };
+
+    #removeKeyAction = (event) => {
+        const code = event.code;
+		if (code === "Space") {
+			this.#addUnitPosX = 0;
+		}
+    };
+
+    #mouseMoveAction = (e) => {
+        const [xOffset, yOffset] = this.stageData.worldOffset,
+            x = e.offsetX,
+            y = e.offsetY,
+            cursorPosX = x + xOffset,
+            cursorPosY = y + yOffset,
+			[ viewWidth, viewHeight ] = this.stageData.canvasDimensions,
+			xShiftRight = viewWidth - x,
+			yShiftBottom = viewHeight - y,
+			xShift = viewWidth/2 + xOffset,
+			yShift = viewHeight/2 + yOffset;
+			
+		let newPosX = xShift,
+			newPosY = yShift;
+		document.getElementsByTagName("canvas")[0].style.cursor = "default";
+		if (x < this.#QUICK_SCROLL_POINT) {
+			//console.log("quick scroll left");
+			newPosX = xShift-20;
+			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_w.png'), auto";
+		} else if (x < this.#SLOW_SCROLL_POINT) {
+			//console.log("slow scroll left");
+			newPosX = xShift-5;
+			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_w.png'), auto";
+			console.log("sss");
+		}
+		if (xShiftRight < this.#QUICK_SCROLL_POINT) {
+			//console.log("quick scroll right");
+			newPosX = xShift+20;
+			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_e.png'), auto";
+		} else if (xShiftRight < this.#SLOW_SCROLL_POINT) {
+			//console.log("slow scroll right");
+			newPosX = xShift+20;
+			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_e.png'), auto";
+		}
+
+		if (y < this.#QUICK_SCROLL_POINT) {
+			//console.log("quick scroll up");
+			newPosY = yShift-20;
+			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_n.png'), auto";
+		} else if (y < this.#SLOW_SCROLL_POINT) {
+			//console.log("slow scroll up");
+			newPosY = yShift-5;
+			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_n.png'), auto";
+		}
+		if (yShiftBottom < this.#QUICK_SCROLL_POINT) {
+			//console.log("quick scroll down");
+			newPosY = yShift+20;
+			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_s.png'), auto";
+		} else if (yShiftBottom < this.#SLOW_SCROLL_POINT) {
+			//console.log("slow scroll down");
+			newPosY = yShift+5;
+			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_s.png'), auto";
+		}
+		this.stageData.centerCameraPosition(newPosX, newPosY);
+		this.#mouseX = cursorPosX;
+		this.#mouseY = cursorPosY;
+		
+		if (this.#buildTemplate) {
+			this.#buildTemplate.x = cursorPosX;
+			this.#buildTemplate.y = cursorPosY;
+			this.#buildTemplateOverlap.x = cursorPosX - this.#buildTemplateOverlap.width/2;
+			this.#buildTemplateOverlap.y = cursorPosY - this.#buildTemplateOverlap.height/2;
+			if (this.isBoundariesCollision(cursorPosX, cursorPosY, this.#buildTemplateOverlap) 
+				|| this.isObjectsCollision(cursorPosX, cursorPosY, this.#buildTemplateOverlap, this.#playerBuildings)
+				|| this.isObjectsCollision(cursorPosX, cursorPosY, this.#buildTemplateOverlap, this.#neutralBuildings)) {
+				this.#buildTemplateOverlap.bgColor = "rgba(224, 12, 21, 0.6)";
+				this.#isBuildPlaceClear = false;
+			} else {
+				this.#buildTemplateOverlap.bgColor = "rgba(0, 0, 0, 0.3";
+				this.#isBuildPlaceClear = true;
+			}
+		}
+    };
+
+    #mouseClickAction = (e) => {
+		const target = e.target;
+		
+		if (target instanceof Image) {
+			this.#processImageClick(e);
+		} else if (this.#buildTemplate) {
+			this.#processNewBuild(this.#buildTemplate._building_key);
+		} else {
+			this.#processMapClick(e);
+		}
+		
+    }
+
+	#processNewBuild = (key) => {
+		const cantBuildAudio = this.iLoader.getAudio("cantBuildHere");
+
+		if (this.#isBuildPlaceClear) {
+			this.#playerUnits.forEach((unit) => {
+				if (unit.isSelected) {
+					unit.activateStartBuilding(this.#buildTemplateOverlap.x, this.#buildTemplateOverlap.y, key);
+					if (unit.isSelected) {
+						unit.isSelected = false;
+					}
+					// cleanup build menu
+					this.#selectedItemText.innerText = "";
+					while (this.#buildItems.lastChild) {
+						this.#buildItems.removeChild(this.#buildItems.lastChild);
+					}
+					// remove build helpers
+					this.#buildTemplate.destroy();
+					this.#buildTemplateOverlap.destroy();
+					this.#buildTemplate = null;
+					this.#buildTemplateOverlap = null;
+				}
+			});
+		} else {
+			cantBuildAudio.play();
+		}
+
+	}
+
+	#processImageClick = (e) => {
+		const target = e.target,
+			type = target.id;
+			
+		
+		switch (type) {
+			case GAME_UNITS.PEASANT.name:
+				this.#orderToBuildUnit(GAME_UNITS.PEASANT.name);
+				break;
+			case GAME_UNITS.HOUSE.name:
+				this.#orderToBuildBuilding(GAME_UNITS.HOUSE.name);
+				break;
+			case GAME_UNITS.BARRACKS.name:
+				this.#orderToBuildBuilding(GAME_UNITS.BARRACKS.name);
+				break;
+		}
+	}
+
+	#orderToBuildUnit = (type) => {
+		console.log("order build ", type);
+		const costWood = GAME_UNITS[type].cost.w,
+			costGold = GAME_UNITS[type].cost.g;
+		if (!this.#isEnoughGold(costGold)) {
+			console.log("not enough gold");
+			this.iLoader.getAudio("needMoreGold").play();
+		} else if (!this.#isEnoughWood(costWood)) {
+			console.log("not enough wood");
+		} else if (!this.#isEnoughHouses()) {
+			this.iLoader.getAudio("needFood").play();
+			console.log("not enough houses");
+			
+		} else {
+			const townCenter = this.#playerBuildings.find((building) => building.key === GAME_UNITS.TOWN_CENTER.name);
+			if (!townCenter.isBuildingUnit) {
+				this.#playerGold -= costGold;
+				this.#playerWood -= costWood;
+				
+				townCenter.buildUnit(type);
+			} else {
+				console.log("already building");
+			}
+			
+		}
+	}
+
+	#orderToBuildBuilding = (type) => {
+		console.log("order build ", type);
+		const costWood = GAME_UNITS[type].cost.w,
+			costGold = GAME_UNITS[type].cost.g;
+		if (!this.#isEnoughGold(costGold)) {
+			console.log("not enough gold");
+			this.iLoader.getAudio("needMoreGold").play();
+		} else if (!this.#isEnoughWood(costWood)) {
+			console.log("not enough wood");
+		} else {
+			this.#playerGold -= costGold;
+			this.#playerWood -= costWood;
+			let imageType = GAME_UNITS.HOUSE.name;
+			// a small workaround to use image atlas, instead of separate images
+			switch (type) {
+				case GAME_UNITS.BARRACKS.name:
+					imageType = GAME_UNITS.HOUSE.name;
+					break;
+			}
+			this.#buildTemplate = this.draw.image(this.#mouseX, this.#mouseY, 128, 192, imageType, 9);
+			this.#buildTemplate._building_key = type;
+			this.#buildTemplateOverlap = this.draw.rect(this.#mouseX - 8, this.#mouseY - 8, 128, 192, "rgba(0, 0, 0, 0.3");
+			this.#isBuildPlaceClear = false;
+		}
+	}
+	#isEnoughGold(costGold) {
+		const gold = this.#playerGold;
+		return costGold <= gold;
+	}
+
+	#isEnoughWood(costWood) {
+		const wood = this.#playerWood;
+
+		return costWood <= wood;
+	}
+
+	#isEnoughHouses() {
+		const units = this.#playerUnits.length,
+			maxUnits = this.#playerPeopleLimit;
+		console.log("u: ", units);
+		console.log("l: ", maxUnits);
+		return maxUnits > units;
+	}
+	#processMapClick = (e) => {
+		let selectPlayerUnit = null,
+			isTreeSelected = false,
+			selectedNeutralBuilding = null,
+			[ offsetX, offsetY ] = this.stageData.worldOffset,
+			clickXWithOffset = e.offsetX + offsetX,
+			clickYWithOffset = e.offsetY + offsetY;
+
+		this.#playerUnits.forEach((unit) => {
+			if (isPointInsidePolygon(clickXWithOffset - unit.x, clickYWithOffset - unit.y, unit.boundaries)) {
+				this.#playerUnits.forEach((unit) => {
+					console.log(unit.isSelected);
+					if (unit.isSelected) {
+						console.log("deselect");
+						unit.isSelected = false;
+					}
+				});
+				this.#playerBuildings.forEach((unit) => {
+					if (unit.isSelected) {
+						unit.isSelected = false;
+					}
+				});
+
+				selectPlayerUnit = unit;
+				selectPlayerUnit.isSelected = true;
+
+				this.#selectedItemText.innerText = "Peasant: ";
+				while (this.#buildItems.lastChild) {
+					this.#buildItems.removeChild(this.#buildItems.lastChild);
+				}
+					
+				const peasantFrameHouse = this.iLoader.getImage(GAME_UNITS.HOUSE.name);//this.draw.image(startX, startY, 16, 16, "houses", randomFromArray([9, 10, 11]));
+				const helper = this.#imageConverter.getContext("2d");	
+				this.#imageConverter.width = 32;
+				this.#imageConverter.height = 48;
+				helper.clearRect(0, 0, window.innerWidth, window.innerHeight);
+				helper.drawImage(peasantFrameHouse, 0, 0, 128, 192, 0, 0, 32, 48);
+				const imageDataHouse = this.#imageConverter.toDataURL();
+				const houseImage = new Image(32, 48);
+				houseImage.src = imageDataHouse;
+				houseImage.id = GAME_UNITS.HOUSE.name;
+
+				const peasantFrameBarracks = this.iLoader.getImage(GAME_UNITS.HOUSE.name);//this.draw.image(startX + 18, startY, 16, 16, "barracks", 1);
+				helper.clearRect(0, 0, window.innerWidth, window.innerHeight);
+				helper.drawImage(peasantFrameBarracks, 0, 192, 128, 192, 0, 0, 32, 48);
+				const imageDataBarracks = this.#imageConverter.toDataURL();
+				const barracksImage = new Image(32, 48);
+				barracksImage.src = imageDataBarracks;
+				barracksImage.id = GAME_UNITS.BARRACKS.name;
+
+				this.#buildItems.appendChild(houseImage);
+				this.#buildItems.appendChild(barracksImage);
+				//remove current orders
+				const activeAnimation = unit.activeAnimation;
+				if (activeAnimation) {
+					unit.stopRepeatedAnimation(activeAnimation);
+				}
+				unit.activateIdle();
+
+				randomFromArray(this.peasantWhatAudioArr).play();
+			}
+		});
+		if (selectPlayerUnit && selectPlayerUnit.isSelected === true) {
+			return;
+		}
+		this.#playerBuildings.forEach((building) => {
+			if (isPointInsidePolygon(clickXWithOffset - building.x, clickYWithOffset - building.y, building.boundaries)) {
+				this.#playerUnits.forEach((unit) => {
+					if (unit.isSelected) {
+						unit.isSelected = false;
+					}
+				});
+				this.#playerBuildings.forEach((unit) => {
+					if (unit.isSelected) {
+						unit.isSelected = false;
+					}
+				});
+				selectPlayerUnit = building;
+				selectPlayerUnit.isSelected = true;
+
+				if (building.key === GAME_UNITS.TOWN_CENTER.name) {
+					this.#selectedItemText.innerText = "TownCenter: ";
+					while (this.#buildItems.lastChild) {
+						this.#buildItems.removeChild(this.#buildItems.lastChild);
+					}
+					const peasantImage = this.iLoader.getImage(GAME_UNITS.PEASANT.name);
+					const helper = this.#imageConverter.getContext("2d");	
+					this.#imageConverter.width = 32;
+					this.#imageConverter.height = 32;
+					helper.clearRect(0, 0, window.innerWidth, window.innerHeight);
+					helper.drawImage(peasantImage, 66, 66, 60, 60, 0, 0, 32, 32);
+					const peasantData = this.#imageConverter.toDataURL();
+					const peasantImageHTML = new Image(32, 32);
+					peasantImageHTML.src = peasantData;
+					peasantImageHTML.id = GAME_UNITS.PEASANT.name;
+						
+					this.#buildItems.appendChild(peasantImageHTML);
+				}
+			}
+		});
+
+		this.#neutralBuildings.forEach((unit) => {
+			if (isPointInsidePolygon(clickXWithOffset - unit.x, clickYWithOffset - unit.y, unit.boundaries)) {
+				console.log("clicked gold mine: ", unit);
+				console.log("gold amount: ", unit.goldAmount)
+				selectedNeutralBuilding = unit;
+			}
+		});
+		
+		const xCell = Math.floor(clickXWithOffset / this.#treesLayer.tilemap.tilewidth),
+			yCell = Math.floor(clickYWithOffset / this.#treesLayer.tilemap.tileheight),
+			clickedCellIndex = this.#treesLayer.layerData.height * yCell + xCell,
+			clickedCellTile = this.#treesLayer.layerData.data[clickedCellIndex];
+		console.log("x cell: ", xCell);
+		console.log("y cell: ", yCell);
+		if (clickedCellTile !== 0 && clickedCellTile !== TREE_STUB_INDEX) {
+			console.log(clickedCellIndex);
+			console.log("tree cell clicked");
+			isTreeSelected = true;
+		}
+
+		// if no new units selected, move selected units to click point
+		if (!selectPlayerUnit) {
+			this.#playerUnits.forEach((unit) => {
+				if (unit.isSelected) {
+					if (selectedNeutralBuilding) {
+						console.log("do something with building: ", selectedNeutralBuilding);
+						if (selectedNeutralBuilding.key === GAME_UNITS.GOLD_MINE.name && unit instanceof UnitPeasant) {
+							unit.activateGrabGold(selectedNeutralBuilding);
+						}
+					} else if (isTreeSelected) {
+						console.log("go, and cut tree");
+						let tree = this.#treesCutHealth.get(clickedCellIndex);
+						if (!tree) {
+							tree = new Tree(clickXWithOffset, clickYWithOffset, TREE_FULL_HEALTH, clickedCellIndex);
+							this.#treesCutHealth.set(clickedCellIndex, tree);
+						}
+						unit.activateDragTree(tree);
+					} else {
+						unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset);
+					}
+					
+				}
+			});
+		}
+	}
+
+	#clickedBuildPeasant = (e) => {
+		console.log("clicked build peasant");
+		console.log(e);
+	}
+
+	#render = () => {
+		this.#playerUnits.forEach((unit, index) => {
+			if (unit instanceof UnitPeasant) {
+				const action = unit.activeAction;
+				switch (action) {
+					case PEASANT.ACTIONS.MOVE:
+						unit.stepMove();
+						break;
+					case PEASANT.ACTIONS.DRAG_GOLD:
+						unit.grabGold();
+						break;
+					case PEASANT.ACTIONS.DRAG_WOOD:
+						unit.dragWood();
+						break;	
+					case PEASANT.ACTIONS.CHOP_WOOD:
+						this.chopTreeSound.play();
+						unit.chopTree();
+						break;
+					case PEASANT.ACTIONS.BUILD:
+						if (countDistance(unit, {x:unit.targetPoint[0], y: unit.targetPoint[1]}) < 5) {
+							console.log('start building here');
+							// to avoid duplicate call, check isSelected prop
+							// remove peasant
+							unit.stopRepeatedAnimation(unit.activeAnimation);
+							unit.destroy();
+							// remove from array
+							this.#playerUnits.splice(index, 1);
+
+							const type = unit.buildingType;
+							let startIndex = 1,
+								imageType = GAME_UNITS.HOUSE.name;
+								
+							switch (type) {
+								case GAME_UNITS.HOUSE.name:
+									startIndex = 1;
+									break;
+								case GAME_UNITS.BARRACKS.name:
+									startIndex = 4;
+									imageType = GAME_UNITS.HOUSE.name;
+									break;
+							}
+							
+							const [x, y] = unit.targetPoint;
+							const newBuilding = new UnitBuilding(x + 60, y + 96, 128, 192, imageType, startIndex, this.draw, this.eventsAggregator);
+							
+							this.#playerBuildings.push(newBuilding);
+							this.addRenderObject(newBuilding);
+						} else {
+							unit.stepMove();
+						}
+						break;
+					case PEASANT.ACTIONS.IDLE:
+						break;
+				}
+			}
+		});
+	}
+	#registerSystemEventsListeners() {
+		this.iSystem.addEventListener(CONST.EVENTS.SYSTEM.RENDER.START, this.#render);
+		this.eventsAggregator.addEventListener(GAME_EVENTS.GOLD_GRAB, this.#createGoldBag);
+		this.eventsAggregator.addEventListener(GAME_EVENTS.GOLD_MINED, this.#goldMined);
+		this.eventsAggregator.addEventListener(GAME_EVENTS.WOOD_GRAB, this.#createWoodBunch);
+		this.eventsAggregator.addEventListener(GAME_EVENTS.WOOD_MINED, this.#woodMined);
+		this.eventsAggregator.addEventListener(GAME_EVENTS.GOLD_MINE_EMPTY, this.#goldMineEmpty);
+		this.eventsAggregator.addEventListener(GAME_EVENTS.TREE_EMPTY, this.#treeEmpty);
+		this.eventsAggregator.addEventListener(GAME_EVENTS.REQUEST_FOR_CLOSEST_TREE, this.#requestForClosestTree);
+		this.eventsAggregator.addEventListener(GAME_EVENTS.PEASANT_BUILT, this.#peasantBuilt);
+		this.eventsAggregator.addEventListener(GAME_EVENTS.BUILDING_DONE, this.#buildingDone);
+	}
+
+	#unregisterSystemEventsListeners() {
+		this.iSystem.removeEventListener(CONST.EVENTS.SYSTEM.RENDER.START, this.#render);
+		this.eventsAggregator.removeEventListener(GAME_EVENTS.GOLD_GRAB, this.#createGoldBag);
+		this.eventsAggregator.removeEventListener(GAME_EVENTS.GOLD_MINED, this.#goldMined);
+		this.eventsAggregator.removeEventListener(GAME_EVENTS.WOOD_GRAB, this.#createWoodBunch);
+		this.eventsAggregator.removeEventListener(GAME_EVENTS.WOOD_MINED, this.#woodMined);
+		this.eventsAggregator.removeEventListener(GAME_EVENTS.GOLD_MINE_EMPTY, this.#goldMineEmpty);
+		this.eventsAggregator.removeEventListener(GAME_EVENTS.TREE_EMPTY, this.#treeEmpty);
+		this.eventsAggregator.removeEventListener(GAME_EVENTS.REQUEST_FOR_CLOSEST_TREE, this.#requestForClosestTree);
+		this.eventsAggregator.removeEventListener(GAME_EVENTS.PEASANT_BUILT, this.#peasantBuilt);
+		this.eventsAggregator.removeEventListener(GAME_EVENTS.BUILDING_DONE, this.#buildingDone);
+	}
+
+	#createGoldBag = (e) => {
+		const peasantId = e.detail.peasantId,
+			peasant = this.#playerUnits.find((unit) => unit.id === peasantId);
+
+		
+		const goldBag = this.draw.gold(peasant.x, peasant.y - peasant.height/4);
+		goldBag.sortIndex = 3;
+		peasant.addGoldBag(goldBag);
+	}
+
+	#createWoodBunch = (e) => {
+		console.log("create wood");
+		const peasantId = e.detail.peasantId,
+			peasant = this.#playerUnits.find((unit) => unit.id === peasantId);
+
+		
+		const woodBunch = this.draw.wood(peasant.x, peasant.y + peasant.height / 4);
+		woodBunch.sortIndex = 3;
+		peasant.addWoodBunch(woodBunch);
+	}
+
+	#goldMined = (e) => {
+		const amount = e.detail;
+		this.#playerGold += 10;
+
+		this.#playerGoldCounter.innerText = this.#playerGold;
+	}
+
+	#woodMined = (e) => {
+		const amount = e.detail.amount;
+		this.#playerWood += amount;
+
+		this.#playerWoodCounter.innerText = this.#playerWood;
+	}
+
+	#goldMineEmpty = (e) => {
+		this.goldMine1.imageIndex = 10;
+	}
+
+	#requestForClosestTree = (e) => {
+		const peasant = e.detail.peasant,
+			oldTreeIndex = e.detail.tree.index,
+			tressLayer = this.#treesLayer.layerData.data,
+			layerWidth = this.#treesLayer.layerData.width,
+			layerHeight = this.#treesLayer.layerData.height,
+			layerSize = layerWidth * layerHeight,
+			nearestCellsIndexes = [],
+			tilewidth = this.#treesLayer.tilemap.tilewidth,
+			tileheight = this.#treesLayer.tilemap.tileheight;// -5; +5 on width and height
+
+		for (let i = -5; i <= 5; i++) {
+			let startItemIndex = oldTreeIndex + (i * this.#treesLayer.layerData.height); // *100
+
+			const rowIndex = Math.floor(startItemIndex/this.#treesLayer.layerData.height);
+			if (startItemIndex >= 0 && startItemIndex <= layerSize) { // remove top and bottom indexes overflow
+				for (let k = -5; k <= 5; k++) {
+					const itemIndex = startItemIndex + k,
+						colIndex = itemIndex - rowIndex * this.#treesLayer.layerData.height;
+						
+					if (itemIndex >= 0 && colIndex >= 0 && colIndex <= layerWidth) { // remove left and right indexes overflow
+						nearestCellsIndexes.push([rowIndex, colIndex, itemIndex]);
+					}
+				}
+			}
+		}
+		
+		let closestTree, closestDistance;
+
+		nearestCellsIndexes.forEach((indexes) => {
+				const rowIndex = indexes[0],
+					colIndex = indexes[1],
+					itemIndex = indexes[2],
+					cellItem = tressLayer[itemIndex];
+			if (cellItem !== 0 && cellItem !== TREE_STUB_INDEX) {
+				console.log("item x: ", colIndex);
+				console.log("item y: ", rowIndex);
+				const cellItemPosX = colIndex * tilewidth + tilewidth / 2,
+					cellItemPosY = rowIndex * tileheight + tileheight / 2,
+					distance = countDistance({x: peasant.x, y: peasant.y}, {x: cellItemPosX, y: cellItemPosY});
+				
+					
+					//console.log("distance: ", distance);
+					//console.log("closest distance: ", closestDistance);
+				if (!closestDistance || closestDistance > distance) {
+					closestTree = this.#treesCutHealth.get(itemIndex);
+					if (!closestTree) {
+						closestTree = new Tree(cellItemPosX, cellItemPosY, TREE_FULL_HEALTH, itemIndex);
+						this.#treesCutHealth.set(itemIndex, closestTree);
+					}
+					//console.log("set closest distance: ", distance);
+					//console.log("tree: ", closestTree);
+					closestDistance = distance;
+				}
+			}
+		});
+		//console.log("old tree is ", oldTreeIndex);
+		//console.log("closest tree is ", closestTree.index);
+		if (closestDistance) {
+			this.#treesCutHealth.set(closestTree.index, closestTree);
+			const playerUnit = this.#playerUnits.find((unit) => unit.id === peasant.id);
+			playerUnit.activateDragTree(closestTree);
+		}
+	}
+
+	recursiveSearchForClosestTree = () => {
+
+	}
+	#treeEmpty = (e) => {
+		const treeIndex = e.detail.index;
+		this.#treesCutHealth.delete(treeIndex);
+		this.#treesLayer.layerData.data[treeIndex] = TREE_STUB_INDEX;
+	}
+
+	#peasantBuilt = (e) => {
+		const townCenter = e.detail,
+			newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.eventsAggregator);
+
+		let posX = 80,
+			posY = 120;
+		while (this.isObjectsCollision(townCenter.x + posX, townCenter.y + posY, newPeasant, this.#playerUnits)) {
+			posX -= 18;
+			console.log("collision shift left");
+		}
+		//console.log("no collision adding unit");
+		newPeasant.x = townCenter.x + posX;
+		newPeasant.y = townCenter.y + posY;
+		this.addRenderObject(newPeasant);
+		this.#playerUnits.push(newPeasant);
+
+		this.#playerPeopleLimitCounter.innerText = this.#playerUnits.length + "/" + this.#playerPeopleLimit.toString();
+		
+	}
+
+	#buildingDone = (e) => {
+		const house = e.detail,
+			newPeasant = new UnitPeasant(0, 0, house, this.draw, this.eventsAggregator);
+		console.log(e.detail);
+		let posX = 20,
+			posY = 20;
+		while (this.isObjectsCollision(house.x + posX, house.y + posY, newPeasant, this.#playerUnits)) {
+			posX -= 18;
+			console.log("collision shift left");
+		}
+
+		newPeasant.x = house.x + posX;
+		newPeasant.y = house.y + posY;
+		this.addRenderObject(newPeasant);
+		this.#playerUnits.push(newPeasant);
+		
+		let doneIndex = 0;
+		switch (house.imageIndex) {
+			case 1: // house
+				break;
+			case 4: // barracks
+				doneIndex = 3;
+				break;
+		}
+		house.imageIndex = doneIndex;
+		this.#playerPeopleLimit += 3;
+		this.#playerPeopleLimitCounter.innerText = this.#playerUnits.length + "/" + this.#playerPeopleLimit.toString();
+	}
+
+	move(dir) {
+		let newX = this.tank.x, 
+			newY = this.tank.y;
+		switch(dir) {
+			case "left":
+				newX = newX - 1;
+				break;
+			case "right":
+				newX = newX + 1;
+				break;
+			case "top":
+				newY = newY - 1;
+				break;
+			case "bottom":
+				newY = newY + 1;
+				break;
+		}
+		if (!this.isBoundariesCollision(newX, newY, this.tank)) {
+			this.tank.x = newX;
+			this.tank.y = newY;
+			this.gun.x = newX;
+			this.gun.y = newY;
+			this.stageData.centerCameraPosition(newX, newY);
+		}
+	}
+	
+	stopAction = () => {
+		clearInterval(this.timer);
+		this.timer = null;
+	}
+	
+	fireAction = () => {
+		this.person.emit("fire");
+	}
+}
+
+class EvensAggregator extends EventTarget {
+}
+
+class Tree {
+	#x;
+	#y;
+	#health;
+	#index;
+	constructor(x, y, treeHealth, index) {
+		this.#x = x;
+		this.#y = y;
+		this.#index = index;
+		this.#health = treeHealth;
+	}
+
+	get index() {
+		return this.#index;
+	}
+
+	get x() {
+		return this.#x;
+	}
+
+	get y() {
+		return this.#y;
+	}
+
+	get health() {
+		return this.#health;
+	}
+
+	set health (value) {
+		this.#health = value;
+	}
+}

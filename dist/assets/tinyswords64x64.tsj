@@ -1,0 +1,14 @@
+{ "columns":10,
+ "image":"tinyswords64x64.png",
+ "imageheight":384,
+ "imagewidth":640,
+ "margin":0,
+ "name":"tinyswords64x64",
+ "spacing":0,
+ "tilecount":60,
+ "tiledversion":"1.11.2",
+ "tileheight":64,
+ "tilewidth":64,
+ "type":"tileset",
+ "version":"1.10"
+}

@@ -1,0 +1,33 @@
+{
+  "name": "gh-rts",
+  "version": "0.0.1",
+  "description": "classic rts goblin/humans, jsge engine",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "webpack serve --mode=development",
+    "build": "webpack --mode=development",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "rts",
+    "jsge",
+    "game"
+  ],
+  "author": "Arturas-Alfredas Lapinskas",
+  "license": "MIT",
+  "dependencies": {
+    "@chakra-ui/react": "3.17.0",
+    "jsge": "1.5.81",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.27.1",
+    "@babel/preset-env": "7.27.2",
+    "@babel/preset-react": "7.27.1",
+    "babel-loader": "10.0.0",
+    "webpack-cli": "6.0.1",
+    "webpack-dev-server": "5.2.0"
+  }
+}
