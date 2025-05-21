@@ -4,7 +4,7 @@ License: MIT \
 Platform: PC, Browser \
 Controls: Keyboard + Mouse(touchpad) \
 
-Hosted:
+Hosted: https://rts.reslc.ru
 
 Assets:
     * Pixel Frog: https://pixelfrog-assets.itch.io/tiny-swords
