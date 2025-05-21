@@ -100,17 +100,7 @@ export class Stage1 extends GameStage {
      	//this.shadowRect.blendFunc = [WebGLRenderingContext.ONE, WebGLRenderingContext.DST_COLOR];
 		//this.shadowRect.turnOffOffset();
 		/************* audio ******/
-		this.chopTreeSound = this.iLoader.getAudio("chopTree");
-		this.knightAudio = new Map();
-		this.knightAudio.set(GAME_AUDIO_TYPES.YES, [this.iLoader.getAudio(KNIGHT.AUDIO.YES1), this.iLoader.getAudio(KNIGHT.AUDIO.YES2), this.iLoader.getAudio(KNIGHT.AUDIO.YES3)]);
-		this.knightAudio.set(GAME_AUDIO_TYPES.WHAT, [this.iLoader.getAudio(KNIGHT.AUDIO.WHAT1), this.iLoader.getAudio(KNIGHT.AUDIO.WHAT2), this.iLoader.getAudio(KNIGHT.AUDIO.WHAT3)]);
-		this.knightAudio.set(GAME_AUDIO_TYPES.ATTACK, [this.iLoader.getAudio(KNIGHT.AUDIO.ATTACK1), this.iLoader.getAudio(KNIGHT.AUDIO.ATTACK2)]);
-		this.knightAudio.set(GAME_AUDIO_TYPES.FIGHT, [this.iLoader.getAudio(KNIGHT.AUDIO.FIGHT1), this.iLoader.getAudio(KNIGHT.AUDIO.FIGHT2)]);
-		this.knightAudio.set(GAME_AUDIO_TYPES.DEATH, [this.iLoader.getAudio(KNIGHT.AUDIO.DEATH1)]);
-
- 		this.peasantAudio = new Map();
-
-		this.peasantAudio.set(GAME_AUDIO_TYPES.WHAT,  [this.iLoader.getAudio(PEASANT.AUDIO.WHAT1), this.iLoader.getAudio(PEASANT.AUDIO.WHAT2), this.iLoader.getAudio(PEASANT.AUDIO.WHAT3) ]);
+		this.#attachAudio();
        	/***************************** */
 		// units
 		const knight1 = new UnitKnight(450, 550, this.draw, this.eventsAggregator, this.knightAudio),
@@ -130,9 +120,6 @@ export class Stage1 extends GameStage {
 
 		this.#playerUnits.push(knight1);
 		this.#playerUnits.push(knight2);
-
-		this.goblinAudio = new Map();
-		this.goblinAudio.set(GAME_AUDIO_TYPES.DEATH, [this.iLoader.getAudio(GOBLIN_TORCH.AUDIO.DEATH1)]);
 
 		const goblin1 = new UnitGoblinTorch(850, 550, this.draw, this.eventsAggregator, this.goblinAudio);
 		goblin1.activateIdle();
@@ -173,7 +160,7 @@ export class Stage1 extends GameStage {
 		this.#playerUnits.push(peasant2);
 		this.#playerUnits.push(peasant3);
 		*/
-		this.iSystem.addEventListener("startLevel", () => this.#startLevel());
+		this.iSystem.addEventListener(GAME_EVENTS.LEVEL.START, () => this.#startLevel());
     }
     start() {
        	this.stageData.centerCameraPosition(100, 300);
@@ -190,6 +177,22 @@ export class Stage1 extends GameStage {
 		document.getElementById("sidebar").remove();
     }
 
+	#attachAudio = () => {
+		this.chopTreeSound = this.iLoader.getAudio("chopTree");
+		this.knightAudio = new Map();
+		this.knightAudio.set(GAME_AUDIO_TYPES.YES, [this.iLoader.getAudio(KNIGHT.AUDIO.YES1), this.iLoader.getAudio(KNIGHT.AUDIO.YES2), this.iLoader.getAudio(KNIGHT.AUDIO.YES3)]);
+		this.knightAudio.set(GAME_AUDIO_TYPES.WHAT, [this.iLoader.getAudio(KNIGHT.AUDIO.WHAT1), this.iLoader.getAudio(KNIGHT.AUDIO.WHAT2), this.iLoader.getAudio(KNIGHT.AUDIO.WHAT3)]);
+		this.knightAudio.set(GAME_AUDIO_TYPES.ATTACK, [this.iLoader.getAudio(KNIGHT.AUDIO.ATTACK1), this.iLoader.getAudio(KNIGHT.AUDIO.ATTACK2)]);
+		this.knightAudio.set(GAME_AUDIO_TYPES.FIGHT, [this.iLoader.getAudio(KNIGHT.AUDIO.FIGHT1), this.iLoader.getAudio(KNIGHT.AUDIO.FIGHT2)]);
+		this.knightAudio.set(GAME_AUDIO_TYPES.DEATH, [this.iLoader.getAudio(KNIGHT.AUDIO.DEATH1)]);
+
+ 		this.peasantAudio = new Map();
+
+		this.peasantAudio.set(GAME_AUDIO_TYPES.WHAT,  [this.iLoader.getAudio(PEASANT.AUDIO.WHAT1), this.iLoader.getAudio(PEASANT.AUDIO.WHAT2), this.iLoader.getAudio(PEASANT.AUDIO.WHAT3) ]);
+
+		this.goblinAudio = new Map();
+		this.goblinAudio.set(GAME_AUDIO_TYPES.DEATH, [this.iLoader.getAudio(GOBLIN_TORCH.AUDIO.DEATH1)]);
+	}
 	#startLevel() {
 		console.log("start level 1");
 		this.registerListeners();

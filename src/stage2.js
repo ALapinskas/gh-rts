@@ -1,7 +1,8 @@
 import { GameStage, CONST } from "jsge";
 import { utils } from "jsge";
-import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT } from "./const.js";
-import { UnitPeasant, UnitBuilding } from "./units.js";
+import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT, KNIGHT, GOBLIN_TORCH, GAME_AUDIO_TYPES, UNIT_TACTIC, UNIT_VIEW_RANGE } from "./const.js";
+import { UnitPeasant, UnitBuilding, UnitKnight, UnitGoblinTorch } from "./units.js";
+import { pointToCircleDistance } from "jsge/src/utils.js";
 
 const isPointInsidePolygon = utils.isPointInsidePolygon,
 	countDistance = utils.countDistance, 
@@ -41,6 +42,8 @@ export class Stage2 extends GameStage {
 	#unitsCount = 0;
 
 	#addUnitPosX = 0;
+
+	#isGameStarted = false;
 	register() {
     	this.iLoader.addTileMap("s_map", "./assets/level2.tmx");
 		this.iLoader.addImage(GAME_UNITS.GOLD_MINE.name, "./assets/Tiny Swords (Update 010)/Resources/Gold Mine/GoldMine_Inactive.png");
@@ -49,9 +52,26 @@ export class Stage2 extends GameStage {
 
 		this.iLoader.addImage(GAME_UNITS.PEASANT.name, "./assets/Tiny Swords (Update 010)/Factions/Knights/Troops/Pawn/Blue/Pawn_Blue.png");
 
-		this.iLoader.addAudio("peasantWhat1", "./assets/audio/peasantwhat1.mp3");
-		this.iLoader.addAudio("peasantWhat2", "./assets/audio/peasantwhat2.mp3");
-		this.iLoader.addAudio("peasantWhat3", "./assets/audio/peasantwhat3.mp3");
+		this.iLoader.addAudio(PEASANT.AUDIO.WHAT1, "./assets/audio/peasantwhat1.mp3");
+		this.iLoader.addAudio(PEASANT.AUDIO.WHAT2, "./assets/audio/peasantwhat2.mp3");
+		this.iLoader.addAudio(PEASANT.AUDIO.WHAT3, "./assets/audio/peasantwhat3.mp3");
+		this.iLoader.addAudio(KNIGHT.AUDIO.WHAT1, "./assets/audio/capitan/CaptainWhat1.wav");
+		this.iLoader.addAudio(KNIGHT.AUDIO.WHAT2, "./assets/audio/capitan/CaptainWhat2.wav");
+		this.iLoader.addAudio(KNIGHT.AUDIO.WHAT3, "./assets/audio/capitan/CaptainWhat3.wav");
+
+		this.iLoader.addAudio(KNIGHT.AUDIO.YES1, "./assets/audio/capitan/CaptainYes1.wav");
+		this.iLoader.addAudio(KNIGHT.AUDIO.YES2, "./assets/audio/capitan/CaptainYes2.wav");
+		this.iLoader.addAudio(KNIGHT.AUDIO.YES3, "./assets/audio/capitan/CaptainYes3.wav");
+
+		this.iLoader.addAudio(KNIGHT.AUDIO.ATTACK1, "./assets/audio/capitan/CaptainWarcry1.wav");
+		this.iLoader.addAudio(KNIGHT.AUDIO.ATTACK2, "./assets/audio/capitan/CaptainYesAttack1.wav");
+
+		this.iLoader.addAudio(KNIGHT.AUDIO.FIGHT1, "./assets/audio/AxeMissile1.wav");
+		this.iLoader.addAudio(KNIGHT.AUDIO.FIGHT2, "./assets/audio/AxeMissile2.wav");
+
+		this.iLoader.addAudio(KNIGHT.AUDIO.DEATH1, "./assets/audio/FootmanDeath.wav");
+		this.iLoader.addAudio(GOBLIN_TORCH.AUDIO.DEATH1, "./assets/audio/GruntDeath.wav");
+
 		this.iLoader.addAudio("needMoreGold", "./assets/audio/gruntnogold1.mp3");
 		this.iLoader.addAudio("needFood", "./assets/audio/upkeepring.mp3")
 		this.iLoader.addAudio("chopTree", "./assets/audio/axemediumchopwood2.mp3");
@@ -63,18 +83,22 @@ export class Stage2 extends GameStage {
     init() {
 		const [w, h] = this.stageData.canvasDimensions;
     	// x, y, width, height, imageKey
-       	const water = this.draw.tiledLayer("water", "s_map", true),
-			water_anim = this.draw.tiledLayer("water_a", "s_map"),
-			ground = this.draw.tiledLayer("sand", "s_map");
+       	//const water = this.draw.tiledLayer("water", "s_map", true),
+		//	water_anim = this.draw.tiledLayer("water_a", "s_map"),
+		const sand = this.draw.tiledLayer("sand", "s_map"),
+			ground = this.draw.tiledLayer("ground", "s_map"),
+			ground_stuff = this.draw.tiledLayer("ground_stuff", "s_map");
 		//	cliff = this.draw.tiledLayer("cliff", "s_map", true),
 		//	bridge = this.draw.tiledLayer("bridge", "s_map");
 
 		this.#treesLayer = this.draw.tiledLayer("trees", "s_map", true);
 
-		this.goldMine1 = this.draw.image(850, 360, 192, 128, GAME_UNITS.GOLD_MINE.name, 0);
+		this.goldMine1 = this.draw.image(1100, 360, 192, 128, GAME_UNITS.GOLD_MINE.name, 0);
 		this.goldMine1.goldAmount = GOLD_MINE_GOLD_AMOUNT;
 
 		this.#neutralBuildings.push(this.goldMine1);
+
+		this.#attachAudio();
 
 		// this.shadowRect = this.draw.rect(0, 0, w, h, "rgba(0, 0, 0, 0.5)");  
      	// this.shadowRect.blendFunc = [WebGLRenderingContext.ONE, WebGLRenderingContext.DST_COLOR];
@@ -82,13 +106,13 @@ export class Stage2 extends GameStage {
 
 		// units
 
-		const townCenter = new UnitBuilding(600, 600, 320, 256, GAME_UNITS.TOWN_CENTER.name, 0, this.draw, this.eventsAggregator);
+		const townCenter = new UnitBuilding(850, 600, 320, 256, GAME_UNITS.TOWN_CENTER.name, 0, this.draw, this.eventsAggregator);
 		townCenter.sortIndex = 4;
 		this.#playerBuildings.push(townCenter);
 
-		const peasant1 = new UnitPeasant(800, 580, townCenter, this.draw, this.eventsAggregator),
-			peasant2 = new UnitPeasant(800, 640, townCenter, this.draw, this.eventsAggregator),
-			peasant3 = new UnitPeasant(800, 700, townCenter, this.draw, this.eventsAggregator);
+		const peasant1 = new UnitPeasant(1050, 580, townCenter, this.draw, this.eventsAggregator),
+			peasant2 = new UnitPeasant(1050, 640, townCenter, this.draw, this.eventsAggregator),
+			peasant3 = new UnitPeasant(1050, 700, townCenter, this.draw, this.eventsAggregator);
 
 		this.addRenderObject(townCenter);
 		this.addRenderObject(peasant1);
@@ -100,23 +124,21 @@ export class Stage2 extends GameStage {
 		this.#playerUnits.push(peasant3);
 
 		this.chopTreeSound = this.iLoader.getAudio("chopTree");
-		this.peasantWhatAudioArr = [this.iLoader.getAudio("peasantWhat1"), this.iLoader.getAudio("peasantWhat2"), this.iLoader.getAudio("peasantWhat3") ];
-       	
 		// this.personSightView = this.draw.conus(55, 250, 200, "rgba(0,0,0,1)", Math.PI/3);
 		// this.personSightView.rotation = -Math.PI/6;
 		// this.personSightView._isMask = true;
-		this.registerListeners();
+		this.#createBattle();
+		this.iSystem.addEventListener(GAME_EVENTS.LEVEL.START, () => this.#startLevel());
     }
     start() {
-       	this.stageData.centerCameraPosition(100, 300);
-		this.registerListeners();
 		this.#createUserInterface();
 		setTimeout(() => {
 			const [w, h] = this.stageData.canvasDimensions;
+			this.stageData.centerCameraPosition(720, 1400);
 		},100);
 
 		this.#unitsCount = this.#playerUnits.length;
-		console.log("strategy started");
+		console.log("strategy started x:" + 2000);
     }
 
 	stop() {
@@ -155,6 +177,12 @@ export class Stage2 extends GameStage {
         document.removeEventListener("mousemove", this.#mouseMoveAction);
         document.removeEventListener("click", this.#mouseClickAction);
     }
+
+	#startLevel() {
+		this.#isGameStarted = true;
+		console.log("start level 1");
+		this.registerListeners();
+	}
 
 	#createUserInterface = () => {
 		const windowWidth = document.body.offsetWidth,
@@ -488,41 +516,9 @@ export class Stage2 extends GameStage {
 
 				selectPlayerUnit = unit;
 				selectPlayerUnit.isSelected = true;
-
-				this.#selectedItemText.innerText = "Peasant: ";
-				while (this.#buildItems.lastChild) {
-					this.#buildItems.removeChild(this.#buildItems.lastChild);
-				}
-					
-				const peasantFrameHouse = this.iLoader.getImage(GAME_UNITS.HOUSE.name);//this.draw.image(startX, startY, 16, 16, "houses", randomFromArray([9, 10, 11]));
-				const helper = this.#imageConverter.getContext("2d");	
-				this.#imageConverter.width = 32;
-				this.#imageConverter.height = 48;
-				helper.clearRect(0, 0, window.innerWidth, window.innerHeight);
-				helper.drawImage(peasantFrameHouse, 0, 0, 128, 192, 0, 0, 32, 48);
-				const imageDataHouse = this.#imageConverter.toDataURL();
-				const houseImage = new Image(32, 48);
-				houseImage.src = imageDataHouse;
-				houseImage.id = GAME_UNITS.HOUSE.name;
-
-				const peasantFrameBarracks = this.iLoader.getImage(GAME_UNITS.HOUSE.name);//this.draw.image(startX + 18, startY, 16, 16, "barracks", 1);
-				helper.clearRect(0, 0, window.innerWidth, window.innerHeight);
-				helper.drawImage(peasantFrameBarracks, 0, 192, 128, 192, 0, 0, 32, 48);
-				const imageDataBarracks = this.#imageConverter.toDataURL();
-				const barracksImage = new Image(32, 48);
-				barracksImage.src = imageDataBarracks;
-				barracksImage.id = GAME_UNITS.BARRACKS.name;
-
-				this.#buildItems.appendChild(houseImage);
-				this.#buildItems.appendChild(barracksImage);
-				//remove current orders
-				const activeAnimation = unit.activeAnimation;
-				if (activeAnimation) {
-					unit.stopRepeatedAnimation(activeAnimation);
-				}
-				unit.activateIdle();
-
-				randomFromArray(this.peasantWhatAudioArr).play();
+				this.#configureUnitUI(unit);
+				
+				unit.activateIdle(true);
 			}
 		});
 		if (selectPlayerUnit && selectPlayerUnit.isSelected === true) {
@@ -542,25 +538,7 @@ export class Stage2 extends GameStage {
 				});
 				selectPlayerUnit = building;
 				selectPlayerUnit.isSelected = true;
-
-				if (building.key === GAME_UNITS.TOWN_CENTER.name) {
-					this.#selectedItemText.innerText = "TownCenter: ";
-					while (this.#buildItems.lastChild) {
-						this.#buildItems.removeChild(this.#buildItems.lastChild);
-					}
-					const peasantImage = this.iLoader.getImage(GAME_UNITS.PEASANT.name);
-					const helper = this.#imageConverter.getContext("2d");	
-					this.#imageConverter.width = 32;
-					this.#imageConverter.height = 32;
-					helper.clearRect(0, 0, window.innerWidth, window.innerHeight);
-					helper.drawImage(peasantImage, 66, 66, 60, 60, 0, 0, 32, 32);
-					const peasantData = this.#imageConverter.toDataURL();
-					const peasantImageHTML = new Image(32, 32);
-					peasantImageHTML.src = peasantData;
-					peasantImageHTML.id = GAME_UNITS.PEASANT.name;
-						
-					this.#buildItems.appendChild(peasantImageHTML);
-				}
+				this.#configureBuildingUI(building);
 			}
 		});
 
@@ -588,25 +566,82 @@ export class Stage2 extends GameStage {
 		if (!selectPlayerUnit) {
 			this.#playerUnits.forEach((unit) => {
 				if (unit.isSelected) {
-					if (selectedNeutralBuilding) {
-						console.log("do something with building: ", selectedNeutralBuilding);
-						if (selectedNeutralBuilding.key === GAME_UNITS.GOLD_MINE.name && unit instanceof UnitPeasant) {
-							unit.activateGrabGold(selectedNeutralBuilding);
+					if (unit instanceof UnitPeasant) {
+						if (selectedNeutralBuilding) {
+							console.log("do something with building: ", selectedNeutralBuilding);
+							if (selectedNeutralBuilding.key === GAME_UNITS.GOLD_MINE.name && unit instanceof UnitPeasant) {
+								unit.activateGrabGold(selectedNeutralBuilding);
+							}
+						} else if (isTreeSelected) {
+							console.log("go, and cut tree");
+							let tree = this.#treesCutHealth.get(clickedCellIndex);
+							if (!tree) {
+								tree = new Tree(clickXWithOffset, clickYWithOffset, TREE_FULL_HEALTH, clickedCellIndex);
+								this.#treesCutHealth.set(clickedCellIndex, tree);
+							}
+							unit.activateDragTree(tree);
+						} else {
+							unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
 						}
-					} else if (isTreeSelected) {
-						console.log("go, and cut tree");
-						let tree = this.#treesCutHealth.get(clickedCellIndex);
-						if (!tree) {
-							tree = new Tree(clickXWithOffset, clickYWithOffset, TREE_FULL_HEALTH, clickedCellIndex);
-							this.#treesCutHealth.set(clickedCellIndex, tree);
-						}
-						unit.activateDragTree(tree);
-					} else {
-						unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset);
+					} else if (unit instanceof UnitKnight) {
+						unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
 					}
-					
 				}
 			});
+		}
+	}
+
+	#configureUnitUI = (unit) => {
+		while (this.#buildItems.lastChild) {
+			this.#buildItems.removeChild(this.#buildItems.lastChild);
+		}
+		if (unit instanceof UnitPeasant) {
+			this.#selectedItemText.innerText = "Peasant: ";
+
+			const peasantFrameHouse = this.iLoader.getImage(GAME_UNITS.HOUSE.name);//this.draw.image(startX, startY, 16, 16, "houses", randomFromArray([9, 10, 11]));
+			const helper = this.#imageConverter.getContext("2d");	
+			this.#imageConverter.width = 32;
+			this.#imageConverter.height = 48;
+			helper.clearRect(0, 0, window.innerWidth, window.innerHeight);
+			helper.drawImage(peasantFrameHouse, 0, 0, 128, 192, 0, 0, 32, 48);
+			const imageDataHouse = this.#imageConverter.toDataURL();
+			const houseImage = new Image(32, 48);
+			houseImage.src = imageDataHouse;
+			houseImage.id = GAME_UNITS.HOUSE.name;
+
+			const peasantFrameBarracks = this.iLoader.getImage(GAME_UNITS.HOUSE.name);//this.draw.image(startX + 18, startY, 16, 16, "barracks", 1);
+			helper.clearRect(0, 0, window.innerWidth, window.innerHeight);
+			helper.drawImage(peasantFrameBarracks, 0, 192, 128, 192, 0, 0, 32, 48);
+			const imageDataBarracks = this.#imageConverter.toDataURL();
+			const barracksImage = new Image(32, 48);
+			barracksImage.src = imageDataBarracks;
+			barracksImage.id = GAME_UNITS.BARRACKS.name;
+
+			this.#buildItems.appendChild(houseImage);
+			this.#buildItems.appendChild(barracksImage);
+		} else if (unit instanceof UnitKnight) {
+			this.#selectedItemText.innerText = "Knight";
+		}
+	}
+
+	#configureBuildingUI = (building) => {
+		while (this.#buildItems.lastChild) {
+			this.#buildItems.removeChild(this.#buildItems.lastChild);
+		}
+		if (building.key === GAME_UNITS.TOWN_CENTER.name) {
+			this.#selectedItemText.innerText = "TownCenter: ";
+			const peasantImage = this.iLoader.getImage(GAME_UNITS.PEASANT.name);
+			const helper = this.#imageConverter.getContext("2d");	
+			this.#imageConverter.width = 32;
+			this.#imageConverter.height = 32;
+			helper.clearRect(0, 0, window.innerWidth, window.innerHeight);
+			helper.drawImage(peasantImage, 66, 66, 60, 60, 0, 0, 32, 32);
+			const peasantData = this.#imageConverter.toDataURL();
+			const peasantImageHTML = new Image(32, 32);
+			peasantImageHTML.src = peasantData;
+			peasantImageHTML.id = GAME_UNITS.PEASANT.name;
+				
+			this.#buildItems.appendChild(peasantImageHTML);
 		}
 	}
 
@@ -615,12 +650,68 @@ export class Stage2 extends GameStage {
 		console.log(e);
 	}
 
+	#createBattle = () => {
+		const pUnits = this.#playerUnits,
+			eUnits = this.#enemyUnits;
+
+		let startX = 550,
+			startY = 1400;
+		for (let i = 0; i < 8; ++i) {
+			const unitKnight = new UnitKnight(startX, startY, this.draw, this.eventsAggregator, this.knightAudio),
+				unitGoblinTorch = new UnitGoblinTorch(startX, startY + 100, this.draw, this.eventsAggregator, this.goblinAudio);
+
+				unitKnight.activateIdle();
+				unitGoblinTorch.activateIdle();
+				this.addRenderObject(unitKnight);
+				this.addRenderObject(unitGoblinTorch);
+				pUnits.push(unitKnight);
+				eUnits.push(unitGoblinTorch);
+				startX += 60;
+		}
+		startX = 550;
+		startY += 60;
+		for (let i = 0; i < 6; ++i) {
+			const unitGoblinTorch = new UnitGoblinTorch(startX, startY + 100, this.draw, this.eventsAggregator, this.goblinAudio);
+
+			unitGoblinTorch.activateIdle();
+			this.addRenderObject(unitGoblinTorch);
+			eUnits.push(unitGoblinTorch);
+			startX += 60;
+		}
+	}
+
+	#attachAudio = () => {
+		this.chopTreeSound = this.iLoader.getAudio("chopTree");
+		this.knightAudio = new Map();
+		this.knightAudio.set(GAME_AUDIO_TYPES.YES, [this.iLoader.getAudio(KNIGHT.AUDIO.YES1), this.iLoader.getAudio(KNIGHT.AUDIO.YES2), this.iLoader.getAudio(KNIGHT.AUDIO.YES3)]);
+		this.knightAudio.set(GAME_AUDIO_TYPES.WHAT, [this.iLoader.getAudio(KNIGHT.AUDIO.WHAT1), this.iLoader.getAudio(KNIGHT.AUDIO.WHAT2), this.iLoader.getAudio(KNIGHT.AUDIO.WHAT3)]);
+		this.knightAudio.set(GAME_AUDIO_TYPES.ATTACK, [this.iLoader.getAudio(KNIGHT.AUDIO.ATTACK1), this.iLoader.getAudio(KNIGHT.AUDIO.ATTACK2)]);
+		this.knightAudio.set(GAME_AUDIO_TYPES.FIGHT, [this.iLoader.getAudio(KNIGHT.AUDIO.FIGHT1), this.iLoader.getAudio(KNIGHT.AUDIO.FIGHT2)]);
+		this.knightAudio.set(GAME_AUDIO_TYPES.DEATH, [this.iLoader.getAudio(KNIGHT.AUDIO.DEATH1)]);
+
+ 		this.peasantAudio = new Map();
+
+		this.peasantAudio.set(GAME_AUDIO_TYPES.WHAT,  [this.iLoader.getAudio(PEASANT.AUDIO.WHAT1), this.iLoader.getAudio(PEASANT.AUDIO.WHAT2), this.iLoader.getAudio(PEASANT.AUDIO.WHAT3) ]);
+
+		this.goblinAudio = new Map();
+		this.goblinAudio.set(GAME_AUDIO_TYPES.DEATH, [this.iLoader.getAudio(GOBLIN_TORCH.AUDIO.DEATH1)]);
+	}
+
 	#render = () => {
-		this.#playerUnits.forEach((unit, index) => {
+		let pUnitsLen = this.#playerUnits.length;
+		for (let index = 0; index < pUnitsLen; index++) {
+			const unit = this.#playerUnits[index];
+			if (unit.isRemoved) {
+				this.#playerUnits.splice(index, 1);
+				index--;
+				pUnitsLen--;
+				continue;
+			}
 			if (unit instanceof UnitPeasant) {
 				const action = unit.activeAction;
 				switch (action) {
 					case PEASANT.ACTIONS.MOVE:
+						// check for obstacles
 						unit.stepMove();
 						break;
 					case PEASANT.ACTIONS.DRAG_GOLD:
@@ -670,7 +761,162 @@ export class Stage2 extends GameStage {
 						break;
 				}
 			}
-		});
+
+			if (unit instanceof UnitKnight) {
+				const action = unit.activeAction;
+				switch (action) {
+					case KNIGHT.ACTIONS.MOVE:
+						// check for obstacles
+						const collisionUnits = this.isObjectsCollision(unit.x, unit.y, unit, this.#enemyUnits),
+							collisionBuildings = this.isObjectsCollision(unit.x, unit.y, unit, this.#enemyBuildings);
+						if (collisionUnits) {
+							let minDist, closeEnemy;
+							if (collisionUnits.length > 1) {
+								const len = collisionUnits.length;
+								for (let index = 0; index < len; index++) {
+									const enemy = collisionUnits[index],
+										dist = countDistance(unit, enemy);
+									if (!minDist || minDist > dist) {
+										minDist = dist;
+										closeEnemy = enemy;
+									}
+								}
+							} else {
+								closeEnemy = collisionUnits[0];
+							}
+							//console.log("closest enemy:", closeEnemy);
+							unit.activateAttack(closeEnemy);
+						} else if (collisionBuildings) {
+							let minDist, closeEnemy;
+							if (collisionBuildings.length > 1) {
+								const len = collisionBuildings.length;
+								for (let index = 0; index < len; index++) {
+									const enemy = collisionBuildings[index],
+										dist = countDistance(unit, enemy);
+									if (!minDist || minDist > dist) {
+										minDist = dist;
+										closeEnemy = enemy;
+									}
+								}
+							} else {
+								closeEnemy = collisionBuildings[0];
+							}
+							//console.log("closest enemy:", closeEnemy);
+							unit.activateAttack(closeEnemy);
+					
+						} else {
+							const {x, y} = unit.countNextStep();
+							if (this.isBoundariesCollision(x, y, unit)) {
+								unit.activateIdle();
+							} else {
+								unit.stepMove(x, y);
+							}	
+						}
+						break;
+					case KNIGHT.ACTIONS.IDLE:
+						if (this.#isGameStarted && unit.unitTactic === UNIT_TACTIC.AGGRESSIVE) {
+							const enemyObjects = this.#enemyUnits,
+								len = enemyObjects.length;
+
+							let closestDistance,
+								closesUnit;
+							for (let i = 0; i < len; ++i) {
+								const object = enemyObjects[i],
+									distance = pointToCircleDistance(unit.x, unit.y, {x: object.x, y: object.y, r: object.width/2});
+								if (distance < UNIT_VIEW_RANGE) {
+									if (!closestDistance || distance < closestDistance) {
+										closestDistance = distance;
+										closesUnit = object;
+									}
+								}
+							}
+							if (closestDistance) {
+								unit.activateMoveToTargetPoint(closesUnit.x, closesUnit.y);
+							}
+						}
+						break;
+				}
+			}
+		}
+
+		let eUnitsLen = this.#enemyUnits.length;
+		for (let index = 0; index < eUnitsLen; index++) {
+			const unit = this.#enemyUnits[index];
+			if (unit.isRemoved) {
+				this.#enemyUnits.splice(index, 1);
+				index--;
+				eUnitsLen--;
+				continue;
+			}
+			if (unit instanceof UnitGoblinTorch) {
+				const action = unit.activeAction;
+				switch (action) {
+					case GOBLIN_TORCH.ACTIONS.MOVE:
+					
+						const isCollisionUnit = this.isObjectsCollision(unit.x, unit.y, unit, this.#playerUnits),
+							isCollisionBuilding = this.isObjectsCollision(unit.x, unit.y, unit, this.#playerBuildings);
+						if (isCollisionUnit) {
+							const len = this.#playerUnits.length;
+
+							let minDist, closeEnemy;
+							for (let index = 0; index < len; index++) {
+								const enemy = this.#playerUnits[index],
+									dist = countDistance(unit, enemy);
+								if (!minDist || minDist > dist) {
+									minDist = dist;
+									closeEnemy = enemy;
+								}
+							}
+							//console.log("closest enemy:", closeEnemy);
+							unit.activateAttack(closeEnemy);
+						} else if (isCollisionBuilding) {
+
+						} else {
+							const {x, y} = unit.countNextStep();
+							if (this.isBoundariesCollision(x, y, unit)) {
+								unit.activateIdle();
+							} else {
+								unit.stepMove(x, y);
+							}	
+						}
+						break;
+					case GOBLIN_TORCH.ACTIONS.IDLE:
+						if (this.#isGameStarted && unit.unitTactic === UNIT_TACTIC.AGGRESSIVE) {
+							const enemyObjects = this.#playerUnits,
+								len = enemyObjects.length;
+
+							let closestDistance,
+								closesUnit;
+							for (let i = 0; i < len; ++i) {
+								const object = enemyObjects[i],
+									distance = pointToCircleDistance(unit.x, unit.y, {x: object.x, y: object.y, r: object.width/2});
+								if (distance < UNIT_VIEW_RANGE) {
+									if (!closestDistance || distance < closestDistance) {
+										closestDistance = distance;
+										closesUnit = object;
+									}
+								}
+							}
+							if (closestDistance) {
+								console.log("closes distance: ", closestDistance);
+								unit.activateMoveToTargetPoint(closesUnit.x, closesUnit.y);
+							}
+						}
+						break;
+				}
+			}
+		}
+
+		let eBuildingsLen = this.#enemyBuildings.length;
+		for (let index = 0; index < eBuildingsLen; index++) {
+			const unit = this.#enemyBuildings[index];
+			if (unit.isRemoved) {
+				this.#enemyBuildings.splice(index, 1);
+				index--;
+				eBuildingsLen--;
+				continue;
+			}
+		}
 	}
 	#registerSystemEventsListeners() {
 		this.iSystem.addEventListener(CONST.EVENTS.SYSTEM.RENDER.START, this.#render);

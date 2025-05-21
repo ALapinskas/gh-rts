@@ -5,7 +5,7 @@ const countDistance = utils.countDistance,
 	angle_2points = utils.angle_2points,
 	randomFromArray = utils.randomFromArray;
 
-import { PEASANT, GAME_EVENTS, GAME_UNITS, BUILDING_STATE, KNIGHT, GOBLIN_TORCH, ATLAS, GOBLIN_TOWER, GAME_OBJECTS, GAME_AUDIO_TYPES } from "./const.js";
+import { PEASANT, GAME_EVENTS, GAME_UNITS, BUILDING_STATE, KNIGHT, GOBLIN_TORCH, ATLAS, GOBLIN_TOWER, GAME_OBJECTS, GAME_AUDIO_TYPES, UNIT_TACTIC } from "./const.js";
 
 class BaseEntity extends DrawImageObject {
 	/**
@@ -275,6 +275,9 @@ class UnitGoblinTower extends BaseBuilding {
 }
 
 class BaseUnit extends BaseEntity {
+
+	#targetPoint;
+	#unitTactic = UNIT_TACTIC.AGGRESSIVE;
 	constructor(x, y, w, h, entityKey, imageIndex, drawFactory, boundaries, spacing, margin){
 		const imageKey = GAME_UNITS[entityKey].atlasKey ? GAME_UNITS[entityKey].atlasKey : GAME_UNITS[entityKey].name;
 		super(x, y, w, h, imageKey, imageIndex, drawFactory, GAME_UNITS[entityKey].health, boundaries, spacing, margin);
@@ -292,6 +295,35 @@ class BaseUnit extends BaseEntity {
 		this.healthBar.destroy();
 		this.destroy();
 	}
+
+	get unitTactic() {
+		return this.#unitTactic;
+	}
+
+	set unitTactic(value) {
+		this.#unitTactic = value;
+	}
+
+	set targetPoint(tp) {
+		this.#targetPoint = tp;
+	}
+
+	get targetPoint() {
+		return this.#targetPoint;
+	}
+
+	countNextStep = () => {
+		const x = this.x,
+			y = this.y,
+			tX = this.#targetPoint[0],
+			tY = this.#targetPoint[1],
+			forceToUse = 0.4,//this.#moveSpeed,
+            direction = angle_2points(x, y, tX, tY),
+            newCoordX = x + forceToUse * Math.cos(direction),
+            newCoordY = y + forceToUse * Math.sin(direction);
+		
+		return {x:newCoordX, y:newCoordY};
+	}
 }
 
 class UnitPeasant extends BaseUnit {
@@ -305,7 +337,6 @@ class UnitPeasant extends BaseUnit {
 	#hasGold;
 	#hasWood;
 	#woodAmount = 0;
-	#targetPoint;
 	#buildingType;
 	#eventsAggregator;
 
@@ -333,6 +364,8 @@ class UnitPeasant extends BaseUnit {
 		this.#eventsAggregator = eventsAggregator;
 		this.#audio = audio;
 		this.sortIndex = 2;
+
+		this.unitTactic = UNIT_TACTIC.RUN_AWAY;
 	}
 
 	get activeAction() {
@@ -341,10 +374,6 @@ class UnitPeasant extends BaseUnit {
 
 	get targetTree() {
 		return this.#targetTree;
-	}
-
-	get targetPoint() {
-		return this.#targetPoint;
 	}
 
 	get buildingType() {
@@ -399,7 +428,7 @@ class UnitPeasant extends BaseUnit {
 				// reached
 				this.#removeWoodBunch();
 			} else {
-				this.#targetPoint = [tX, tY];
+				this.targetPoint = [tX, tY];
 				this.stepMoveWith();
 			}
 		} else {
@@ -415,7 +444,7 @@ class UnitPeasant extends BaseUnit {
 				// reached
 				this.activateChopTree();
 			} else {
-				this.#targetPoint = [tX, tY];
+				this.targetPoint = [tX, tY];
 				this.stepMoveWith();
 			}
 		}
@@ -429,7 +458,7 @@ class UnitPeasant extends BaseUnit {
 			if (countDistance(this, {x:tX, y: tY}) < 25) {
 				this.#removeGoldBunch();
 			} else {
-				this.#targetPoint = [tX, tY];
+				this.targetPoint = [tX, tY];
 				this.stepMoveWith();
 			}
 		} else {
@@ -442,7 +471,7 @@ class UnitPeasant extends BaseUnit {
 			} else if (countDistance(this, {x:tX, y: tY}) < 8) {
 				this.#createGoldBunch();
 			} else {
-				this.#targetPoint = [tX, tY];
+				this.targetPoint = [tX, tY];
 				this.stepMoveWith();
 			}
 		}
@@ -484,8 +513,8 @@ class UnitPeasant extends BaseUnit {
 	stepMoveWith = () => {
 		const x = this.x,
 			y = this.y,
-			tX = this.#targetPoint[0],
-			tY = this.#targetPoint[1],
+			tX = this.targetPoint[0],
+			tY = this.targetPoint[1],
 			hasGold = this.#hasGold || this.#hasWood;
 
 		const forceToUse = 0.4,//this.#moveSpeed,
@@ -536,8 +565,8 @@ class UnitPeasant extends BaseUnit {
 	stepMove = () => {
 		const x = this.x,
 			y = this.y,
-			tX = this.#targetPoint[0],
-			tY = this.#targetPoint[1];
+			tX = this.targetPoint[0],
+			tY = this.targetPoint[1];
 		if (countDistance(this, {x:tX, y: tY}) < 5) {
 			console.log("reached");
 			this.activateIdle();
@@ -604,13 +633,13 @@ class UnitPeasant extends BaseUnit {
 
 	activateStartBuilding = (targetX, targetY, type) => {
 		this.#activeAction = PEASANT.ACTIONS.BUILD;
-		this.#targetPoint = [targetX, targetY];
+		this.targetPoint = [targetX, targetY];
 		this.#buildingType = type;
 	}
 
 	activateMoveToTargetPoint = (targetX, targetY, saySomething = false) => {
 		this.#activeAction = PEASANT.ACTIONS.MOVE;
-		this.#targetPoint = [targetX, targetY];
+		this.targetPoint = [targetX, targetY];
 		if (saySomething) {
 			randomFromArray(this.#audio.get(GAME_AUDIO_TYPES.YES)).play();
 		}
@@ -647,12 +676,11 @@ class UnitKnight extends BaseUnit {
 	 * @type {string}
 	 */
 	#activeAction;
-	#targetPoint;
 	#buildingType;
 	#eventsAggregator;
 	#attackInterval;
 	#audio;
-	#audioInProgress = null;
+	#audioInProgress;
 	constructor(mapX, mapY, drawFactory, eventsAggregator, audio) {
 		super(mapX, mapY, 192, 192, GAME_UNITS.KNIGHT.name, 0, drawFactory, { r: 30 });
 		this.addAnimation(KNIGHT.ANIMATIONS.IDLE_RIGHT, [0, 1, 2, 3, 4, 5], true);
@@ -675,10 +703,6 @@ class UnitKnight extends BaseUnit {
 
 	get activeAction() {
 		return this.#activeAction;
-	}
-
-	get targetPoint() {
-		return this.#targetPoint;
 	}
 
 	get buildingType() {
@@ -753,48 +777,11 @@ class UnitKnight extends BaseUnit {
 		}
 	}
 
-	stepMoveWith = () => {
-		const x = this.x,
-			y = this.y,
-			tX = this.#targetPoint[0],
-			tY = this.#targetPoint[1];
-
-		const forceToUse = 0.4,//this.#moveSpeed,
-            direction = angle_2points(x, y, tX, tY),
-            newCoordX = x + forceToUse * Math.cos(direction),
-            newCoordY = y + forceToUse * Math.sin(direction);
-            
-		if (direction >= -Math.PI/2 && direction <= Math.PI/2) {
-			//console.log("move right");
-			this.emit(KNIGHT.ANIMATIONS.MOVE_RIGHT);
-		} else if (direction > Math.PI/2 || direction < -Math.PI/2) {
-			//console.log("move left");
-			this.emit(KNIGHT.ANIMATIONS.MOVE_LEFT);
-		} else {
-			console.log("unrecognized move to ", direction);
-		}
-		this.xPos = newCoordX;
-		this.yPos = newCoordY;
-		
-	}
-
-	countNextStep = () => {
-		const x = this.x,
-			y = this.y,
-			tX = this.#targetPoint[0],
-			tY = this.#targetPoint[1],
-			forceToUse = 0.4,//this.#moveSpeed,
-            direction = angle_2points(x, y, tX, tY),
-            newCoordX = x + forceToUse * Math.cos(direction),
-            newCoordY = y + forceToUse * Math.sin(direction);
-		
-		return {x:newCoordX, y:newCoordY};
-	}
 	stepMove = (newCoordX, newCoordY) => {
 		const x = this.x,
 			y = this.y,
-			tX = this.#targetPoint[0],
-			tY = this.#targetPoint[1];
+			tX = this.targetPoint[0],
+			tY = this.targetPoint[1];
 		if (countDistance(this, {x:tX, y: tY}) < 5) {
 			console.log("reached");
 			this.activateIdle();
@@ -824,7 +811,7 @@ class UnitKnight extends BaseUnit {
 	activateMoveToTargetPoint = (targetX, targetY, saySomething = false) => {
            
 		this.#activeAction = KNIGHT.ACTIONS.MOVE;
-		this.#targetPoint = [targetX, targetY];
+		this.targetPoint = [targetX, targetY];
 		//this.emit(KNIGHT.ANIMATIONS.MOVE);
 		const direction = angle_2points(this.x, this.y, targetX, targetY);
 		if (direction >= -Math.PI/2 && direction <= Math.PI/2) {
@@ -847,19 +834,23 @@ class UnitKnight extends BaseUnit {
 
 	#stopActiveAudio = () => {
 		if (this.#audioInProgress) {
-			this.#audioInProgress.pause();
-			this.#audioInProgress = null;
+			//this.#audioInProgress.pause();
 		}
 	}
 
 	#playAudio = (audioType, loop = false) => {
 		if (this.#audioInProgress) {
-			this.#audioInProgress.pause();
+			//this.#audioInProgress.pause();
 		}
-		this.#audioInProgress = randomFromArray(this.#audio.get(audioType));
-		//console.log(audio);
-		this.#audioInProgress.loop = loop;
-		this.#audioInProgress.play();
+		const audioEl = this.#audio.get(audioType);
+		if (audioEl) {
+			this.#audioInProgress = randomFromArray(this.#audio.get(audioType));
+			//console.log(audio);
+			this.#audioInProgress.loop = loop;
+			this.#audioInProgress.play();
+		} else {
+			throw new Error("audio " + audioType + " is not defined");
+		}
 	}
 
 	die = () => {
@@ -900,10 +891,6 @@ class UnitGoblinTorch extends BaseUnit {
 
 	get activeAction() {
 		return this.#activeAction;
-	}
-
-	get targetPoint() {
-		return this.#targetPoint;
 	}
 
 	get buildingType() {
@@ -963,65 +950,15 @@ class UnitGoblinTorch extends BaseUnit {
 		}
 	}
 
-	stepMoveWith = () => {
+	stepMove = (newCoordX, newCoordY) => {
 		const x = this.x,
 			y = this.y,
-			tX = this.#targetPoint[0],
-			tY = this.#targetPoint[1];
-
-		const forceToUse = 0.4,//this.#moveSpeed,
-            direction = angle_2points(x, y, tX, tY),
-            newCoordX = x + forceToUse * Math.cos(direction),
-            newCoordY = y + forceToUse * Math.sin(direction);
-            
-		if (direction > -Math.PI/4 && direction < Math.PI/4) {
-			//console.log("move right");
-			this.emit(GOBLIN_TORCH.ANIMATIONS.MOVE);
-		} else if (direction >= Math.PI/4 && direction < 3*Math.PI/4) {
-			//console.log("move down");
-			this.emit(GOBLIN_TORCH.ANIMATIONS.MOVE);
-		} else if (direction > 3*Math.PI/4 || direction < -3*Math.PI/4) {
-			//console.log("move left");
-			this.emit(GOBLIN_TORCH.ANIMATIONS.MOVE);
-		} else if (direction > -3*Math.PI/4 && direction < Math.PI/4) {
-			//console.log("move up");
-			this.emit(GOBLIN_TORCH.ANIMATIONS.MOVE);
-		} else {
-			console.log("unrecognized move to ", direction);
-		}
-		this.xPos = newCoordX;
-		this.yPos = newCoordY;
-	}
-
-	stepMove = () => {
-		const x = this.x,
-			y = this.y,
-			tX = this.#targetPoint[0],
-			tY = this.#targetPoint[1];
+			tX = this.targetPoint[0],
+			tY = this.targetPoint[1];
 		if (countDistance(this, {x:tX, y: tY}) < 5) {
 			console.log("reached");
 			this.activateIdle();
 		} else {
-			const forceToUse = 0.4,//this.#moveSpeed,
-            direction = angle_2points(x, y, tX, tY),
-            newCoordX = x + forceToUse * Math.cos(direction),
-            newCoordY = y + forceToUse * Math.sin(direction);
-            
-			if (direction > -Math.PI/4 && direction < Math.PI/4) {
-				//console.log("move right");
-				//this.emit(KNIGHT.ANIMATIONS.MOVE);
-			} else if (direction >= Math.PI/4 && direction < 3*Math.PI/4) {
-				//console.log("move down");
-				//this.emit(KNIGHT.ANIMATIONS.MOVE);
-			} else if (direction > 3*Math.PI/4 || direction < -3*Math.PI/4) {
-				//console.log("move left");
-				//this.emit(KNIGHT.ANIMATIONS.MOVE);
-			} else if (direction > -3*Math.PI/4 && direction < Math.PI/4) {
-				//console.log("move up");
-				//this.emit(KNIGHT.ANIMATIONS.MOVE);
-			} else {
-				console.log("unrecognized move to ", direction);
-			}
         	this.xPos = newCoordX;
         	this.yPos = newCoordY;
 		}
@@ -1029,8 +966,19 @@ class UnitGoblinTorch extends BaseUnit {
 
 	activateMoveToTargetPoint = (targetX, targetY, saySomething = false) => {
 		this.#activeAction = GOBLIN_TORCH.ACTIONS.MOVE;
-		this.#targetPoint = [targetX, targetY];
-		this.emit(GOBLIN_TORCH.ANIMATIONS.MOVE);
+		this.targetPoint = [targetX, targetY];
+		//this.emit(KNIGHT.ANIMATIONS.MOVE);
+		const direction = angle_2points(this.x, this.y, targetX, targetY);
+		if (direction >= -Math.PI/2 && direction <= Math.PI/2) {
+			//console.log("move right");
+			this.emit(GOBLIN_TORCH.ANIMATIONS.MOVE_RIGHT);
+		} else if (direction > Math.PI/2 || direction < -Math.PI/2) {
+			//console.log("move left");
+			this.emit(GOBLIN_TORCH.ANIMATIONS.MOVE_LEFT);
+		} else {
+			console.log("unrecognized move to ", direction);
+		}
+
 		if (this.#attackInterval) {
 			clearInterval(this.#attackInterval);
 			this.#attackInterval = null;
@@ -1038,11 +986,13 @@ class UnitGoblinTorch extends BaseUnit {
 		if (saySomething) {
 			randomFromArray(this.knightYesAudioArr.get(GAME_AUDIO_TYPES.ATTACK)).play();
 		}
+		
 	}
 
 	#playAudio = (audioType, loop = false) => {
 		if (this.#audioInProgress) {
-			this.#audioInProgress.pause();
+			console.log(this.#audioInProgress);
+			//this.#audioInProgress.pause();
 		}
 		this.#audioInProgress = randomFromArray(this.#audio.get(audioType));
 		console.log(this.#audioInProgress);

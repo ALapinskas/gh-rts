@@ -1,8 +1,8 @@
 # Classic rts game
 ![Alt text](hvsg.gif?raw=true "screen")
-License: MIT
-Platform: PC, Browser
-Controls: Keyboard + Mouse(touchpad)
+License: MIT \
+Platform: PC, Browser \
+Controls: Keyboard + Mouse(touchpad) \
 
 Hosted:
 
