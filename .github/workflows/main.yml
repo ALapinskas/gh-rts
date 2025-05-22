@@ -1,0 +1,25 @@
+name: Upload to Server
+
+on:
+  push:
+    branches:
+      - master  # Change this to the branch you want to trigger the workflow
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa_tw_cloud
+        chmod 600 ~/.ssh/id_rsa_tw_cloud
+        ssh-keyscan 85.193.83.189 >> ~/.ssh/known_hosts
+
+    - name: Upload files to server
+      run: |
+        scp -r ./dist/* root@85.193.83.189:/var/www/clients/client0/web17/web
