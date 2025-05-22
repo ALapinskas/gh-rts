@@ -106,13 +106,13 @@ export class Stage2 extends GameStage {
 
 		// units
 
-		const townCenter = new UnitBuilding(850, 600, 320, 256, GAME_UNITS.TOWN_CENTER.name, 0, this.draw, this.eventsAggregator);
+		const townCenter = new UnitBuilding(850, 600, 320, 256, GAME_UNITS.TOWN_CENTER.name, 0, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
 		townCenter.sortIndex = 4;
 		this.#playerBuildings.push(townCenter);
 
-		const peasant1 = new UnitPeasant(1050, 580, townCenter, this.draw, this.eventsAggregator),
-			peasant2 = new UnitPeasant(1050, 640, townCenter, this.draw, this.eventsAggregator),
-			peasant3 = new UnitPeasant(1050, 700, townCenter, this.draw, this.eventsAggregator);
+		const peasant1 = new UnitPeasant(1050, 580, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator),
+			peasant2 = new UnitPeasant(1050, 640, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator),
+			peasant3 = new UnitPeasant(1050, 700, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
 
 		this.addRenderObject(townCenter);
 		this.addRenderObject(peasant1);
@@ -261,8 +261,8 @@ export class Stage2 extends GameStage {
 		if (code === "Space") {
 			
 			const townCenter = this.#playerBuildings.find((building) => building.key === GAME_UNITS.TOWN_CENTER.name);
-			const newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.eventsAggregator);
-			const newPeasant2 = new UnitPeasant(0, 0, townCenter, this.draw, this.eventsAggregator);
+			const newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
+			const newPeasant2 = new UnitPeasant(0, 0, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
 
 			newPeasant.x = townCenter.x - this.#addUnitPosX;
 			newPeasant.y = townCenter.y;
@@ -657,8 +657,8 @@ export class Stage2 extends GameStage {
 		let startX = 550,
 			startY = 1400;
 		for (let i = 0; i < 8; ++i) {
-			const unitKnight = new UnitKnight(startX, startY, this.draw, this.eventsAggregator, this.knightAudio),
-				unitGoblinTorch = new UnitGoblinTorch(startX, startY + 100, this.draw, this.eventsAggregator, this.goblinAudio);
+			const unitKnight = new UnitKnight(startX, startY, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.knightAudio),
+				unitGoblinTorch = new UnitGoblinTorch(startX, startY + 100, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.goblinAudio);
 
 				unitKnight.activateIdle();
 				unitGoblinTorch.activateIdle();
@@ -671,7 +671,7 @@ export class Stage2 extends GameStage {
 		startX = 550;
 		startY += 60;
 		for (let i = 0; i < 6; ++i) {
-			const unitGoblinTorch = new UnitGoblinTorch(startX, startY + 100, this.draw, this.eventsAggregator, this.goblinAudio);
+			const unitGoblinTorch = new UnitGoblinTorch(startX, startY + 100, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.goblinAudio);
 
 			unitGoblinTorch.activateIdle();
 			this.addRenderObject(unitGoblinTorch);
@@ -705,6 +705,7 @@ export class Stage2 extends GameStage {
 				this.#playerUnits.splice(index, 1);
 				index--;
 				pUnitsLen--;
+				this.#recalculatePeopleLimits();
 				continue;
 			}
 			if (unit instanceof UnitPeasant) {
@@ -749,7 +750,7 @@ export class Stage2 extends GameStage {
 							}
 							
 							const [x, y] = unit.targetPoint;
-							const newBuilding = new UnitBuilding(x + 60, y + 96, 128, 192, imageType, startIndex, this.draw, this.eventsAggregator);
+							const newBuilding = new UnitBuilding(x + 60, y + 96, 128, 192, imageType, startIndex, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
 							
 							this.#playerBuildings.push(newBuilding);
 							this.addRenderObject(newBuilding);
@@ -1059,7 +1060,7 @@ export class Stage2 extends GameStage {
 
 	#peasantBuilt = (e) => {
 		const townCenter = e.detail,
-			newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.eventsAggregator);
+			newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
 
 		let posX = 80,
 			posY = 120;
@@ -1073,13 +1074,17 @@ export class Stage2 extends GameStage {
 		this.addRenderObject(newPeasant);
 		this.#playerUnits.push(newPeasant);
 
-		this.#playerPeopleLimitCounter.innerText = this.#playerUnits.length + "/" + this.#playerPeopleLimit.toString();
+		this.#recalculatePeopleLimits();
 		
+	}
+
+	#recalculatePeopleLimits = () => {
+		this.#playerPeopleLimitCounter.innerText = this.#playerUnits.length + "/" + this.#playerPeopleLimit.toString();
 	}
 
 	#buildingDone = (e) => {
 		const house = e.detail,
-			newPeasant = new UnitPeasant(0, 0, house, this.draw, this.eventsAggregator);
+			newPeasant = new UnitPeasant(0, 0, house, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
 		console.log(e.detail);
 		let posX = 20,
 			posY = 20;

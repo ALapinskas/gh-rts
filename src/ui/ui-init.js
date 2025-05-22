@@ -5,6 +5,7 @@ import {
   defaultConfig,
   defineConfig
 } from "@chakra-ui/react"
+import { OptionsCard } from "./options.js";
 
 const config = defineConfig({
   theme: {
@@ -20,6 +21,7 @@ export default function UiApp(eventManger) {
     console.log("=====>>>>>>>>create ui app");
     return (
         <ChakraProvider value={system}>
+            <OptionsCard eventManger={eventManger}/>
             <LevelDialog eventManger={eventManger}/>
         </ChakraProvider>
     )

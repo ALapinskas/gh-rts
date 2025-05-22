@@ -1,5 +1,265 @@
 /******/ var __webpack_modules__ = ({
 
+/***/ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-context.js":
+/*!*********************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-context.js ***!
+  \*********************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckboxContext: () => (/* binding */ CheckboxContext)
+/* harmony export */ });
+/* harmony import */ var _use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./use-checkbox-context.js */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-context.js");
+'use client';
+
+
+const CheckboxContext = (props) => props.children((0,_use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_0__.useCheckboxContext)());
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-control.js":
+/*!*********************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-control.js ***!
+  \*********************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckboxControl: () => (/* binding */ CheckboxControl)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _zag_js_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @zag-js/react */ "./node_modules/@zag-js/core/dist/index.mjs");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _factory_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../factory.js */ "./node_modules/@ark-ui/react/dist/components/factory.js");
+/* harmony import */ var _use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./use-checkbox-context.js */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-context.js");
+'use client';
+
+
+
+
+
+
+const CheckboxControl = (0,react__WEBPACK_IMPORTED_MODULE_1__.forwardRef)((props, ref) => {
+  const checkbox = (0,_use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_2__.useCheckboxContext)();
+  const mergedProps = (0,_zag_js_react__WEBPACK_IMPORTED_MODULE_3__.mergeProps)(checkbox.getControlProps(), props);
+  return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_factory_js__WEBPACK_IMPORTED_MODULE_4__.ark.div, { ...mergedProps, ref });
+});
+CheckboxControl.displayName = "CheckboxControl";
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-group.js":
+/*!*******************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-group.js ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckboxGroup: () => (/* binding */ CheckboxGroup)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _utils_create_split_props_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../utils/create-split-props.js */ "./node_modules/@ark-ui/react/dist/utils/create-split-props.js");
+/* harmony import */ var _factory_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../factory.js */ "./node_modules/@ark-ui/react/dist/components/factory.js");
+/* harmony import */ var _checkbox_anatomy_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./checkbox.anatomy.js */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox.anatomy.js");
+/* harmony import */ var _use_checkbox_group_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./use-checkbox-group.js */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-group.js");
+/* harmony import */ var _use_checkbox_group_context_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./use-checkbox-group-context.js */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-group-context.js");
+'use client';
+
+
+
+
+
+
+
+
+const CheckboxGroup = (0,react__WEBPACK_IMPORTED_MODULE_1__.forwardRef)((props, ref) => {
+  const [checkboxGroupProps, localProps] = (0,_utils_create_split_props_js__WEBPACK_IMPORTED_MODULE_2__.createSplitProps)()(props, [
+    "defaultValue",
+    "value",
+    "onValueChange",
+    "disabled",
+    "invalid",
+    "readOnly",
+    "name"
+  ]);
+  const checkboxGroup = (0,_use_checkbox_group_js__WEBPACK_IMPORTED_MODULE_3__.useCheckboxGroup)(checkboxGroupProps);
+  return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_use_checkbox_group_context_js__WEBPACK_IMPORTED_MODULE_4__.CheckboxGroupContextProvider, { value: checkboxGroup, children: /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_factory_js__WEBPACK_IMPORTED_MODULE_5__.ark.div, { ref, role: "group", ...localProps, ..._checkbox_anatomy_js__WEBPACK_IMPORTED_MODULE_6__.checkboxAnatomy.build().group.attrs }) });
+});
+CheckboxGroup.displayName = "CheckboxGroup";
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-hidden-input.js":
+/*!**************************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-hidden-input.js ***!
+  \**************************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckboxHiddenInput: () => (/* binding */ CheckboxHiddenInput)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _zag_js_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @zag-js/react */ "./node_modules/@zag-js/core/dist/index.mjs");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _factory_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../factory.js */ "./node_modules/@ark-ui/react/dist/components/factory.js");
+/* harmony import */ var _field_use_field_context_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../field/use-field-context.js */ "./node_modules/@ark-ui/react/dist/components/field/use-field-context.js");
+/* harmony import */ var _use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./use-checkbox-context.js */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-context.js");
+'use client';
+
+
+
+
+
+
+
+const CheckboxHiddenInput = (0,react__WEBPACK_IMPORTED_MODULE_1__.forwardRef)((props, ref) => {
+  const checkbox = (0,_use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_2__.useCheckboxContext)();
+  const mergedProps = (0,_zag_js_react__WEBPACK_IMPORTED_MODULE_3__.mergeProps)(checkbox.getHiddenInputProps(), props);
+  const field = (0,_field_use_field_context_js__WEBPACK_IMPORTED_MODULE_4__.useFieldContext)();
+  return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_factory_js__WEBPACK_IMPORTED_MODULE_5__.ark.input, { "aria-describedby": field?.ariaDescribedby, ...mergedProps, ref });
+});
+CheckboxHiddenInput.displayName = "CheckboxHiddenInput";
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-label.js":
+/*!*******************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-label.js ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckboxLabel: () => (/* binding */ CheckboxLabel)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _zag_js_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @zag-js/react */ "./node_modules/@zag-js/core/dist/index.mjs");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _factory_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../factory.js */ "./node_modules/@ark-ui/react/dist/components/factory.js");
+/* harmony import */ var _use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./use-checkbox-context.js */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-context.js");
+'use client';
+
+
+
+
+
+
+const CheckboxLabel = (0,react__WEBPACK_IMPORTED_MODULE_1__.forwardRef)((props, ref) => {
+  const checkbox = (0,_use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_2__.useCheckboxContext)();
+  const mergedProps = (0,_zag_js_react__WEBPACK_IMPORTED_MODULE_3__.mergeProps)(checkbox.getLabelProps(), props);
+  return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_factory_js__WEBPACK_IMPORTED_MODULE_4__.ark.span, { ...mergedProps, ref });
+});
+CheckboxLabel.displayName = "CheckboxLabel";
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-root-provider.js":
+/*!***************************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-root-provider.js ***!
+  \***************************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckboxRootProvider: () => (/* binding */ CheckboxRootProvider)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _zag_js_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @zag-js/react */ "./node_modules/@zag-js/core/dist/index.mjs");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _utils_create_split_props_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../utils/create-split-props.js */ "./node_modules/@ark-ui/react/dist/utils/create-split-props.js");
+/* harmony import */ var _factory_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../factory.js */ "./node_modules/@ark-ui/react/dist/components/factory.js");
+/* harmony import */ var _use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./use-checkbox-context.js */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-context.js");
+'use client';
+
+
+
+
+
+
+
+const CheckboxRootProvider = (0,react__WEBPACK_IMPORTED_MODULE_1__.forwardRef)((props, ref) => {
+  const [{ value: checkbox }, localProps] = (0,_utils_create_split_props_js__WEBPACK_IMPORTED_MODULE_2__.createSplitProps)()(props, ["value"]);
+  const mergedProps = (0,_zag_js_react__WEBPACK_IMPORTED_MODULE_3__.mergeProps)(checkbox.getRootProps(), localProps);
+  return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_4__.CheckboxProvider, { value: checkbox, children: /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_factory_js__WEBPACK_IMPORTED_MODULE_5__.ark.label, { ...mergedProps, ref }) });
+});
+CheckboxRootProvider.displayName = "CheckboxRootProvider";
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-root.js":
+/*!******************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-root.js ***!
+  \******************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckboxRoot: () => (/* binding */ CheckboxRoot)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _zag_js_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @zag-js/react */ "./node_modules/@zag-js/core/dist/index.mjs");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _utils_create_split_props_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../utils/create-split-props.js */ "./node_modules/@ark-ui/react/dist/utils/create-split-props.js");
+/* harmony import */ var _factory_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../factory.js */ "./node_modules/@ark-ui/react/dist/components/factory.js");
+/* harmony import */ var _use_checkbox_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./use-checkbox.js */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox.js");
+/* harmony import */ var _use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./use-checkbox-context.js */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-context.js");
+'use client';
+
+
+
+
+
+
+
+
+const CheckboxRoot = (0,react__WEBPACK_IMPORTED_MODULE_1__.forwardRef)((props, ref) => {
+  const [useCheckboxProps, localProps] = (0,_utils_create_split_props_js__WEBPACK_IMPORTED_MODULE_2__.createSplitProps)()(props, [
+    "checked",
+    "defaultChecked",
+    "disabled",
+    "form",
+    "id",
+    "ids",
+    "invalid",
+    "name",
+    "onCheckedChange",
+    "readOnly",
+    "required",
+    "value"
+  ]);
+  const checkbox = (0,_use_checkbox_js__WEBPACK_IMPORTED_MODULE_3__.useCheckbox)(useCheckboxProps);
+  const mergedProps = (0,_zag_js_react__WEBPACK_IMPORTED_MODULE_4__.mergeProps)(checkbox.getRootProps(), localProps);
+  return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_use_checkbox_context_js__WEBPACK_IMPORTED_MODULE_5__.CheckboxProvider, { value: checkbox, children: /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_factory_js__WEBPACK_IMPORTED_MODULE_6__.ark.label, { ...mergedProps, ref }) });
+});
+CheckboxRoot.displayName = "CheckboxRoot";
+
+
+
+
+/***/ }),
+
 /***/ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox.anatomy.js":
 /*!*********************************************************************************!*\
   !*** ./node_modules/@ark-ui/react/dist/components/checkbox/checkbox.anatomy.js ***!
@@ -15,6 +275,191 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const checkboxAnatomy = _zag_js_checkbox__WEBPACK_IMPORTED_MODULE_0__.anatomy.extendWith("group");
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-context.js":
+/*!*************************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-context.js ***!
+  \*************************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckboxProvider: () => (/* binding */ CheckboxProvider),
+/* harmony export */   useCheckboxContext: () => (/* binding */ useCheckboxContext)
+/* harmony export */ });
+/* harmony import */ var _utils_create_context_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../utils/create-context.js */ "./node_modules/@ark-ui/react/dist/utils/create-context.js");
+'use client';
+
+
+const [CheckboxProvider, useCheckboxContext] = (0,_utils_create_context_js__WEBPACK_IMPORTED_MODULE_0__.createContext)({
+  name: "CheckboxContext",
+  hookName: "useCheckboxContext",
+  providerName: "<CheckboxProvider />"
+});
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-group-context.js":
+/*!*******************************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-group-context.js ***!
+  \*******************************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckboxGroupContextProvider: () => (/* binding */ CheckboxGroupContextProvider),
+/* harmony export */   useCheckboxGroupContext: () => (/* binding */ useCheckboxGroupContext)
+/* harmony export */ });
+/* harmony import */ var _utils_create_context_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../utils/create-context.js */ "./node_modules/@ark-ui/react/dist/utils/create-context.js");
+'use client';
+
+
+const [CheckboxGroupContextProvider, useCheckboxGroupContext] = (0,_utils_create_context_js__WEBPACK_IMPORTED_MODULE_0__.createContext)({
+  name: "CheckboxGroupContext",
+  hookName: "useCheckboxGroupContext",
+  providerName: "<CheckboxGroupProvider />",
+  strict: false
+});
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-group.js":
+/*!***********************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-group.js ***!
+  \***********************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   useCheckboxGroup: () => (/* binding */ useCheckboxGroup)
+/* harmony export */ });
+/* harmony import */ var _utils_use_controllable_state_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../utils/use-controllable-state.js */ "./node_modules/@ark-ui/react/dist/utils/use-controllable-state.js");
+/* harmony import */ var _utils_use_event_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../utils/use-event.js */ "./node_modules/@ark-ui/react/dist/utils/use-event.js");
+'use client';
+
+
+
+function useCheckboxGroup(props = {}) {
+  const { defaultValue, value: controlledValue, onValueChange, disabled, readOnly, name, invalid } = props;
+  const interactive = !(disabled || readOnly);
+  const onChangeProp = (0,_utils_use_event_js__WEBPACK_IMPORTED_MODULE_0__.useEvent)(onValueChange, { sync: true });
+  const [value, setValue] = (0,_utils_use_controllable_state_js__WEBPACK_IMPORTED_MODULE_1__.useControllableState)({
+    value: controlledValue,
+    defaultValue: defaultValue || [],
+    onChange: onChangeProp
+  });
+  const isChecked = (val) => {
+    return value.some((v) => String(v) === String(val));
+  };
+  const toggleValue = (val) => {
+    isChecked(val) ? removeValue(val) : addValue(val);
+  };
+  const addValue = (val) => {
+    if (!interactive) return;
+    if (isChecked(val)) return;
+    setValue(value.concat(val));
+  };
+  const removeValue = (val) => {
+    if (!interactive) return;
+    setValue(value.filter((v) => String(v) !== String(val)));
+  };
+  const getItemProps = (props2) => {
+    return {
+      checked: props2.value != null ? isChecked(props2.value) : void 0,
+      onCheckedChange() {
+        if (props2.value != null) {
+          toggleValue(props2.value);
+        }
+      },
+      name,
+      disabled,
+      readOnly,
+      invalid
+    };
+  };
+  return {
+    isChecked,
+    value,
+    name,
+    disabled: !!disabled,
+    readOnly: !!readOnly,
+    invalid: !!invalid,
+    setValue,
+    addValue,
+    toggleValue,
+    getItemProps
+  };
+}
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox.js":
+/*!*****************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox.js ***!
+  \*****************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   useCheckbox: () => (/* binding */ useCheckbox)
+/* harmony export */ });
+/* harmony import */ var _zag_js_checkbox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @zag-js/checkbox */ "./node_modules/@zag-js/checkbox/dist/index.mjs");
+/* harmony import */ var _zag_js_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @zag-js/react */ "./node_modules/@zag-js/core/dist/index.mjs");
+/* harmony import */ var _zag_js_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @zag-js/react */ "./node_modules/@zag-js/react/dist/index.mjs");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _providers_environment_use_environment_context_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../providers/environment/use-environment-context.js */ "./node_modules/@ark-ui/react/dist/providers/environment/use-environment-context.js");
+/* harmony import */ var _providers_locale_use_locale_context_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../providers/locale/use-locale-context.js */ "./node_modules/@ark-ui/react/dist/providers/locale/use-locale-context.js");
+/* harmony import */ var _field_use_field_context_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../field/use-field-context.js */ "./node_modules/@ark-ui/react/dist/components/field/use-field-context.js");
+/* harmony import */ var _use_checkbox_group_context_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./use-checkbox-group-context.js */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-group-context.js");
+'use client';
+
+
+
+
+
+
+
+
+const useCheckbox = (ownProps = {}) => {
+  const checkboxGroup = (0,_use_checkbox_group_context_js__WEBPACK_IMPORTED_MODULE_1__.useCheckboxGroupContext)();
+  const field = (0,_field_use_field_context_js__WEBPACK_IMPORTED_MODULE_2__.useFieldContext)();
+  const props = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+    return (0,_zag_js_react__WEBPACK_IMPORTED_MODULE_3__.mergeProps)(ownProps, checkboxGroup?.getItemProps({ value: ownProps.value }) ?? {});
+  }, [ownProps, checkboxGroup]);
+  const id = (0,react__WEBPACK_IMPORTED_MODULE_0__.useId)();
+  const { getRootNode } = (0,_providers_environment_use_environment_context_js__WEBPACK_IMPORTED_MODULE_4__.useEnvironmentContext)();
+  const { dir } = (0,_providers_locale_use_locale_context_js__WEBPACK_IMPORTED_MODULE_5__.useLocaleContext)();
+  const machineProps = {
+    id,
+    ids: {
+      label: field?.ids.label,
+      hiddenInput: field?.ids.control
+    },
+    dir,
+    disabled: field?.disabled,
+    readOnly: field?.readOnly,
+    invalid: field?.invalid,
+    required: field?.required,
+    getRootNode,
+    ...props
+  };
+  const service = (0,_zag_js_react__WEBPACK_IMPORTED_MODULE_6__.useMachine)(_zag_js_checkbox__WEBPACK_IMPORTED_MODULE_7__.machine, machineProps);
+  return _zag_js_checkbox__WEBPACK_IMPORTED_MODULE_7__.connect(service, _zag_js_react__WEBPACK_IMPORTED_MODULE_6__.normalizeProps);
+};
 
 
 
@@ -587,6 +1032,33 @@ const parts = fieldAnatomy.build();
 
 /***/ }),
 
+/***/ "./node_modules/@ark-ui/react/dist/components/field/use-field-context.js":
+/*!*******************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/components/field/use-field-context.js ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   FieldProvider: () => (/* binding */ FieldProvider),
+/* harmony export */   useFieldContext: () => (/* binding */ useFieldContext)
+/* harmony export */ });
+/* harmony import */ var _utils_create_context_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../utils/create-context.js */ "./node_modules/@ark-ui/react/dist/utils/create-context.js");
+'use client';
+
+
+const [FieldProvider, useFieldContext] = (0,_utils_create_context_js__WEBPACK_IMPORTED_MODULE_0__.createContext)({
+  name: "FieldContext",
+  hookName: "useFieldContext",
+  providerName: "<FieldProvider />",
+  strict: false
+});
+
+
+
+
+/***/ }),
+
 /***/ "./node_modules/@ark-ui/react/dist/components/fieldset/fieldset.anatomy.js":
 /*!*********************************************************************************!*\
   !*** ./node_modules/@ark-ui/react/dist/components/fieldset/fieldset.anatomy.js ***!
@@ -987,6 +1459,43 @@ const [RenderStrategyPropsProvider, useRenderStrategyPropsContext] = (0,_create_
   providerName: "<RenderStrategyPropsProvider />"
 });
 const splitRenderStrategyProps = (props) => (0,_create_split_props_js__WEBPACK_IMPORTED_MODULE_1__.createSplitProps)()(props, ["lazyMount", "unmountOnExit"]);
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@ark-ui/react/dist/utils/use-controllable-state.js":
+/*!*************************************************************************!*\
+  !*** ./node_modules/@ark-ui/react/dist/utils/use-controllable-state.js ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   useControllableState: () => (/* binding */ useControllableState)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+'use client';
+
+
+function useControllableState(props) {
+  const { value, onChange, defaultValue } = props;
+  const [uncontrolledValue, setUncontrolledValue] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(defaultValue);
+  const controlled = value !== void 0;
+  const currentValue = controlled ? value : uncontrolledValue;
+  const setValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(
+    (value2) => {
+      if (controlled) {
+        return onChange?.(value2);
+      }
+      setUncontrolledValue(value2);
+      return onChange?.(value2);
+    },
+    [controlled, onChange]
+  );
+  return [currentValue, setValue];
+}
 
 
 
@@ -1561,6 +2070,282 @@ AbsoluteCenter.displayName = "AbsoluteCenter";
 
 /***/ }),
 
+/***/ "./node_modules/@chakra-ui/react/dist/esm/components/checkbox-card/checkbox-card.js":
+/*!******************************************************************************************!*\
+  !*** ./node_modules/@chakra-ui/react/dist/esm/components/checkbox-card/checkbox-card.js ***!
+  \******************************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckboxCardAddon: () => (/* binding */ CheckboxCardAddon),
+/* harmony export */   CheckboxCardContent: () => (/* binding */ CheckboxCardContent),
+/* harmony export */   CheckboxCardContext: () => (/* binding */ CheckboxCardContext),
+/* harmony export */   CheckboxCardControl: () => (/* binding */ CheckboxCardControl),
+/* harmony export */   CheckboxCardDescription: () => (/* binding */ CheckboxCardDescription),
+/* harmony export */   CheckboxCardHiddenInput: () => (/* binding */ CheckboxCardHiddenInput),
+/* harmony export */   CheckboxCardIndicator: () => (/* binding */ CheckboxCardIndicator),
+/* harmony export */   CheckboxCardLabel: () => (/* binding */ CheckboxCardLabel),
+/* harmony export */   CheckboxCardRoot: () => (/* binding */ CheckboxCardRoot),
+/* harmony export */   CheckboxCardRootPropsProvider: () => (/* binding */ CheckboxCardRootPropsProvider),
+/* harmony export */   CheckboxCardRootProvider: () => (/* binding */ CheckboxCardRootProvider),
+/* harmony export */   useCheckboxCardStyles: () => (/* binding */ useCheckboxCardStyles)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-root-provider.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-root.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-label.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-context.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-control.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-context.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-hidden-input.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _styled_system_create_slot_recipe_context_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../styled-system/create-slot-recipe-context.js */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/create-slot-recipe-context.js");
+/* harmony import */ var _styled_system_factory_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../styled-system/factory.js */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/factory.js");
+/* harmony import */ var _checkmark_checkmark_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../checkmark/checkmark.js */ "./node_modules/@chakra-ui/react/dist/esm/components/checkmark/checkmark.js");
+
+"use client";
+
+
+
+
+
+
+
+const {
+  withProvider,
+  withContext,
+  useStyles: useCheckboxCardStyles,
+  PropsProvider
+} = (0,_styled_system_create_slot_recipe_context_js__WEBPACK_IMPORTED_MODULE_2__.createSlotRecipeContext)({ key: "checkboxCard" });
+const CheckboxCardRootProvider = withProvider(_ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_3__.CheckboxRootProvider, "root", { forwardAsChild: true });
+const CheckboxCardRoot = withProvider(_ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_4__.CheckboxRoot, "root", { forwardAsChild: true });
+const CheckboxCardRootPropsProvider = PropsProvider;
+const CheckboxCardLabel = withContext(_ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_5__.CheckboxLabel, "label", { forwardAsChild: true });
+const CheckboxCardDescription = (0,react__WEBPACK_IMPORTED_MODULE_1__.forwardRef)(function CheckboxCardDescription2(props, ref) {
+  const styles = useCheckboxCardStyles();
+  const api = (0,_ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_6__.useCheckboxContext)();
+  return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(
+    _styled_system_factory_js__WEBPACK_IMPORTED_MODULE_7__.chakra.div,
+    {
+      ref,
+      ...props,
+      css: [styles.description, props.css],
+      "data-disabled": api.disabled ? "" : void 0,
+      "data-state": api.checked ? "checked" : "unchecked"
+    }
+  );
+});
+const CheckboxCardControl = withContext(_ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_8__.CheckboxControl, "control", { forwardAsChild: true });
+const CheckboxCardContent = withContext("div", "content");
+const CheckboxCardIndicator = (0,react__WEBPACK_IMPORTED_MODULE_1__.forwardRef)(function CheckboxCardIndicator2(props, ref) {
+  const api = (0,_ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_6__.useCheckboxContext)();
+  const styles = useCheckboxCardStyles();
+  return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(
+    _checkmark_checkmark_js__WEBPACK_IMPORTED_MODULE_9__.Checkmark,
+    {
+      ref,
+      checked: api.checked,
+      indeterminate: api.indeterminate,
+      disabled: api.disabled,
+      unstyled: true,
+      ...props,
+      css: [styles.indicator, props.css]
+    }
+  );
+});
+const CheckboxCardAddon = withContext("div", "addon");
+const CheckboxCardContext = _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_10__.CheckboxContext;
+const CheckboxCardHiddenInput = _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_11__.CheckboxHiddenInput;
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@chakra-ui/react/dist/esm/components/checkbox/checkbox.js":
+/*!********************************************************************************!*\
+  !*** ./node_modules/@chakra-ui/react/dist/esm/components/checkbox/checkbox.js ***!
+  \********************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckboxContext: () => (/* binding */ CheckboxContext),
+/* harmony export */   CheckboxControl: () => (/* binding */ CheckboxControl),
+/* harmony export */   CheckboxGroup: () => (/* binding */ CheckboxGroup),
+/* harmony export */   CheckboxHiddenInput: () => (/* binding */ CheckboxHiddenInput),
+/* harmony export */   CheckboxIndicator: () => (/* binding */ CheckboxIndicator),
+/* harmony export */   CheckboxLabel: () => (/* binding */ CheckboxLabel),
+/* harmony export */   CheckboxPropsProvider: () => (/* binding */ CheckboxPropsProvider),
+/* harmony export */   CheckboxRoot: () => (/* binding */ CheckboxRoot),
+/* harmony export */   CheckboxRootProvider: () => (/* binding */ CheckboxRootProvider),
+/* harmony export */   useCheckboxStyles: () => (/* binding */ useCheckboxStyles)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-root-provider.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-root.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-label.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/use-checkbox-context.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-control.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-group.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-context.js");
+/* harmony import */ var _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @ark-ui/react/checkbox */ "./node_modules/@ark-ui/react/dist/components/checkbox/checkbox-hidden-input.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _styled_system_create_slot_recipe_context_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../styled-system/create-slot-recipe-context.js */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/create-slot-recipe-context.js");
+/* harmony import */ var _styled_system_factory_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../styled-system/factory.js */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/factory.js");
+/* harmony import */ var _checkmark_checkmark_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../checkmark/checkmark.js */ "./node_modules/@chakra-ui/react/dist/esm/components/checkmark/checkmark.js");
+
+"use client";
+
+
+
+
+
+
+
+const {
+  withProvider,
+  withContext,
+  useStyles: useCheckboxStyles,
+  PropsProvider
+} = (0,_styled_system_create_slot_recipe_context_js__WEBPACK_IMPORTED_MODULE_2__.createSlotRecipeContext)({ key: "checkbox" });
+const CheckboxRootProvider = withProvider(_ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_3__.CheckboxRootProvider, "root", { forwardAsChild: true });
+const CheckboxRoot = withProvider(
+  _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_4__.CheckboxRoot,
+  "root",
+  { forwardAsChild: true }
+);
+const CheckboxPropsProvider = PropsProvider;
+const CheckboxLabel = withContext(
+  _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_5__.CheckboxLabel,
+  "label",
+  { forwardAsChild: true }
+);
+const CheckboxIndicator = (0,react__WEBPACK_IMPORTED_MODULE_1__.forwardRef)(function CheckboxIndicator2(props, ref) {
+  const { checked, indeterminate, ...rest } = props;
+  const api = (0,_ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_6__.useCheckboxContext)();
+  const styles = useCheckboxStyles();
+  if (checked && api.checked) {
+    return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(
+      _styled_system_factory_js__WEBPACK_IMPORTED_MODULE_7__.chakra.svg,
+      {
+        ref,
+        asChild: true,
+        ...rest,
+        css: [styles.indicator, props.css],
+        children: checked
+      }
+    );
+  }
+  if (indeterminate && api.indeterminate) {
+    return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(
+      _styled_system_factory_js__WEBPACK_IMPORTED_MODULE_7__.chakra.svg,
+      {
+        ref,
+        asChild: true,
+        ...rest,
+        css: [styles.indicator, props.css],
+        children: indeterminate
+      }
+    );
+  }
+  return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(
+    _checkmark_checkmark_js__WEBPACK_IMPORTED_MODULE_8__.Checkmark,
+    {
+      ref,
+      checked: api.checked,
+      indeterminate: api.indeterminate,
+      disabled: api.disabled,
+      unstyled: true,
+      ...rest,
+      css: [styles.indicator, props.css]
+    }
+  );
+});
+const CheckboxControl = withContext(
+  _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_9__.CheckboxControl,
+  "control",
+  {
+    forwardAsChild: true,
+    defaultProps: { children: /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(CheckboxIndicator, {}) }
+  }
+);
+const CheckboxGroup = (0,_styled_system_factory_js__WEBPACK_IMPORTED_MODULE_7__.chakra)(
+  _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_10__.CheckboxGroup,
+  {
+    base: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "1.5"
+    }
+  },
+  { forwardAsChild: true }
+);
+const CheckboxContext = _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_11__.CheckboxContext;
+const CheckboxHiddenInput = _ark_ui_react_checkbox__WEBPACK_IMPORTED_MODULE_12__.CheckboxHiddenInput;
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@chakra-ui/react/dist/esm/components/checkmark/checkmark.js":
+/*!**********************************************************************************!*\
+  !*** ./node_modules/@chakra-ui/react/dist/esm/components/checkmark/checkmark.js ***!
+  \**********************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Checkmark: () => (/* binding */ Checkmark)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _utils_attr_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../utils/attr.js */ "./node_modules/@chakra-ui/react/dist/esm/utils/attr.js");
+/* harmony import */ var _styled_system_empty_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../styled-system/empty.js */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/empty.js");
+/* harmony import */ var _styled_system_factory_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../styled-system/factory.js */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/factory.js");
+/* harmony import */ var _styled_system_use_recipe_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../styled-system/use-recipe.js */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/use-recipe.js");
+
+"use client";
+
+
+
+
+
+
+
+const Checkmark = (0,react__WEBPACK_IMPORTED_MODULE_1__.forwardRef)(
+  function Checkmark2(props, ref) {
+    const recipe = (0,_styled_system_use_recipe_js__WEBPACK_IMPORTED_MODULE_2__.useRecipe)({ key: "checkmark", recipe: props.recipe });
+    const [variantProps, restProps] = recipe.splitVariantProps(props);
+    const { checked, indeterminate, disabled, unstyled, children, ...rest } = restProps;
+    const styles = unstyled ? _styled_system_empty_js__WEBPACK_IMPORTED_MODULE_3__.EMPTY_STYLES : recipe(variantProps);
+    return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(
+      _styled_system_factory_js__WEBPACK_IMPORTED_MODULE_4__.chakra.svg,
+      {
+        ref,
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: "3px",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        "data-state": indeterminate ? "indeterminate" : checked ? "checked" : "unchecked",
+        "data-disabled": (0,_utils_attr_js__WEBPACK_IMPORTED_MODULE_5__.dataAttr)(disabled),
+        css: [styles, props.css],
+        ...rest,
+        children: indeterminate ? /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M5 12h14" }) : checked ? /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("polyline", { points: "20 6 9 17 4 12" }) : null
+      }
+    );
+  }
+);
+
+
+
+
+/***/ }),
+
 /***/ "./node_modules/@chakra-ui/react/dist/esm/components/dialog/dialog.js":
 /*!****************************************************************************!*\
   !*** ./node_modules/@chakra-ui/react/dist/esm/components/dialog/dialog.js ***!
@@ -1665,6 +2450,64 @@ const DialogHeader = withContext(
   "header"
 );
 const DialogContext = _ark_ui_react_dialog__WEBPACK_IMPORTED_MODULE_14__.DialogContext;
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@chakra-ui/react/dist/esm/components/flex/flex.js":
+/*!************************************************************************!*\
+  !*** ./node_modules/@chakra-ui/react/dist/esm/components/flex/flex.js ***!
+  \************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Flex: () => (/* binding */ Flex)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _styled_system_factory_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../styled-system/factory.js */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/factory.js");
+
+"use client";
+
+
+
+
+const Flex = (0,react__WEBPACK_IMPORTED_MODULE_1__.forwardRef)(
+  function Flex2(props, ref) {
+    const {
+      direction,
+      align,
+      justify,
+      wrap,
+      basis,
+      grow,
+      shrink,
+      inline,
+      ...rest
+    } = props;
+    return /* @__PURE__ */ (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(
+      _styled_system_factory_js__WEBPACK_IMPORTED_MODULE_2__.chakra.div,
+      {
+        ref,
+        ...rest,
+        css: {
+          display: inline ? "inline-flex" : "flex",
+          flexDirection: direction,
+          alignItems: align,
+          justifyContent: justify,
+          flexWrap: wrap,
+          flexBasis: basis,
+          flexGrow: grow,
+          flexShrink: shrink,
+          ...props.css
+        }
+      }
+    );
+  }
+);
 
 
 
@@ -2002,6 +2845,33 @@ const { withContext, PropsProvider } = (0,_styled_system_create_recipe_context_j
 });
 const Spinner = withContext("span");
 const SpinnerPropsProvider = PropsProvider;
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@chakra-ui/react/dist/esm/components/typography/text.js":
+/*!******************************************************************************!*\
+  !*** ./node_modules/@chakra-ui/react/dist/esm/components/typography/text.js ***!
+  \******************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Text: () => (/* binding */ Text),
+/* harmony export */   TextPropsProvider: () => (/* binding */ TextPropsProvider)
+/* harmony export */ });
+/* harmony import */ var _styled_system_create_recipe_context_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../styled-system/create-recipe-context.js */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/create-recipe-context.js");
+
+"use client";
+
+
+const { withContext, PropsProvider } = (0,_styled_system_create_recipe_context_js__WEBPACK_IMPORTED_MODULE_0__.createRecipeContext)({
+  key: "text"
+});
+const Text = withContext("p");
+const TextPropsProvider = PropsProvider;
 
 
 
@@ -16272,6 +17142,24 @@ const zIndices = _styled_system_config_js__WEBPACK_IMPORTED_MODULE_0__.defineTok
   tooltip: { value: 1800 },
   max: { value: 2147483647 }
 });
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@chakra-ui/react/dist/esm/utils/attr.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/@chakra-ui/react/dist/esm/utils/attr.js ***!
+  \**************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   dataAttr: () => (/* binding */ dataAttr)
+/* harmony export */ });
+
+const dataAttr = (condition) => condition ? "" : void 0;
 
 
 
@@ -81612,7 +82500,9 @@ var GAME_EVENTS = {
     WIN_L_2: "victoryLevel2"
   },
   DIALOG: {
-    CHANGE_STATE: "changeState"
+    CHANGE_STATE: "changeState",
+    CHANGE_STYLE: "changeStyle",
+    CHANGE_OPTIONS: "changeOptions"
   }
 };
 var UNIT_DIRECTION = {
@@ -81749,7 +82639,7 @@ var GAME_UNITS = {
       w: 0
     },
     duration: 2000,
-    attackSpeed: 800,
+    attackSpeed: 1000,
     attackDamage: 30,
     health: 150
   },
@@ -81769,7 +82659,7 @@ var GAME_UNITS = {
       w: 100
     },
     duration: 2000,
-    attackSpeed: 800,
+    attackSpeed: 1000,
     attackDamage: 20,
     health: 100
   },
@@ -82068,8 +82958,8 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
         var townCenter = _classPrivateFieldGet(_playerBuildings, _this).find(function (building) {
           return building.key === _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.TOWN_CENTER.name;
         });
-        var newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.eventsAggregator);
-        var newPeasant2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.eventsAggregator);
+        var newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
+        var newPeasant2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
         newPeasant.x = townCenter.x - _classPrivateFieldGet(_addUnitPosX, _this);
         newPeasant.y = townCenter.y;
         newPeasant2.x = townCenter.x - _classPrivateFieldGet(_addUnitPosX, _this);
@@ -82466,7 +83356,7 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
                 var _unit$targetPoint = _slicedToArray(unit.targetPoint, 2),
                   x = _unit$targetPoint[0],
                   y = _unit$targetPoint[1];
-                var newBuilding = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitBuilding(x + 60, y + 96, 128, 192, imageType, startIndex, _this.draw, _this.eventsAggregator);
+                var newBuilding = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitBuilding(x + 60, y + 96, 128, 192, imageType, startIndex, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
                 _classPrivateFieldGet(_playerBuildings, _this).push(newBuilding);
                 _this.addRenderObject(newBuilding);
               } else {
@@ -82688,7 +83578,7 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
     });
     _classPrivateFieldInitSpec(_this, _peasantBuilt, function (e) {
       var townCenter = e.detail,
-        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.eventsAggregator);
+        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
       var posX = 80,
         posY = 120;
       while (_this.isObjectsCollision(townCenter.x + posX, townCenter.y + posY, newPeasant, _classPrivateFieldGet(_playerUnits, _this))) {
@@ -82704,7 +83594,7 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
     });
     _classPrivateFieldInitSpec(_this, _buildingDone, function (e) {
       var house = e.detail,
-        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, house, _this.draw, _this.eventsAggregator);
+        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, house, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
       console.log(e.detail);
       var posX = 20,
         posY = 20;
@@ -82805,8 +83695,8 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
       _classPrivateFieldGet(_attachAudio, this).call(this);
       /***************************** */
       // units
-      var knight1 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight(450, 550, this.draw, this.eventsAggregator, this.knightAudio),
-        knight2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight(480, 610, this.draw, this.eventsAggregator, this.knightAudio);
+      var knight1 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight(450, 550, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.knightAudio),
+        knight2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight(480, 610, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.knightAudio);
 
       //const knight1View = this.draw.circle(knight1.x, knight1.y, 300, "rgba(0,0,0,1)"),
       //	knight2View = this.draw.circle(knight2.x, knight2.y, 300, "rgba(0,0,0,1)");
@@ -82819,17 +83709,17 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
       this.addRenderObject(knight2);
       _classPrivateFieldGet(_playerUnits, this).push(knight1);
       _classPrivateFieldGet(_playerUnits, this).push(knight2);
-      var goblin1 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(850, 550, this.draw, this.eventsAggregator, this.goblinAudio);
+      var goblin1 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(850, 550, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.goblinAudio);
       goblin1.activateIdle();
-      var goblin2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(1400, 850, this.draw, this.eventsAggregator, this.goblinAudio);
+      var goblin2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(1400, 850, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.goblinAudio);
       goblin2.activateIdle();
       this.addRenderObject(goblin1);
       this.addRenderObject(goblin2);
       _classPrivateFieldGet(_enemyUnits, this).push(goblin1);
       _classPrivateFieldGet(_enemyUnits, this).push(goblin2);
-      var goblinHouse1 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinHouse(650, 1400, this.draw),
-        goblinHouse2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinHouse(850, 1500, this.draw),
-        goblinTower = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTower(950, 1200, this.draw);
+      var goblinHouse1 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinHouse(650, 1400, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines),
+        goblinHouse2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinHouse(850, 1500, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines),
+        goblinTower = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTower(950, 1200, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines);
       goblinTower.activateIdle();
       this.addRenderObject(goblinHouse1);
       this.addRenderObject(goblinHouse2);
@@ -83107,6 +83997,7 @@ var _goldMineEmpty = /*#__PURE__*/new WeakMap();
 var _requestForClosestTree = /*#__PURE__*/new WeakMap();
 var _treeEmpty = /*#__PURE__*/new WeakMap();
 var _peasantBuilt = /*#__PURE__*/new WeakMap();
+var _recalculatePeopleLimits = /*#__PURE__*/new WeakMap();
 var _buildingDone = /*#__PURE__*/new WeakMap();
 var Stage2 = /*#__PURE__*/function (_GameStage) {
   function Stage2() {
@@ -83207,8 +84098,8 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
         var townCenter = _classPrivateFieldGet(_playerBuildings, _this).find(function (building) {
           return building.key === _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.TOWN_CENTER.name;
         });
-        var newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.eventsAggregator);
-        var newPeasant2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.eventsAggregator);
+        var newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
+        var newPeasant2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
         newPeasant.x = townCenter.x - _classPrivateFieldGet(_addUnitPosX, _this);
         newPeasant.y = townCenter.y;
         newPeasant2.x = townCenter.x - _classPrivateFieldGet(_addUnitPosX, _this);
@@ -83557,8 +84448,8 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       var startX = 550,
         startY = 1400;
       for (var i = 0; i < 8; ++i) {
-        var unitKnight = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight(startX, startY, _this.draw, _this.eventsAggregator, _this.knightAudio),
-          unitGoblinTorch = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(startX, startY + 100, _this.draw, _this.eventsAggregator, _this.goblinAudio);
+        var unitKnight = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight(startX, startY, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.knightAudio),
+          unitGoblinTorch = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(startX, startY + 100, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.goblinAudio);
         unitKnight.activateIdle();
         unitGoblinTorch.activateIdle();
         _this.addRenderObject(unitKnight);
@@ -83570,7 +84461,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       startX = 550;
       startY += 60;
       for (var _i = 0; _i < 6; ++_i) {
-        var _unitGoblinTorch = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(startX, startY + 100, _this.draw, _this.eventsAggregator, _this.goblinAudio);
+        var _unitGoblinTorch = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(startX, startY + 100, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.goblinAudio);
         _unitGoblinTorch.activateIdle();
         _this.addRenderObject(_unitGoblinTorch);
         eUnits.push(_unitGoblinTorch);
@@ -83598,6 +84489,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
           _classPrivateFieldGet(_playerUnits, _this).splice(index, 1);
           index--;
           pUnitsLen--;
+          _classPrivateFieldGet(_recalculatePeopleLimits, _this).call(_this);
           continue;
         }
         if (unit instanceof _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant) {
@@ -83644,7 +84536,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                 var _unit$targetPoint = _slicedToArray(unit.targetPoint, 2),
                   x = _unit$targetPoint[0],
                   y = _unit$targetPoint[1];
-                var newBuilding = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitBuilding(x + 60, y + 96, 128, 192, imageType, startIndex, _this.draw, _this.eventsAggregator);
+                var newBuilding = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitBuilding(x + 60, y + 96, 128, 192, imageType, startIndex, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
                 _classPrivateFieldGet(_playerBuildings, _this).push(newBuilding);
                 _this.addRenderObject(newBuilding);
               } else {
@@ -83927,7 +84819,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
     });
     _classPrivateFieldInitSpec(_this, _peasantBuilt, function (e) {
       var townCenter = e.detail,
-        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.eventsAggregator);
+        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
       var posX = 80,
         posY = 120;
       while (_this.isObjectsCollision(townCenter.x + posX, townCenter.y + posY, newPeasant, _classPrivateFieldGet(_playerUnits, _this))) {
@@ -83939,11 +84831,14 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       newPeasant.y = townCenter.y + posY;
       _this.addRenderObject(newPeasant);
       _classPrivateFieldGet(_playerUnits, _this).push(newPeasant);
+      _classPrivateFieldGet(_recalculatePeopleLimits, _this).call(_this);
+    });
+    _classPrivateFieldInitSpec(_this, _recalculatePeopleLimits, function () {
       _classPrivateFieldGet(_playerPeopleLimitCounter, _this).innerText = _classPrivateFieldGet(_playerUnits, _this).length + "/" + _classPrivateFieldGet(_playerPeopleLimit, _this).toString();
     });
     _classPrivateFieldInitSpec(_this, _buildingDone, function (e) {
       var house = e.detail,
-        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, house, _this.draw, _this.eventsAggregator);
+        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, house, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
       console.log(e.detail);
       var posX = 20,
         posY = 20;
@@ -84038,12 +84933,12 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
 
       // units
 
-      var townCenter = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitBuilding(850, 600, 320, 256, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.TOWN_CENTER.name, 0, this.draw, this.eventsAggregator);
+      var townCenter = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitBuilding(850, 600, 320, 256, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.TOWN_CENTER.name, 0, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
       townCenter.sortIndex = 4;
       _classPrivateFieldGet(_playerBuildings, this).push(townCenter);
-      var peasant1 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 580, townCenter, this.draw, this.eventsAggregator),
-        peasant2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 640, townCenter, this.draw, this.eventsAggregator),
-        peasant3 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 700, townCenter, this.draw, this.eventsAggregator);
+      var peasant1 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 580, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator),
+        peasant2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 640, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator),
+        peasant3 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 700, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
       this.addRenderObject(townCenter);
       this.addRenderObject(peasant1);
       this.addRenderObject(peasant2);
@@ -84250,6 +85145,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ui_ui_init_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ui/ui-init.js */ "./src/ui/ui-init.js");
 /* harmony import */ var react_dom_client__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-dom/client */ "./node_modules/react-dom/client.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _ui_options_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ui/options.js */ "./src/ui/options.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -84281,10 +85177,13 @@ function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.h
 
 
 
+
 var isPointRectIntersect = jsge__WEBPACK_IMPORTED_MODULE_0__.utils.isPointRectIntersect;
 var LEFT_SHIFT = -70;
 var MENU_CLICK_AUDIO_NAME = "menu_click";
 var _menuClickMediaElement = /*#__PURE__*/new WeakMap();
+var _drawOptions = /*#__PURE__*/new WeakMap();
+var _changeOptions = /*#__PURE__*/new WeakMap();
 var _mouseHoverEvent = /*#__PURE__*/new WeakMap();
 var _mouseClickEvent = /*#__PURE__*/new WeakMap();
 var _loaderErrorHandler = /*#__PURE__*/new WeakMap();
@@ -84299,6 +85198,28 @@ var StartStage = /*#__PURE__*/function (_GameStage) {
     _this = _callSuper(this, StartStage, [].concat(args));
     _classPrivateFieldInitSpec(_this, _menuClickMediaElement, void 0);
     _defineProperty(_this, "uiApp", void 0);
+    _classPrivateFieldInitSpec(_this, _drawOptions, function () {
+      var _this$stageData$canva = _slicedToArray(_this.stageData.canvasDimensions, 2),
+        w = _this$stageData$canva[0],
+        h = _this$stageData$canva[1];
+      _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_STYLE, w / 2 + LEFT_SHIFT + LEFT_SHIFT - 40, _this.navItemLevel2.y + 20);
+    });
+    _classPrivateFieldInitSpec(_this, _changeOptions, function (e) {
+      var options = e.data[0];
+      //console.log("changed options: ", options);
+      //console.log(this.iSystem.systemSettings.gameOptions);
+      if (options["showBoundaries"] === true) {
+        _this.iSystem.systemSettings.gameOptions.debug.boundaries.drawLayerBoundaries = true;
+        _this.iSystem.systemSettings.gameOptions.debug.boundaries.drawObjectBoundaries = true;
+      } else if (options["showBoundaries"] === false) {
+        _this.iSystem.systemSettings.gameOptions.debug.boundaries.drawLayerBoundaries = false;
+        _this.iSystem.systemSettings.gameOptions.debug.boundaries.drawObjectBoundaries = false;
+      } else if (options["showLifeLines"] === true) {
+        _this.iSystem.systemSettings.gameOptions.showLifeLines = true;
+      } else if (options["showLifeLines"] === false) {
+        _this.iSystem.systemSettings.gameOptions.showLifeLines = false;
+      }
+    });
     _classPrivateFieldInitSpec(_this, _mouseHoverEvent, function (event) {
       var canvas = _this.canvasHtmlElement,
         isNav1Traversed = isPointRectIntersect(event.offsetX, event.offsetY, _this.navItemLevel1.boundariesBox),
@@ -84357,15 +85278,16 @@ var StartStage = /*#__PURE__*/function (_GameStage) {
   }, {
     key: "init",
     value: function init() {
-      var _this$stageData$canva = _slicedToArray(this.stageData.canvasDimensions, 2),
-        w = _this$stageData$canva[0],
-        h = _this$stageData$canva[1];
+      var _this$stageData$canva2 = _slicedToArray(this.stageData.canvasDimensions, 2),
+        w = _this$stageData$canva2[0],
+        h = _this$stageData$canva2[1];
       this.background = this.draw.rect(0, 0, w, h, "rgba(120, 120, 120, 0.6)");
       this.navItemLevel1 = this.draw.text(w / 2 + LEFT_SHIFT, h / 2, "Start level 1", "20px sans-serif", "black");
       this.navItemLevel2 = this.draw.text(w / 2 + LEFT_SHIFT, h / 2 + 40, "Start level 2", "20px sans-serif", "black");
       //this.#createOptionsBlock();
       this.audio.registerAudio(MENU_CLICK_AUDIO_NAME);
       _classPrivateFieldSet(_menuClickMediaElement, this, this.audio.getAudio(MENU_CLICK_AUDIO_NAME));
+      _classPrivateFieldGet(_drawOptions, this).call(this);
     }
   }, {
     key: "start",
@@ -84385,6 +85307,7 @@ var StartStage = /*#__PURE__*/function (_GameStage) {
       canvas.addEventListener("mousemove", _classPrivateFieldGet(_mouseHoverEvent, this));
       canvas.addEventListener("click", _classPrivateFieldGet(_mouseClickEvent, this));
       document.addEventListener("keydown", _classPrivateFieldGet(_pressKeyAction, this));
+      this.iSystem.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_OPTIONS, _classPrivateFieldGet(_changeOptions, this));
     }
   }, {
     key: "unregisterEventListeners",
@@ -84490,6 +85413,115 @@ var LevelDialog = function LevelDialog(_ref) {
 
 /***/ }),
 
+/***/ "./src/ui/options.js":
+/*!***************************!*\
+  !*** ./src/ui/options.js ***!
+  \***************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   OptionsCard: () => (/* binding */ OptionsCard)
+/* harmony export */ });
+/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/components/checkbox/checkbox.js");
+/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/components/typography/text.js");
+/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/components/flex/flex.js");
+/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/components/checkbox-card/checkbox-card.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+
+
+
+var OptionsCard = function OptionsCard(_ref) {
+  var eventManger = _ref.eventManger;
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+      showBoundaries: false,
+      showLifeLines: false
+    }),
+    _useState2 = _slicedToArray(_useState, 2),
+    options = _useState2[0],
+    setOptions = _useState2[1];
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+      x: 0,
+      y: 0
+    }),
+    _useState4 = _slicedToArray(_useState3, 2),
+    position = _useState4[0],
+    setPosition = _useState4[1];
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState6 = _slicedToArray(_useState5, 2),
+    isVisible = _useState6[0],
+    setVisible = _useState6[1];
+  eventManger.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_STYLE, function (e) {
+    var _e$data = _slicedToArray(e.data, 2),
+      x = _e$data[0],
+      y = _e$data[1];
+    console.log(e.data);
+    setPosition({
+      x: x,
+      y: y
+    });
+    setVisible(true);
+  });
+  eventManger.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_STATE, function (e) {
+    var _e$data2 = _slicedToArray(e.data, 2),
+      open = _e$data2[0],
+      level = _e$data2[1];
+    setVisible(false);
+  });
+  function onChange(e) {
+    var target = e.target;
+    var bool = false;
+    if (target.checked) {
+      bool = true;
+    }
+    setOptions(_objectSpread(_objectSpread({}, options), {}, _defineProperty({}, target.value, bool)));
+    eventManger.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_OPTIONS, _defineProperty({}, target.value, bool));
+  }
+  return /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.CheckboxGroup, {
+    defaultValue: ["next"],
+    style: {
+      display: isVisible ? "block" : "none",
+      position: "absolute",
+      left: position.x,
+      top: position.y
+    }
+  }, /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_3__.Text, {
+    textStyle: "sm",
+    fontWeight: "bold"
+  }, "Options"), /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_4__.Flex, {
+    gap: "2"
+  }, items.map(function (item) {
+    return /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_5__.CheckboxCardRoot, {
+      key: item.value,
+      value: item.value,
+      onChange: onChange,
+      checked: options[item.value]
+    }, /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_5__.CheckboxCardHiddenInput, null), /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_5__.CheckboxCardControl, null, /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_5__.CheckboxCardContent, null, /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_5__.CheckboxCardLabel, null, item.title)), /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_5__.CheckboxCardIndicator, null)));
+  })));
+};
+var items = [{
+  value: "showBoundaries",
+  title: "Show Boundaries"
+}, {
+  value: "showLifeLines",
+  title: "Show Health"
+}];
+
+/***/ }),
+
 /***/ "./src/ui/ui-init.js":
 /*!***************************!*\
   !*** ./src/ui/ui-init.js ***!
@@ -84501,25 +85533,29 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ UiApp)
 /* harmony export */ });
 /* harmony import */ var _dialog_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./dialog.js */ "./src/ui/dialog.js");
-/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/config.js");
-/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/system.js");
-/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/preset.js");
-/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/provider.js");
+/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/config.js");
+/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/system.js");
+/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/preset.js");
+/* harmony import */ var _chakra_ui_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @chakra-ui/react */ "./node_modules/@chakra-ui/react/dist/esm/styled-system/provider.js");
+/* harmony import */ var _options_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./options.js */ "./src/ui/options.js");
 
 
-var config = (0,_chakra_ui_react__WEBPACK_IMPORTED_MODULE_1__.defineConfig)({
+
+var config = (0,_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.defineConfig)({
   theme: {
     tokens: {
       colors: {}
     }
   }
 });
-var system = (0,_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.createSystem)(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_3__.defaultConfig, config);
+var system = (0,_chakra_ui_react__WEBPACK_IMPORTED_MODULE_3__.createSystem)(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_4__.defaultConfig, config);
 function UiApp(eventManger) {
   console.log("=====>>>>>>>>create ui app");
-  return /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_4__.ChakraProvider, {
+  return /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_5__.ChakraProvider, {
     value: system
-  }, /*#__PURE__*/React.createElement(_dialog_js__WEBPACK_IMPORTED_MODULE_0__.LevelDialog, {
+  }, /*#__PURE__*/React.createElement(_options_js__WEBPACK_IMPORTED_MODULE_1__.OptionsCard, {
+    eventManger: eventManger
+  }), /*#__PURE__*/React.createElement(_dialog_js__WEBPACK_IMPORTED_MODULE_0__.LevelDialog, {
     eventManger: eventManger
   }));
 }
@@ -84574,6 +85610,7 @@ var countDistance = jsge__WEBPACK_IMPORTED_MODULE_0__.utils.countDistance,
 var _draw = /*#__PURE__*/new WeakMap();
 var _frame = /*#__PURE__*/new WeakMap();
 var _isSelected = /*#__PURE__*/new WeakMap();
+var _isShowHealth = /*#__PURE__*/new WeakMap();
 var _healthMax = /*#__PURE__*/new WeakMap();
 var _healthLeft = /*#__PURE__*/new WeakMap();
 var _healthBarMaxWidth = /*#__PURE__*/new WeakMap();
@@ -84583,10 +85620,11 @@ var BaseEntity = /*#__PURE__*/function (_DrawImageObject) {
     var _this;
     var imageIndex = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
     var drawImageFactory = arguments.length > 6 ? arguments[6] : undefined;
-    var health = arguments.length > 7 ? arguments[7] : undefined;
-    var boundaries = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : null;
-    var spacing = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : 0;
-    var margin = arguments.length > 10 && arguments[10] !== undefined ? arguments[10] : 0;
+    var isShowHealth = arguments.length > 7 ? arguments[7] : undefined;
+    var health = arguments.length > 8 ? arguments[8] : undefined;
+    var boundaries = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : null;
+    var spacing = arguments.length > 10 && arguments[10] !== undefined ? arguments[10] : 0;
+    var margin = arguments.length > 11 && arguments[11] !== undefined ? arguments[11] : 0;
     _classCallCheck(this, BaseEntity);
     _this = _callSuper(this, BaseEntity, [mapX, mapY, width, height, imageKey, imageIndex, boundaries, null, spacing, margin]);
     /**
@@ -84602,6 +85640,7 @@ var BaseEntity = /*#__PURE__*/function (_DrawImageObject) {
      * @type {boolean}
      */
     _classPrivateFieldInitSpec(_this, _isSelected, false);
+    _classPrivateFieldInitSpec(_this, _isShowHealth, false);
     _classPrivateFieldInitSpec(_this, _healthMax, void 0);
     _classPrivateFieldInitSpec(_this, _healthLeft, void 0);
     _classPrivateFieldInitSpec(_this, _healthBarMaxWidth, void 0);
@@ -84609,9 +85648,12 @@ var BaseEntity = /*#__PURE__*/function (_DrawImageObject) {
     _classPrivateFieldSet(_draw, _this, drawImageFactory);
     _classPrivateFieldSet(_healthMax, _this, health);
     _classPrivateFieldSet(_healthLeft, _this, health);
-    _classPrivateFieldSet(_healthBarMaxWidth, _this, width / 3);
-    _classPrivateFieldSet(_healthBar, _this, _classPrivateFieldGet(_draw, _this).rect(mapX - width / 5, mapY - height / 4, width / 3, 4, "rgba(255, 0, 0, 0.77)"));
-    _classPrivateFieldGet(_healthBar, _this).sortIndex = 3;
+    _classPrivateFieldSet(_isShowHealth, _this, isShowHealth);
+    if (_classPrivateFieldGet(_isShowHealth, _this)) {
+      _classPrivateFieldSet(_healthBarMaxWidth, _this, width / 3);
+      _classPrivateFieldSet(_healthBar, _this, _classPrivateFieldGet(_draw, _this).rect(mapX - width / 5, mapY - height / 4, width / 3, 4, "rgba(255, 0, 0, 0.77)"));
+      _classPrivateFieldGet(_healthBar, _this).sortIndex = 5;
+    }
     console.log("set entity with key: ", imageKey, " health: ", health);
     return _this;
   }
@@ -84646,7 +85688,9 @@ var BaseEntity = /*#__PURE__*/function (_DrawImageObject) {
     key: "xPos",
     set: function set(newCoordX) {
       this.x = newCoordX;
-      _classPrivateFieldGet(_healthBar, this).x = newCoordX - this.width / 5;
+      if (_classPrivateFieldGet(_isShowHealth, this)) {
+        _classPrivateFieldGet(_healthBar, this).x = newCoordX - this.width / 5;
+      }
       if (this.isSelected) {
         if (this.circleBoundaries) {
           this.frame.x = newCoordX;
@@ -84659,7 +85703,9 @@ var BaseEntity = /*#__PURE__*/function (_DrawImageObject) {
     key: "yPos",
     set: function set(newCoordY) {
       this.y = newCoordY;
-      _classPrivateFieldGet(_healthBar, this).y = newCoordY - this.height / 4;
+      if (_classPrivateFieldGet(_isShowHealth, this)) {
+        _classPrivateFieldGet(_healthBar, this).y = newCoordY - this.height / 4;
+      }
       if (this.isSelected) {
         if (this.circleBoundaries) {
           this.frame.y = newCoordY;
@@ -84689,7 +85735,9 @@ var BaseEntity = /*#__PURE__*/function (_DrawImageObject) {
       var healthLeft = this.health - damage,
         healthLeftPers = healthLeft > 0 ? healthLeft / _classPrivateFieldGet(_healthMax, this) : 0;
       this.health = healthLeft;
-      _classPrivateFieldGet(_healthBar, this).width = healthLeftPers * _classPrivateFieldGet(_healthBarMaxWidth, this);
+      if (_classPrivateFieldGet(_isShowHealth, this)) {
+        _classPrivateFieldGet(_healthBar, this).width = healthLeftPers * _classPrivateFieldGet(_healthBarMaxWidth, this);
+      }
       console.log("opponent health: ", this.health);
     }
   }]);
@@ -84712,12 +85760,13 @@ var BaseBuilding = /*#__PURE__*/function (_BaseEntity2) {
     var _this2;
     var imageIndex = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
     var drawFactory = arguments.length > 6 ? arguments[6] : undefined;
-    var eventsAggregator = arguments.length > 7 ? arguments[7] : undefined;
-    var isBuildDone = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : true;
+    var isShowHealth = arguments.length > 7 ? arguments[7] : undefined;
+    var eventsAggregator = arguments.length > 8 ? arguments[8] : undefined;
+    var isBuildDone = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : true;
     _classCallCheck(this, BaseBuilding);
     var imageKey = _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[entityKey].atlasKey ? _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[entityKey].atlasKey : _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[entityKey].name;
     console.log("base building set health: ", _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[entityKey].health);
-    _this2 = _callSuper(this, BaseBuilding, [mapX, mapY, width, height, imageKey, imageIndex, drawFactory, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[entityKey].health]);
+    _this2 = _callSuper(this, BaseBuilding, [mapX, mapY, width, height, imageKey, imageIndex, drawFactory, isShowHealth, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[entityKey].health]);
     _classPrivateFieldInitSpec(_this2, _PROGRESS_STEP, 50);
     _classPrivateFieldInitSpec(_this2, _unitBuildProgress, 0);
     _classPrivateFieldInitSpec(_this2, _unitBuildDuration, 0);
@@ -84835,17 +85884,19 @@ var BaseBuilding = /*#__PURE__*/function (_BaseEntity2) {
       if (this.frame) {
         this.frame.destroy();
       }
-      this.healthBar.destroy();
+      if (this.healthBar) {
+        this.healthBar.destroy();
+      }
       this.destroy();
     }
   }]);
 }(BaseEntity);
 var UnitGoblinHouse = /*#__PURE__*/function (_BaseBuilding2) {
-  function UnitGoblinHouse(mapX, mapY, drawImageFactory) {
+  function UnitGoblinHouse(mapX, mapY, drawImageFactory, isShowHealth) {
     var _this3;
     _classCallCheck(this, UnitGoblinHouse);
     console.log("set g house, with key: ", _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_HOUSE.name);
-    _this3 = _callSuper(this, UnitGoblinHouse, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_HOUSE.name, 20, drawImageFactory]);
+    _this3 = _callSuper(this, UnitGoblinHouse, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_HOUSE.name, 20, drawImageFactory, isShowHealth]);
     _defineProperty(_this3, "die", function () {
       var grave = _this3.draw.image(_this3.x, _this3.y, 192, 192, "192x192", 21, "rgba(0, 0, 0, 1)");
       grave.sortIndex = 1;
@@ -84858,11 +85909,11 @@ var UnitGoblinHouse = /*#__PURE__*/function (_BaseBuilding2) {
   return _createClass(UnitGoblinHouse);
 }(BaseBuilding);
 var UnitGoblinTower = /*#__PURE__*/function (_BaseBuilding3) {
-  function UnitGoblinTower(mapX, mapY, drawImageFactory) {
+  function UnitGoblinTower(mapX, mapY, drawImageFactory, isShowHealth) {
     var _this4;
     _classCallCheck(this, UnitGoblinTower);
     console.log("set g house, with key: ", _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TOWER.name);
-    _this4 = _callSuper(this, UnitGoblinTower, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TOWER.name, 24, drawImageFactory]);
+    _this4 = _callSuper(this, UnitGoblinTower, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TOWER.name, 24, drawImageFactory, isShowHealth]);
     _defineProperty(_this4, "activateIdle", function () {
       ;
       _this4.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TOWER.ANIMATIONS.IDLE);
@@ -84894,11 +85945,11 @@ var UnitGoblinTower = /*#__PURE__*/function (_BaseBuilding3) {
 var _targetPoint = /*#__PURE__*/new WeakMap();
 var _unitTactic = /*#__PURE__*/new WeakMap();
 var BaseUnit = /*#__PURE__*/function (_BaseEntity3) {
-  function BaseUnit(_x, _y, w, h, entityKey, imageIndex, drawFactory, boundaries, spacing, margin) {
+  function BaseUnit(_x, _y, w, h, entityKey, imageIndex, drawFactory, isShowHealth, boundaries, spacing, margin) {
     var _this5;
     _classCallCheck(this, BaseUnit);
     var imageKey = _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[entityKey].atlasKey ? _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[entityKey].atlasKey : _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[entityKey].name;
-    _this5 = _callSuper(this, BaseUnit, [_x, _y, w, h, imageKey, imageIndex, drawFactory, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[entityKey].health, boundaries, spacing, margin]);
+    _this5 = _callSuper(this, BaseUnit, [_x, _y, w, h, imageKey, imageIndex, drawFactory, isShowHealth, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[entityKey].health, boundaries, spacing, margin]);
     _classPrivateFieldInitSpec(_this5, _targetPoint, void 0);
     _classPrivateFieldInitSpec(_this5, _unitTactic, _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE);
     _defineProperty(_this5, "countNextStep", function () {
@@ -84929,7 +85980,9 @@ var BaseUnit = /*#__PURE__*/function (_BaseEntity3) {
       if (this.frame) {
         this.frame.destroy();
       }
-      this.healthBar.destroy();
+      if (this.healthBar) {
+        this.healthBar.destroy();
+      }
       this.destroy();
     }
   }, {
@@ -84967,10 +86020,10 @@ var _removeGoldBunch = /*#__PURE__*/new WeakMap();
 var _createWoodBunch = /*#__PURE__*/new WeakMap();
 var _removeWoodBunch = /*#__PURE__*/new WeakMap();
 var UnitPeasant = /*#__PURE__*/function (_BaseUnit2) {
-  function UnitPeasant(mapX, mapY, closestTownCenter, drawFactory, eventsAggregator, audio) {
+  function UnitPeasant(mapX, mapY, closestTownCenter, drawFactory, isShowHealth, eventsAggregator, audio) {
     var _this6;
     _classCallCheck(this, UnitPeasant);
-    _this6 = _callSuper(this, UnitPeasant, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.PEASANT.name, 0, drawFactory, {
+    _this6 = _callSuper(this, UnitPeasant, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.PEASANT.name, 0, drawFactory, isShowHealth, {
       r: 30
     }]);
     /**
@@ -85329,10 +86382,10 @@ var _attackAction = /*#__PURE__*/new WeakMap();
 var _stopActiveAudio = /*#__PURE__*/new WeakMap();
 var _playAudio = /*#__PURE__*/new WeakMap();
 var UnitKnight = /*#__PURE__*/function (_BaseUnit3) {
-  function UnitKnight(mapX, mapY, drawFactory, eventsAggregator, audio) {
+  function UnitKnight(mapX, mapY, drawFactory, isShowHealth, eventsAggregator, audio) {
     var _this7;
     _classCallCheck(this, UnitKnight);
-    _this7 = _callSuper(this, UnitKnight, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.KNIGHT.name, 0, drawFactory, {
+    _this7 = _callSuper(this, UnitKnight, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.KNIGHT.name, 0, drawFactory, isShowHealth, {
       r: 30
     }]);
     /**
@@ -85528,10 +86581,10 @@ var _attackInterval2 = /*#__PURE__*/new WeakMap();
 var _attackAction2 = /*#__PURE__*/new WeakMap();
 var _playAudio2 = /*#__PURE__*/new WeakMap();
 var UnitGoblinTorch = /*#__PURE__*/function (_BaseUnit4) {
-  function UnitGoblinTorch(mapX, mapY, drawFactory, eventsAggregator, audio) {
+  function UnitGoblinTorch(mapX, mapY, drawFactory, isShowHealth, eventsAggregator, audio) {
     var _this8;
     _classCallCheck(this, UnitGoblinTorch);
-    _this8 = _callSuper(this, UnitGoblinTorch, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TORCH.name, 84, drawFactory, {
+    _this8 = _callSuper(this, UnitGoblinTorch, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TORCH.name, 84, drawFactory, isShowHealth, {
       r: 30
     }]);
     /**

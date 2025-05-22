@@ -28,7 +28,9 @@ const GAME_EVENTS = {
 		WIN_L_2: "victoryLevel2"
 	},
 	DIALOG: {
-		CHANGE_STATE: "changeState"	
+		CHANGE_STATE: "changeState",
+		CHANGE_STYLE: "changeStyle",
+		CHANGE_OPTIONS: "changeOptions"
 	}
 }
 
@@ -171,7 +173,7 @@ const GAME_UNITS = {
 		atlasKey: ATLAS["192Units"],
 		cost: {g: 400, w: 0 }, 
 		duration: 2000,
-		attackSpeed: 800,
+		attackSpeed: 1000,
 		attackDamage: 30,
 		health: 150
 	},
@@ -181,7 +183,7 @@ const GAME_UNITS = {
 		atlasKey: ATLAS["192Units"], 
 		cost: {g: 200, w: 100 }, 
 		duration: 2000,
-		attackSpeed: 800,
+		attackSpeed: 1000,
 		attackDamage: 20, 
 		health: 100 },
 	BARRACKS: { name: "BARRACKS", cost: { g: 800, w: 500 }, duration: 5000, health: 1000 },

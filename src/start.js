@@ -4,6 +4,7 @@ import { GAME_STAGES, GAME_EVENTS } from "./const.js";
 import UiApp from "./ui/ui-init.js";
 import { createRoot } from 'react-dom/client';
 import React from "react";
+import { OptionsCard } from "./ui/options.js";
 
 const isPointRectIntersect = utils.isPointRectIntersect;
 const LEFT_SHIFT = -70;
@@ -36,6 +37,7 @@ export class StartStage extends GameStage {
         //this.#createOptionsBlock();
         this.audio.registerAudio(MENU_CLICK_AUDIO_NAME);
         this.#menuClickMediaElement = this.audio.getAudio(MENU_CLICK_AUDIO_NAME);
+        this.#drawOptions();
     }
 
     start() {
@@ -52,7 +54,30 @@ export class StartStage extends GameStage {
         canvas.addEventListener("mousemove", this.#mouseHoverEvent);            
         canvas.addEventListener("click", this.#mouseClickEvent);
         document.addEventListener("keydown", this.#pressKeyAction);
+        this.iSystem.addEventListener(GAME_EVENTS.DIALOG.CHANGE_OPTIONS, this.#changeOptions);
         
+    }
+
+    #drawOptions = () => {
+        const [w, h] = this.stageData.canvasDimensions;
+        this.iSystem.emit(GAME_EVENTS.DIALOG.CHANGE_STYLE, w/2 + LEFT_SHIFT + LEFT_SHIFT - 40, this.navItemLevel2.y + 20);
+    }
+
+    #changeOptions = (e) => {
+        const options = e.data[0];
+        //console.log("changed options: ", options);
+        //console.log(this.iSystem.systemSettings.gameOptions);
+        if (options["showBoundaries"] === true) {
+            this.iSystem.systemSettings.gameOptions.debug.boundaries.drawLayerBoundaries = true;
+            this.iSystem.systemSettings.gameOptions.debug.boundaries.drawObjectBoundaries = true;
+        } else if (options["showBoundaries"] === false) {
+            this.iSystem.systemSettings.gameOptions.debug.boundaries.drawLayerBoundaries = false;
+            this.iSystem.systemSettings.gameOptions.debug.boundaries.drawObjectBoundaries = false;
+        } else if (options["showLifeLines"] === true) {
+            this.iSystem.systemSettings.gameOptions.showLifeLines = true;
+        } else if (options["showLifeLines"] === false) {
+            this.iSystem.systemSettings.gameOptions.showLifeLines = false;
+        }
     }
 
     #mouseHoverEvent = (event) => {

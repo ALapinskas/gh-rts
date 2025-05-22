@@ -103,8 +103,8 @@ export class Stage1 extends GameStage {
 		this.#attachAudio();
        	/***************************** */
 		// units
-		const knight1 = new UnitKnight(450, 550, this.draw, this.eventsAggregator, this.knightAudio),
-			knight2 = new UnitKnight(480, 610, this.draw, this.eventsAggregator, this.knightAudio);
+		const knight1 = new UnitKnight(450, 550, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.knightAudio),
+			knight2 = new UnitKnight(480, 610, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.knightAudio);
 
 		//const knight1View = this.draw.circle(knight1.x, knight1.y, 300, "rgba(0,0,0,1)"),
 		//	knight2View = this.draw.circle(knight2.x, knight2.y, 300, "rgba(0,0,0,1)");
@@ -121,9 +121,9 @@ export class Stage1 extends GameStage {
 		this.#playerUnits.push(knight1);
 		this.#playerUnits.push(knight2);
 
-		const goblin1 = new UnitGoblinTorch(850, 550, this.draw, this.eventsAggregator, this.goblinAudio);
+		const goblin1 = new UnitGoblinTorch(850, 550, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.goblinAudio);
 		goblin1.activateIdle();
-		const goblin2 = new UnitGoblinTorch(1400, 850, this.draw, this.eventsAggregator, this.goblinAudio);
+		const goblin2 = new UnitGoblinTorch(1400, 850, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.goblinAudio);
 		goblin2.activateIdle();
 
 		this.addRenderObject(goblin1);
@@ -131,9 +131,9 @@ export class Stage1 extends GameStage {
 		this.#enemyUnits.push(goblin1);
 		this.#enemyUnits.push(goblin2);
 
-		const goblinHouse1 = new UnitGoblinHouse(650, 1400, this.draw),
-			goblinHouse2 =  new UnitGoblinHouse(850, 1500, this.draw),
-			goblinTower = new UnitGoblinTower(950, 1200, this.draw);
+		const goblinHouse1 = new UnitGoblinHouse(650, 1400, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines),
+			goblinHouse2 =  new UnitGoblinHouse(850, 1500, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines),
+			goblinTower = new UnitGoblinTower(950, 1200, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines);
 
 		goblinTower.activateIdle();
 		this.addRenderObject(goblinHouse1);
@@ -307,8 +307,8 @@ export class Stage1 extends GameStage {
 		if (code === "Space") {
 			
 			const townCenter = this.#playerBuildings.find((building) => building.key === GAME_UNITS.TOWN_CENTER.name);
-			const newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.eventsAggregator);
-			const newPeasant2 = new UnitPeasant(0, 0, townCenter, this.draw, this.eventsAggregator);
+			const newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
+			const newPeasant2 = new UnitPeasant(0, 0, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
 
 			newPeasant.x = townCenter.x - this.#addUnitPosX;
 			newPeasant.y = townCenter.y;
@@ -748,7 +748,7 @@ export class Stage1 extends GameStage {
 							}
 							
 							const [x, y] = unit.targetPoint;
-							const newBuilding = new UnitBuilding(x + 60, y + 96, 128, 192, imageType, startIndex, this.draw, this.eventsAggregator);
+							const newBuilding = new UnitBuilding(x + 60, y + 96, 128, 192, imageType, startIndex, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
 							
 							this.#playerBuildings.push(newBuilding);
 							this.addRenderObject(newBuilding);
@@ -985,7 +985,7 @@ export class Stage1 extends GameStage {
 
 	#peasantBuilt = (e) => {
 		const townCenter = e.detail,
-			newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.eventsAggregator);
+			newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
 
 		let posX = 80,
 			posY = 120;
@@ -1005,7 +1005,7 @@ export class Stage1 extends GameStage {
 
 	#buildingDone = (e) => {
 		const house = e.detail,
-			newPeasant = new UnitPeasant(0, 0, house, this.draw, this.eventsAggregator);
+			newPeasant = new UnitPeasant(0, 0, house, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
 		console.log(e.detail);
 		let posX = 20,
 			posY = 20;

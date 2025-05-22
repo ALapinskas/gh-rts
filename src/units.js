@@ -22,18 +22,22 @@ class BaseEntity extends DrawImageObject {
 	 * @type {boolean}
 	 */
 	#isSelected = false;
+	#isShowHealth = false;
 	#healthMax;
 	#healthLeft;
 	#healthBarMaxWidth;
 	#healthBar;
-	constructor(mapX, mapY, width, height, imageKey, imageIndex = 0, drawImageFactory, health, boundaries = null, spacing = 0, margin = 0) {
+	constructor(mapX, mapY, width, height, imageKey, imageIndex = 0, drawImageFactory, isShowHealth, health, boundaries = null, spacing = 0, margin = 0) {
 		super(mapX, mapY, width, height, imageKey, imageIndex, boundaries, null, spacing, margin);
 		this.#draw = drawImageFactory;
 		this.#healthMax = health;
 		this.#healthLeft = health;
-		this.#healthBarMaxWidth =  width / 3;
-		this.#healthBar = this.#draw.rect(mapX - width/5, mapY - height/4, width / 3, 4, "rgba(255, 0, 0, 0.77)");
-		this.#healthBar.sortIndex = 3;
+		this.#isShowHealth = isShowHealth;
+		if (this.#isShowHealth) {
+			this.#healthBarMaxWidth =  width / 3;
+			this.#healthBar = this.#draw.rect(mapX - width/5, mapY - height/4, width / 3, 4, "rgba(255, 0, 0, 0.77)");
+			this.#healthBar.sortIndex = 5;
+		}
 		console.log("set entity with key: ", imageKey, " health: ", health);
 	}
 
@@ -64,7 +68,9 @@ class BaseEntity extends DrawImageObject {
 
 	set xPos (newCoordX) {
 		this.x = newCoordX;
-		this.#healthBar.x = newCoordX - this.width/5;
+		if (this.#isShowHealth) {
+			this.#healthBar.x = newCoordX - this.width/5;
+		}
 		if (this.isSelected) {
 			if (this.circleBoundaries) {
 				this.frame.x = newCoordX;
@@ -76,7 +82,9 @@ class BaseEntity extends DrawImageObject {
 
 	set yPos (newCoordY) {
 		this.y = newCoordY;
-		this.#healthBar.y = newCoordY - this.height/4;
+		if (this.#isShowHealth) {
+			this.#healthBar.y = newCoordY - this.height/4;
+		}
 		if (this.isSelected) {
 			if (this.circleBoundaries) {
 				this.frame.y = newCoordY;
@@ -102,7 +110,9 @@ class BaseEntity extends DrawImageObject {
 		const healthLeft = this.health - damage,
 			healthLeftPers = healthLeft > 0 ? healthLeft / this.#healthMax : 0;
 		this.health = healthLeft;
-		this.#healthBar.width = healthLeftPers * this.#healthBarMaxWidth;
+		if (this.#isShowHealth) {
+			this.#healthBar.width = healthLeftPers * this.#healthBarMaxWidth;
+		}
 		console.log("opponent health: ", this.health);
 	}
 }
@@ -123,10 +133,10 @@ class BaseBuilding extends BaseEntity {
 	#progressLine;
 
     #state = BUILDING_STATE.BUILDING_SELF;
-	constructor(mapX, mapY, width, height, entityKey, imageIndex = 0, drawFactory, eventsAggregator, isBuildDone = true) {
+	constructor(mapX, mapY, width, height, entityKey, imageIndex = 0, drawFactory, isShowHealth, eventsAggregator, isBuildDone = true) {
 		const imageKey = GAME_UNITS[entityKey].atlasKey ? GAME_UNITS[entityKey].atlasKey : GAME_UNITS[entityKey].name;
 		console.log("base building set health: ", GAME_UNITS[entityKey].health);
-		super(mapX, mapY, width, height, imageKey, imageIndex, drawFactory, GAME_UNITS[entityKey].health);
+		super(mapX, mapY, width, height, imageKey, imageIndex, drawFactory, isShowHealth, GAME_UNITS[entityKey].health);
 		this.#eventsAggregator = eventsAggregator;
 		this.#selfBuildingDuration = GAME_UNITS[entityKey].duration;
 		
@@ -238,15 +248,17 @@ class BaseBuilding extends BaseEntity {
 		if (this.frame) {
 			this.frame.destroy();
 		}
-		this.healthBar.destroy();
+		if (this.healthBar) {
+			this.healthBar.destroy();
+		}
 		this.destroy();
 	}
 }
 
 class UnitGoblinHouse extends BaseBuilding {
-	constructor(mapX, mapY, drawImageFactory) {
+	constructor(mapX, mapY, drawImageFactory, isShowHealth) {
 		console.log("set g house, with key: ", GAME_UNITS.GOBLIN_HOUSE.name);
-		super(mapX, mapY, 192, 192, GAME_UNITS.GOBLIN_HOUSE.name, 20, drawImageFactory);
+		super(mapX, mapY, 192, 192, GAME_UNITS.GOBLIN_HOUSE.name, 20, drawImageFactory, isShowHealth);
 	}
 	die = () => {
 		const grave = this.draw.image(this.x, this.y, 192, 192, "192x192", 21, "rgba(0, 0, 0, 1)");
@@ -257,9 +269,9 @@ class UnitGoblinHouse extends BaseBuilding {
 }
 
 class UnitGoblinTower extends BaseBuilding {
-	constructor(mapX, mapY, drawImageFactory) {
+	constructor(mapX, mapY, drawImageFactory, isShowHealth) {
 		console.log("set g house, with key: ", GAME_UNITS.GOBLIN_TOWER.name);
-		super(mapX, mapY, 192, 192, GAME_UNITS.GOBLIN_TOWER.name, 24, drawImageFactory);
+		super(mapX, mapY, 192, 192, GAME_UNITS.GOBLIN_TOWER.name, 24, drawImageFactory, isShowHealth);
 		this.addAnimation(GOBLIN_TOWER.ANIMATIONS.IDLE, [{ duration:200, id:24 }, { duration:200, id:25 }, { duration:200, id:26 }, { duration:200, id:27 }], true);
 	}
 	activateIdle = () => {;
@@ -278,9 +290,9 @@ class BaseUnit extends BaseEntity {
 
 	#targetPoint;
 	#unitTactic = UNIT_TACTIC.AGGRESSIVE;
-	constructor(x, y, w, h, entityKey, imageIndex, drawFactory, boundaries, spacing, margin){
+	constructor(x, y, w, h, entityKey, imageIndex, drawFactory, isShowHealth, boundaries, spacing, margin){
 		const imageKey = GAME_UNITS[entityKey].atlasKey ? GAME_UNITS[entityKey].atlasKey : GAME_UNITS[entityKey].name;
-		super(x, y, w, h, imageKey, imageIndex, drawFactory, GAME_UNITS[entityKey].health, boundaries, spacing, margin);
+		super(x, y, w, h, imageKey, imageIndex, drawFactory, isShowHealth, GAME_UNITS[entityKey].health, boundaries, spacing, margin);
 	}
 
 	die() {
@@ -292,7 +304,9 @@ class BaseUnit extends BaseEntity {
 		if (this.frame) {
 			this.frame.destroy();
 		}
-		this.healthBar.destroy();
+		if (this.healthBar) {
+			this.healthBar.destroy();
+		}
 		this.destroy();
 	}
 
@@ -343,8 +357,8 @@ class UnitPeasant extends BaseUnit {
 	#goldBag = null;
 	#woodBunch = null;
 	#audio;
-	constructor(mapX, mapY, closestTownCenter, drawFactory, eventsAggregator, audio) {
-		super(mapX, mapY, 192, 192, GAME_UNITS.PEASANT.name, 0, drawFactory, { r:30 });
+	constructor(mapX, mapY, closestTownCenter, drawFactory, isShowHealth, eventsAggregator, audio) {
+		super(mapX, mapY, 192, 192, GAME_UNITS.PEASANT.name, 0, drawFactory, isShowHealth, { r:30 });
 		this.addAnimation(PEASANT.ANIMATIONS.MOVE_DOWN, [6, 7, 8, 9, 10, 11], true);
 		this.addAnimation(PEASANT.ANIMATIONS.MOVE_UP, [6, 7, 8, 9, 10, 11], true);
 		this.addAnimation(PEASANT.ANIMATIONS.MOVE_RIGHT, [6, 7, 8, 9, 10, 11], true);
@@ -681,8 +695,8 @@ class UnitKnight extends BaseUnit {
 	#attackInterval;
 	#audio;
 	#audioInProgress;
-	constructor(mapX, mapY, drawFactory, eventsAggregator, audio) {
-		super(mapX, mapY, 192, 192, GAME_UNITS.KNIGHT.name, 0, drawFactory, { r: 30 });
+	constructor(mapX, mapY, drawFactory, isShowHealth, eventsAggregator, audio) {
+		super(mapX, mapY, 192, 192, GAME_UNITS.KNIGHT.name, 0, drawFactory, isShowHealth, { r: 30 });
 		this.addAnimation(KNIGHT.ANIMATIONS.IDLE_RIGHT, [0, 1, 2, 3, 4, 5], true);
 		this.addAnimation(KNIGHT.ANIMATIONS.MOVE_RIGHT, [7, 8, 9, 10, 11, 12], true);
 		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_RIGHT_1, [14, 15, 16, 17, 18, 19], true);
@@ -874,8 +888,8 @@ class UnitGoblinTorch extends BaseUnit {
 	#audio;
 	#attackInterval
 
-	constructor(mapX, mapY, drawFactory, eventsAggregator, audio) {
-		super(mapX, mapY, 192, 192, GAME_UNITS.GOBLIN_TORCH.name, 84, drawFactory, { r:30 });
+	constructor(mapX, mapY, drawFactory, isShowHealth, eventsAggregator, audio) {
+		super(mapX, mapY, 192, 192, GAME_UNITS.GOBLIN_TORCH.name, 84, drawFactory, isShowHealth, { r:30 });
 		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.IDLE_RIGHT, [84, 85, 86, 87, 88, 89], true);
 		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.MOVE_RIGHT, [91, 92, 93, 94, 95, 96], true);
 		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.FIGHT_RIGHT_1, [98, 99, 100, 101, 102, 103], true);
