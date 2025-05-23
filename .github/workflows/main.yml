@@ -20,7 +20,7 @@ jobs:
       run: |
         mkdir -p ~/.ssh
         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed255_tw_github
-        chmod 600 "$SSH_KEY_PATH"
+        chmod 600 ~/.ssh/id_ed255_tw_github
         ssh-keyscan "$REMOTE_SERVER" >> ~/.ssh/known_hosts
       
     - name: Upload files to server
