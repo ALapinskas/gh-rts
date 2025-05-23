@@ -28,4 +28,4 @@ jobs:
         REMOTE_USER: ${{ vars.REMOTE_USER }}
         REMOTE_DIR: ${{ vars.REMOTE_DIR }}
       run: |
-        scp -i ~/.ssh/id_ed255_tw_github -r ./dist/* "$REMOTE_USER"@"$REMOTE_SERVER":"$REMOTE_DIR"
+        scp -i ~/.ssh/id_ed255_tw_github -r /dist/* "$REMOTE_USER"@"$REMOTE_SERVER":"$REMOTE_DIR"
