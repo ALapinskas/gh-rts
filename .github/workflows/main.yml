@@ -1,4 +1,4 @@
-name: Upload to Server
+name: Upload /dist/* to Server
 
 on:
   push:
@@ -16,8 +16,8 @@ jobs:
     - name: Set up SSH
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa_tw_cloud
-        chmod 600 ~/.ssh/id_rsa_tw_cloud
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed255_tw_github
+        chmod 600 ~/.ssh/id_ed255_tw_github
         ssh-keyscan 85.193.83.189 >> ~/.ssh/known_hosts
 
     - name: Upload files to server
