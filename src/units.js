@@ -5,7 +5,8 @@ const countDistance = utils.countDistance,
 	angle_2points = utils.angle_2points,
 	randomFromArray = utils.randomFromArray;
 
-import { PEASANT, GAME_EVENTS, GAME_UNITS, BUILDING_STATE, KNIGHT, GOBLIN_TORCH, ATLAS, GOBLIN_TOWER, GAME_OBJECTS, GAME_AUDIO_TYPES, UNIT_TACTIC } from "./const.js";
+import { PEASANT, GAME_EVENTS, GAME_UNITS, BUILDING_STATE, KNIGHT, GOBLIN_TORCH, ATLAS, GOBLIN_TOWER, GAME_OBJECTS, GAME_AUDIO_TYPES, UNIT_TACTIC, ARCHER } from "./const.js";
+import { Vector } from "jsge/src/base/2d/Primitives.js";
 
 class BaseEntity extends DrawImageObject {
 	/**
@@ -296,9 +297,9 @@ class BaseUnit extends BaseEntity {
 	}
 
 	die() {
-		const grave = this.draw.image(this.x, this.y, 192, 192, GAME_OBJECTS.SKILL.atlasKey, 140, "rgba(0, 0, 0, 1)");
+		const grave = this.draw.image(this.x, this.y, 192, 192, GAME_OBJECTS.SKILL.atlasKey, 160, "rgba(0, 0, 0, 1)");
 		grave.sortIndex = 1;
-		grave.addAnimation("graveAppear", [140, 141, 142, 143, 144, 145, 147, 148, 149, 150, 151, 152, 153]);
+		grave.addAnimation("graveAppear", [160, 161, 162, 163, 164, 165, 168, 169, 170, 171, 172, 173, 174]);
 		grave.emit("graveAppear");
 		
 		if (this.frame) {
@@ -358,21 +359,23 @@ class UnitPeasant extends BaseUnit {
 	#woodBunch = null;
 	#audio;
 	constructor(mapX, mapY, closestTownCenter, drawFactory, isShowHealth, eventsAggregator, audio) {
-		super(mapX, mapY, 192, 192, GAME_UNITS.PEASANT.name, 0, drawFactory, isShowHealth, { r:30 });
-		this.addAnimation(PEASANT.ANIMATIONS.MOVE_DOWN, [6, 7, 8, 9, 10, 11], true);
-		this.addAnimation(PEASANT.ANIMATIONS.MOVE_UP, [6, 7, 8, 9, 10, 11], true);
-		this.addAnimation(PEASANT.ANIMATIONS.MOVE_RIGHT, [6, 7, 8, 9, 10, 11], true);
-		this.addAnimation(PEASANT.ANIMATIONS.MOVE_LEFT, [6, 7, 8, 9, 10, 11], true);
+		super(mapX, mapY, 192, 192, GAME_UNITS.PEASANT.name, 272, drawFactory, isShowHealth, { r:30 });
+		this.addAnimation(PEASANT.ANIMATIONS.IDLE_RIGHT, [272, 273, 274, 275, 276, 277], true);
+		this.addAnimation(PEASANT.ANIMATIONS.IDLE_LEFT, [285, 284, 283, 282, 281, 280], true);
+		this.addAnimation(PEASANT.ANIMATIONS.MOVE_RIGHT, [288, 289, 290, 291, 292, 293], true);
+		this.addAnimation(PEASANT.ANIMATIONS.MOVE_LEFT, [301, 300, 299, 298, 297, 296], true);
 
-		this.addAnimation(PEASANT.ANIMATIONS.CARRY_DOWN, [30, 31, 32, 33, 34, 35], true);
-		this.addAnimation(PEASANT.ANIMATIONS.CARRY_UP, [30, 31, 32, 33, 34, 35], true);
-		this.addAnimation(PEASANT.ANIMATIONS.CARRY_RIGHT, [30, 31, 32, 33, 34, 35], true);
-		this.addAnimation(PEASANT.ANIMATIONS.CARRY_LEFT, [30, 31, 32, 33, 34, 35], true);
+		this.addAnimation(PEASANT.ANIMATIONS.BUILD_RIGHT, [304, 305, 306, 307, 308, 309], true);
+		this.addAnimation(PEASANT.ANIMATIONS.BUILD_LEFT, [317, 316, 315, 314, 313, 312], true);
 
-		this.addAnimation(PEASANT.ANIMATIONS.FIGHT_DOWN, [18, 19, 20, 21, 22, 23], true);
-		this.addAnimation(PEASANT.ANIMATIONS.FIGHT_UP, [18, 19, 20, 21, 22, 23], true);
-		this.addAnimation(PEASANT.ANIMATIONS.FIGHT_RIGHT, [18, 19, 20, 21, 22, 23], true);
-		this.addAnimation(PEASANT.ANIMATIONS.FIGHT_LEFT, [18, 19, 20, 21, 22, 23], true);
+		this.addAnimation(PEASANT.ANIMATIONS.CHOP_RIGHT, [320, 321, 322, 323, 324, 325], true);
+		this.addAnimation(PEASANT.ANIMATIONS.CHOP_LEFT, [333, 332, 331, 330, 329, 328], true);
+		
+		this.addAnimation(PEASANT.ANIMATIONS.CARRY_IDLE_RIGHT, [336, 337, 338, 339, 340, 341], true);
+		this.addAnimation(PEASANT.ANIMATIONS.CARRY_IDLE_LEFT, [349, 348, 347, 346, 345, 344], true);
+		this.addAnimation(PEASANT.ANIMATIONS.CARRY_RIGHT, [352, 353, 354, 355, 356, 357], true);
+		this.addAnimation(PEASANT.ANIMATIONS.CARRY_LEFT, [365, 364, 363, 362, 361, 360], true);
+
 
 		this.#closestTownCenter = closestTownCenter;
 		this.#eventsAggregator = eventsAggregator;
@@ -408,9 +411,9 @@ class UnitPeasant extends BaseUnit {
 		}
 		
 		if (this.#hasGold || this.#hasWood) {
-			this.imageIndex = 29;
+			this.emit(PEASANT.ANIMATIONS.CARRY_IDLE_RIGHT);
 		} else {
-			this.imageIndex = 0;
+			this.emit(PEASANT.ANIMATIONS.IDLE_RIGHT);
 		}
 		if (isClicked) {
 			randomFromArray(this.#audio.get(GAME_AUDIO_TYPES.WHAT)).play();
@@ -498,24 +501,15 @@ class UnitPeasant extends BaseUnit {
 
 			const direction = angle_2points(this.x, this.y, this.#targetTree.x, this.#targetTree.y);
 
-			if (direction > -Math.PI/4 && direction < Math.PI/4) {
+			if (direction >= -Math.PI/2 && direction <= Math.PI/2) {
 				//console.log("chop right");
-				if (this.activeAnimation !== PEASANT.ANIMATIONS.FIGHT_RIGHT) {
-					this.emit(PEASANT.ANIMATIONS.FIGHT_RIGHT);
+				if (this.activeAnimation !== PEASANT.ANIMATIONS.CHOP_RIGHT) {
+					this.emit(PEASANT.ANIMATIONS.CHOP_RIGHT);
 				}
-			} else if (direction > Math.PI/4 && direction < 3*Math.PI/4) {
-				//console.log("chop down");
-				if (this.activeAnimation !== PEASANT.ANIMATIONS.FIGHT_DOWN) {
-					this.emit(PEASANT.ANIMATIONS.FIGHT_DOWN)
-				}
-			} else if (direction > 3*Math.PI/4 || direction < -3*Math.PI/4) {
+			} else if (direction > Math.PI/2 || direction < -Math.PI/2) {
 				//console.log("chop left");
-				if (this.activeAnimation !== PEASANT.ANIMATIONS.FIGHT_LEFT) {
-					this.emit(PEASANT.ANIMATIONS.FIGHT_LEFT);
-				}
-			} else if (direction > -3*Math.PI/4 && direction < Math.PI/4) {
-				if (this.activeAnimation !== PEASANT.ANIMATIONS.FIGHT_UP) {
-					this.emit(PEASANT.ANIMATIONS.FIGHT_UP);
+				if (this.activeAnimation !== PEASANT.ANIMATIONS.CHOP_LEFT) {
+					this.emit(PEASANT.ANIMATIONS.CHOP_LEFT);
 				}
 			}
 		} else {
@@ -536,30 +530,18 @@ class UnitPeasant extends BaseUnit {
             newCoordX = x + forceToUse * Math.cos(direction),
             newCoordY = y + forceToUse * Math.sin(direction);
             
-		if (direction > -Math.PI/4 && direction < Math.PI/4) {
+		if (direction >= -Math.PI/2 && direction <= Math.PI/2) {
 			//console.log("move right");
 			if (hasGold && this.activeAnimation !== PEASANT.ANIMATIONS.CARRY_RIGHT) {
 				this.emit(PEASANT.ANIMATIONS.CARRY_RIGHT);
 			} else if (!hasGold && this.activeAnimation !== PEASANT.ANIMATIONS.MOVE_RIGHT)
 				this.emit(PEASANT.ANIMATIONS.MOVE_RIGHT);
-		} else if (direction >= Math.PI/4 && direction < 3*Math.PI/4) {
-			//console.log("move down");
-			if (hasGold && this.activeAnimation !== PEASANT.ANIMATIONS.CARRY_DOWN) {
-				this.emit(PEASANT.ANIMATIONS.CARRY_DOWN)
-			} else if (!hasGold && this.activeAnimation !== PEASANT.ANIMATIONS.MOVE_DOWN)
-				this.emit(PEASANT.ANIMATIONS.MOVE_DOWN);
-		} else if (direction > 3*Math.PI/4 || direction < -3*Math.PI/4) {
+		} else if (direction > Math.PI/2 || direction < -Math.PI/2) {
 			//console.log("move left");
 			if (hasGold && this.activeAnimation !== PEASANT.ANIMATIONS.CARRY_LEFT) {
 				this.emit(PEASANT.ANIMATIONS.CARRY_LEFT);
 			} else if (!hasGold && this.activeAnimation !== PEASANT.ANIMATIONS.MOVE_LEFT)
 				this.emit(PEASANT.ANIMATIONS.MOVE_LEFT);
-		} else if (direction > -3*Math.PI/4 && direction < Math.PI/4) {
-			//console.log("move up");
-			if (hasGold && this.activeAnimation !== PEASANT.ANIMATIONS.CARRY_UP) {
-				this.emit(PEASANT.ANIMATIONS.CARRY_UP);
-			} else if (!hasGold && this.activeAnimation !== PEASANT.ANIMATIONS.MOVE_UP)
-				this.emit(PEASANT.ANIMATIONS.MOVE_UP);
 		} else {
 			console.log("unrecognized move to ", direction);
 		}
@@ -590,22 +572,14 @@ class UnitPeasant extends BaseUnit {
             newCoordX = x + forceToUse * Math.cos(direction),
             newCoordY = y + forceToUse * Math.sin(direction);
             
-			if (direction > -Math.PI/4 && direction < Math.PI/4) {
+			if (direction >= -Math.PI/2 && direction <= Math.PI/2) {
 				//console.log("move right");
 				if (this.activeAnimation !== PEASANT.ANIMATIONS.MOVE_RIGHT)
 					this.emit(PEASANT.ANIMATIONS.MOVE_RIGHT);
-			} else if (direction >= Math.PI/4 && direction < 3*Math.PI/4) {
-				//console.log("move down");
-				if (this.activeAnimation !== PEASANT.ANIMATIONS.MOVE_DOWN)
-					this.emit(PEASANT.ANIMATIONS.MOVE_DOWN);
-			} else if (direction > 3*Math.PI/4 || direction < -3*Math.PI/4) {
+			} else if (direction > Math.PI/2 || direction < -Math.PI/2) {
 				//console.log("move left");
 				if (this.activeAnimation !== PEASANT.ANIMATIONS.MOVE_LEFT)
 					this.emit(PEASANT.ANIMATIONS.MOVE_LEFT);
-			} else if (direction > -3*Math.PI/4 && direction < Math.PI/4) {
-				//console.log("move up");
-				if (this.activeAnimation !== PEASANT.ANIMATIONS.MOVE_UP)
-					this.emit(PEASANT.ANIMATIONS.MOVE_UP);
 			} else {
 				console.log("unrecognized move to ", direction);
 			}
@@ -654,7 +628,7 @@ class UnitPeasant extends BaseUnit {
 	activateMoveToTargetPoint = (targetX, targetY, saySomething = false) => {
 		this.#activeAction = PEASANT.ACTIONS.MOVE;
 		this.targetPoint = [targetX, targetY];
-		if (saySomething) {
+		if (saySomething && this.#audio.has(GAME_AUDIO_TYPES.YES)) {
 			randomFromArray(this.#audio.get(GAME_AUDIO_TYPES.YES)).play();
 		}
 	}
@@ -698,17 +672,17 @@ class UnitKnight extends BaseUnit {
 	constructor(mapX, mapY, drawFactory, isShowHealth, eventsAggregator, audio) {
 		super(mapX, mapY, 192, 192, GAME_UNITS.KNIGHT.name, 0, drawFactory, isShowHealth, { r: 30 });
 		this.addAnimation(KNIGHT.ANIMATIONS.IDLE_RIGHT, [0, 1, 2, 3, 4, 5], true);
-		this.addAnimation(KNIGHT.ANIMATIONS.MOVE_RIGHT, [7, 8, 9, 10, 11, 12], true);
-		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_RIGHT_1, [14, 15, 16, 17, 18, 19], true);
-		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_RIGHT_2, [21, 22, 23, 24, 25, 26], true);
-		this.addAnimation(KNIGHT.ANIMATIONS.IDLE_LEFT, [33, 32, 31, 30, 29, 28], true);
-		this.addAnimation(KNIGHT.ANIMATIONS.MOVE_LEFT, [40, 39, 38, 37, 36, 35], true);
-		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_LEFT_1, [47, 46, 45, 44, 43, 42], true);
-		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_LEFT_2, [54, 53, 52, 51, 50, 49], true);
-		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_DOWN_1, [56, 57, 58, 59, 60, 61], true);
-		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_DOWN_2, [63, 64, 65, 66, 67, 68], true);
-		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_UP_1, [70, 71, 72, 73, 74, 75], true);
-		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_UP_2, [77, 78, 79, 80, 81, 82], true);
+		this.addAnimation(KNIGHT.ANIMATIONS.MOVE_RIGHT, [8, 9, 10, 11, 12, 13], true);
+		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_RIGHT_1, [16, 17, 18, 19, 20, 21], true);
+		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_RIGHT_2, [24, 25, 26, 27, 28, 29], true);
+		this.addAnimation(KNIGHT.ANIMATIONS.IDLE_LEFT, [37, 36, 35, 34, 33, 32], true);
+		this.addAnimation(KNIGHT.ANIMATIONS.MOVE_LEFT, [45, 44, 43, 42, 41, 40], true);
+		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_LEFT_1, [53, 52, 51, 50, 49, 48], true);
+		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_LEFT_2, [61, 60, 59, 58, 57, 56], true);
+		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_DOWN_1, [64, 65, 66, 67, 68, 69], true);
+		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_DOWN_2, [72, 73, 74, 75, 76, 77], true);
+		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_UP_1, [80, 81, 82, 83, 84, 85], true);
+		this.addAnimation(KNIGHT.ANIMATIONS.FIGHT_UP_2, [88, 89, 90, 91, 92, 93], true);
 
 		this.#eventsAggregator = eventsAggregator;
 		this.#audio = audio;
@@ -875,6 +849,199 @@ class UnitKnight extends BaseUnit {
 }
 
 
+class UnitArcher extends BaseUnit {
+	/**
+	 * @type {string}
+	 */
+	#activeAction;
+	#buildingType;
+	#eventsAggregator;
+	#attackInterval;
+	#audio;
+	#audioInProgress;
+	constructor(mapX, mapY, drawFactory, isShowHealth, eventsAggregator, audio) {
+		super(mapX, mapY, 192, 192, GAME_UNITS.ARCHER.name, 176, drawFactory, isShowHealth, { r: 30 });
+		this.addAnimation(ARCHER.ANIMATIONS.IDLE_RIGHT, [176, 177, 178, 179, 180, 181], true);
+		this.addAnimation(ARCHER.ANIMATIONS.MOVE_RIGHT, [184, 185, 186, 187, 188, 189], true);
+		this.addAnimation(ARCHER.ANIMATIONS.IDLE_LEFT, [199, 198, 197, 196, 195, 194], true);
+		this.addAnimation(ARCHER.ANIMATIONS.MOVE_LEFT, [207, 206, 205, 204, 203, 202], true);
+
+		this.addAnimation(ARCHER.ANIMATIONS.FIGHT_UP, [208, 209, 210, 211, 212, 213, 214, 215], true);
+		this.addAnimation(ARCHER.ANIMATIONS.FIGHT_UP_RIGHT, [216, 217, 218, 219, 220, 221, 222, 223], true);
+		this.addAnimation(ARCHER.ANIMATIONS.FIGHT_RIGHT, [224, 225, 226, 227, 228, 229, 230, 231], true);
+		this.addAnimation(ARCHER.ANIMATIONS.FIGHT_DOWN_RIGHT, [232, 233, 234, 235, 236, 237, 238, 239], true);
+		this.addAnimation(ARCHER.ANIMATIONS.FIGHT_DOWN, [240, 241, 242, 243, 244, 245, 246, 247], true);
+		this.addAnimation(ARCHER.ANIMATIONS.FIGHT_UP_LEFT, [255, 254, 253, 252, 251, 250, 249, 248], true);
+		this.addAnimation(ARCHER.ANIMATIONS.FIGHT_LEFT, [263, 262, 261, 260, 259, 258, 257, 256], true);
+		this.addAnimation(ARCHER.ANIMATIONS.FIGHT_DOWN_LEFT, [271, 270, 269, 268, 267, 266, 265, 264], true);
+
+		this.#eventsAggregator = eventsAggregator;
+		this.#audio = audio;
+		this.sortIndex = 2;
+	}
+
+	get activeAction() {
+		return this.#activeAction;
+	}
+
+	get buildingType() {
+		return this.#buildingType;
+	}
+
+	activateIdle = (isClicked = false) => {
+		this.#activeAction = ARCHER.ACTIONS.IDLE;
+		const activeAnimation = this.activeAnimation;
+		console.log("idle++++>>>>");
+		console.log(activeAnimation);
+		if (activeAnimation === ARCHER.ANIMATIONS.MOVE_LEFT || activeAnimation === ARCHER.ANIMATIONS.IDLE_LEFT) {
+			this.emit(ARCHER.ANIMATIONS.IDLE_LEFT);
+		} else {
+			this.emit(ARCHER.ANIMATIONS.IDLE_RIGHT);
+		}
+		this.#stopActiveAudio();
+		if (isClicked) {
+			randomFromArray(this.#audio.get(GAME_AUDIO_TYPES.WHAT)).play();
+		}
+		if (this.#attackInterval) {
+			clearInterval(this.#attackInterval);
+			this.#attackInterval = null;
+		}
+	}
+
+	activateAttack = (unit) => {
+		if (this.#activeAction !== ARCHER.ACTIONS.FIGHT) {
+			clearInterval(this.#attackInterval);
+			this.#activeAction = ARCHER.ACTIONS.FIGHT;
+
+			this.#attackAction(unit);
+			this.#attackInterval = setInterval(() => this.#attackAction(unit), GAME_UNITS.ARCHER.attackSpeed);
+		}
+	}
+
+	#attackAction = (unit) => {
+
+		if (unit.health > 0) {
+			const x = this.x,
+				y = this.y,
+				tX = unit.x,
+				tY = unit.y,
+				direction = angle_2points(x, y, tX, tY);
+			
+			this.#stopActiveAudio();
+			this.#playAudio(GAME_AUDIO_TYPES.FIGHT);
+			
+			console.log("enemy direction: ", direction);
+			if (direction >= -Math.PI/4 && direction <= Math.PI/4) {
+				//console.log("move right");
+				this.emit(ARCHER.ANIMATIONS.FIGHT_RIGHT);
+			} else if (direction >= Math.PI/4 && direction < 3*Math.PI/4) {
+			//	//console.log("move down");
+				this.emit(ARCHER.ANIMATIONS.FIGHT_DOWN);
+			} else if (direction >= 3*Math.PI/4 || direction <= -3*Math.PI/4) {
+				//console.log("move left");
+				this.emit(ARCHER.ANIMATIONS.FIGHT_LEFT);
+			} else if (direction > -3*Math.PI/4 && direction < Math.PI/4) {
+				//console.log("move up");
+				this.emit(ARCHER.ANIMATIONS.FIGHT_UP);
+			} else {
+				console.log("unrecognized move to ", direction);
+			}
+		} else {
+			this.activateIdle();
+		}
+	}
+
+	stepMove = (newCoordX, newCoordY) => {
+		const x = this.x,
+			y = this.y,
+			tX = this.targetPoint[0],
+			tY = this.targetPoint[1];
+		if (countDistance(this, {x:tX, y: tY}) < 5) {
+			console.log("reached");
+			this.activateIdle();
+		} else {
+            const direction = angle_2points(x, y, tX, tY);
+            
+			if (direction > -Math.PI/4 && direction < Math.PI/4) {
+				//console.log("move right");
+				//this.emit(ARCHER.ANIMATIONS.MOVE);
+			} else if (direction >= Math.PI/4 && direction < 3*Math.PI/4) {
+				//console.log("move down");
+				//this.emit(ARCHER.ANIMATIONS.MOVE);
+			} else if (direction > 3*Math.PI/4 || direction < -3*Math.PI/4) {
+				//console.log("move left");
+				//this.emit(ARCHER.ANIMATIONS.MOVE);
+			} else if (direction > -3*Math.PI/4 && direction < Math.PI/4) {
+				//console.log("move up");
+				//this.emit(ARCHER.ANIMATIONS.MOVE);
+			} else {
+				console.log("unrecognized move to ", direction);
+			}
+        	this.xPos = newCoordX;
+        	this.yPos = newCoordY;
+		}
+	}
+
+	activateMoveToTargetPoint = (targetX, targetY, saySomething = false) => {
+           
+		this.#activeAction = ARCHER.ACTIONS.MOVE;
+		this.targetPoint = [targetX, targetY];
+		//this.emit(ARCHER.ANIMATIONS.MOVE);
+		const direction = angle_2points(this.x, this.y, targetX, targetY);
+		if (direction >= -Math.PI/2 && direction <= Math.PI/2) {
+			//console.log("move right");
+			this.emit(ARCHER.ANIMATIONS.MOVE_RIGHT);
+		} else if (direction > Math.PI/2 || direction < -Math.PI/2) {
+			//console.log("move left");
+			this.emit(ARCHER.ANIMATIONS.MOVE_LEFT);
+		} else {
+			console.log("unrecognized move to ", direction);
+		}
+		if (this.#attackInterval) {
+			clearInterval(this.#attackInterval);
+			this.#attackInterval = null;
+		}
+		if (saySomething) {
+			randomFromArray(this.#audio.get(GAME_AUDIO_TYPES.YES)).play();
+		}
+	}
+
+	activateMoveToTargetPointInRange = (targetX, targetY) => {
+		// not sure this is correct formula CHAT GPT make this ---->>>>
+		const len = Math.sqrt(Math.pow(targetX - this.x, 2) + Math.pow(targetY - this.y, 2)),
+			x = this.x + (GAME_UNITS.ARCHER.attackRange * ((targetX - this.x) / len)),
+			y = this.y + (GAME_UNITS.ARCHER.attackRange * ((targetY - this.y) / len));
+		this.activateMoveToTargetPoint(x, y);
+	}
+
+	#stopActiveAudio = () => {
+		if (this.#audioInProgress) {
+			//this.#audioInProgress.pause();
+		}
+	}
+
+	#playAudio = (audioType, loop = false) => {
+		if (this.#audioInProgress) {
+			//this.#audioInProgress.pause();
+		}
+		const audioEl = this.#audio.get(audioType);
+		if (audioEl) {
+			this.#audioInProgress = randomFromArray(this.#audio.get(audioType));
+			//console.log(audio);
+			this.#audioInProgress.loop = loop;
+			this.#audioInProgress.play();
+		} else {
+			throw new Error("audio " + audioType + " is not defined");
+		}
+	}
+
+	die = () => {
+		this.activateIdle();
+		this.#playAudio(GAME_AUDIO_TYPES.DEATH);
+		super.die();
+	} 
+}
+
 class UnitGoblinTorch extends BaseUnit {
 	/**
 	 * @type {string}
@@ -889,15 +1056,15 @@ class UnitGoblinTorch extends BaseUnit {
 	#attackInterval
 
 	constructor(mapX, mapY, drawFactory, isShowHealth, eventsAggregator, audio) {
-		super(mapX, mapY, 192, 192, GAME_UNITS.GOBLIN_TORCH.name, 84, drawFactory, isShowHealth, { r:30 });
-		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.IDLE_RIGHT, [84, 85, 86, 87, 88, 89], true);
-		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.MOVE_RIGHT, [91, 92, 93, 94, 95, 96], true);
-		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.FIGHT_RIGHT_1, [98, 99, 100, 101, 102, 103], true);
-		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.FIGHT_DOWN_1, [105, 106, 107, 108, 109, 110], true);
-		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.FIGHT_UP_1, [112, 113, 114, 115, 116, 117], true);
-		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.IDLE_LEFT, [125, 124, 123, 122, 121, 120, 119], true);
-		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.MOVE_LEFT, [132, 131, 130, 129, 128, 127], true);
-		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.FIGHT_LEFT_1, [139, 138, 137, 136, 135, 134], true);
+		super(mapX, mapY, 192, 192, GAME_UNITS.GOBLIN_TORCH.name, 96, drawFactory, isShowHealth, { r:30 });
+		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.IDLE_RIGHT, [96, 97, 98, 99, 100, 101, 102], true);
+		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.MOVE_RIGHT, [104, 105, 106, 107, 108, 109], true);
+		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.FIGHT_RIGHT_1, [112, 113, 114, 115, 116, 117], true);
+		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.FIGHT_DOWN_1, [120, 121, 122, 123, 124, 125], true);
+		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.FIGHT_UP_1, [128, 129, 130, 131, 132, 133], true);
+		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.IDLE_LEFT, [142, 141, 140, 139, 138, 137, 136], true);
+		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.MOVE_LEFT, [150, 149, 148, 147, 146, 145], true);
+		this.addAnimation(GOBLIN_TORCH.ANIMATIONS.FIGHT_LEFT_1, [158, 157, 156, 155, 154, 153], true);
 		this.#eventsAggregator = eventsAggregator;
 		this.#audio = audio;
 		this.sortIndex = 2;
@@ -981,7 +1148,7 @@ class UnitGoblinTorch extends BaseUnit {
 	activateMoveToTargetPoint = (targetX, targetY, saySomething = false) => {
 		this.#activeAction = GOBLIN_TORCH.ACTIONS.MOVE;
 		this.targetPoint = [targetX, targetY];
-		//this.emit(KNIGHT.ANIMATIONS.MOVE);
+		
 		const direction = angle_2points(this.x, this.y, targetX, targetY);
 		if (direction >= -Math.PI/2 && direction <= Math.PI/2) {
 			//console.log("move right");
@@ -1021,4 +1188,4 @@ class UnitGoblinTorch extends BaseUnit {
 	} 
 }
 
-export { UnitPeasant, UnitKnight, UnitGoblinTorch, UnitGoblinHouse, UnitGoblinTower, BaseBuilding as UnitBuilding };
+export { UnitPeasant, UnitKnight, UnitGoblinTorch, UnitArcher, UnitGoblinHouse, UnitGoblinTower, BaseBuilding as UnitBuilding };

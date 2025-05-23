@@ -82455,6 +82455,7 @@ function renderSVG(data, options = {}) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ARCHER: () => (/* binding */ ARCHER),
 /* harmony export */   ATLAS: () => (/* binding */ ATLAS),
 /* harmony export */   BUILDING_STATE: () => (/* binding */ BUILDING_STATE),
 /* harmony export */   GAME_AUDIO_TYPES: () => (/* binding */ GAME_AUDIO_TYPES),
@@ -82527,18 +82528,18 @@ var PEASANT = {
     DRAG_WOOD: "DRAG_WOOD"
   },
   ANIMATIONS: {
-    MOVE_RIGHT: "MOVE_RIGHT",
+    IDLE_LEFT: "IDLE_LEFT",
+    IDLE_RIGHT: "IDLE_RIGHT",
     MOVE_LEFT: "MOVE_LEFT",
-    MOVE_UP: "MOVE_UP",
-    MOVE_DOWN: "MOVE_DOWN",
-    CARRY_RIGHT: "CARRY_RIGHT",
+    MOVE_RIGHT: "MOVE_RIGHT",
+    BUILD_LEFT: "BUILD_LEFT",
+    BUILD_RIGHT: "BUILD_RIGHT",
+    CHOP_LEFT: "CHOP_LEFT",
+    CHOP_RIGHT: "CHOP_RIGHT",
+    CARRY_IDLE_LEFT: "CARRY_IDLE_LEFT",
+    CARRY_IDLE_RIGHT: "CARRY_IDLE_RIGHT",
     CARRY_LEFT: "CARRY_LEFT",
-    CARRY_UP: "CARRY_UP",
-    CARRY_DOWN: "CARRY_DOWN",
-    FIGHT_RIGHT: "FIGHT_RIGHT",
-    FIGHT_LEFT: "FIGHT_LEFT",
-    FIGHT_UP: "FIGHT_UP",
-    FIGHT_DOWN: "FIGHT_DOWN"
+    CARRY_RIGHT: "CARRY_RIGHT"
   },
   AUDIO: {
     WHAT1: "WHAT1",
@@ -82569,6 +82570,40 @@ var KNIGHT = {
     FIGHT_UP_2: "FIGHT_UP_2",
     FIGHT_DOWN_1: "FIGHT_DOWN_1",
     FIGHT_DOWN_2: "FIGHT_DOWN_2"
+  },
+  AUDIO: {
+    WHAT1: "K_WHAT1",
+    WHAT2: "K_WHAT2",
+    WHAT3: "K_WHAT3",
+    YES1: "K_YES1",
+    YES2: "K_YES2",
+    YES3: "K_YES3",
+    ATTACK1: "K_ATTACK1",
+    ATTACK2: "K_ATTACK2",
+    FIGHT1: "K_FIGHT1",
+    FIGHT2: "K_FIGHT2",
+    DEATH1: "K_DEATH1"
+  }
+};
+var ARCHER = {
+  ACTIONS: {
+    IDLE: "IDLE",
+    MOVE: "MOVE",
+    FIGHT: "FIGHT"
+  },
+  ANIMATIONS: {
+    IDLE_RIGHT: "IDLE_RIGHT",
+    MOVE_RIGHT: "MOVE_RIGHT",
+    IDLE_LEFT: "IDLE_LEFT",
+    MOVE_LEFT: "MOVE_LEFT",
+    FIGHT_UP: "FIGHT_UP",
+    FIGHT_UP_RIGHT: "FIGHT_UP_RIGHT",
+    FIGHT_RIGHT: "FIGHT_RIGHT",
+    FIGHT_DOWN_RIGHT: "FIGHT_DOWN_RIGHT",
+    FIGHT_DOWN: "FIGHT_DOWN",
+    FIGHT_UP_LEFT: "FIGHT_UP_LEFT",
+    FIGHT_LEFT: "FIGHT_LEFT",
+    FIGHT_DOWN_LEFT: "FIGHT_DOWN_LEFT"
   },
   AUDIO: {
     WHAT1: "K_WHAT1",
@@ -82622,6 +82657,7 @@ var ATLAS = {
 var GAME_UNITS = {
   PEASANT: {
     name: "PEASANT",
+    atlasKey: ATLAS["192Units"],
     cost: {
       g: 100,
       w: 0
@@ -82645,11 +82681,16 @@ var GAME_UNITS = {
   },
   ARCHER: {
     name: "ARCHER",
+    atlasKey: ATLAS["192Units"],
     cost: {
       g: 300,
       w: 100
     },
-    duration: 2000
+    duration: 2000,
+    attackSpeed: 1000,
+    attackRange: 300,
+    attackDamage: 15,
+    health: 100
   },
   GOBLIN_TORCH: {
     name: "GOBLIN_TORCH",
@@ -84383,7 +84424,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
               } else {
                 unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
               }
-            } else if (unit instanceof _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight) {
+            } else if (unit instanceof _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight || unit instanceof _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitArcher) {
               unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
             }
           }
@@ -84446,8 +84487,16 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       var pUnits = _classPrivateFieldGet(_playerUnits, _this),
         eUnits = _classPrivateFieldGet(_enemyUnits, _this);
       var startX = 550,
-        startY = 1400;
-      for (var i = 0; i < 8; ++i) {
+        startY = 1250;
+      for (var i = 0; i < 4; ++i) {
+        var unitArcher = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitArcher(startX, startY, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.knightAudio);
+        unitArcher.activateIdle();
+        _this.addRenderObject(unitArcher);
+        pUnits.push(unitArcher);
+        startX += 60;
+      }
+      startX = 550, startY = 1400;
+      for (var _i = 0; _i < 8; ++_i) {
         var unitKnight = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight(startX, startY, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.knightAudio),
           unitGoblinTorch = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(startX, startY + 100, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.goblinAudio);
         unitKnight.activateIdle();
@@ -84460,7 +84509,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       }
       startX = 550;
       startY += 60;
-      for (var _i = 0; _i < 6; ++_i) {
+      for (var _i2 = 0; _i2 < 6; ++_i2) {
         var _unitGoblinTorch = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(startX, startY + 100, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.goblinAudio);
         _unitGoblinTorch.activateIdle();
         _this.addRenderObject(_unitGoblinTorch);
@@ -84628,6 +84677,89 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
               break;
           }
         }
+        if (unit instanceof _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitArcher) {
+          var _action2 = unit.activeAction;
+          switch (_action2) {
+            case _const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ACTIONS.MOVE:
+              // check for obstacles
+              /*
+              const collisionUnits = this.isObjectsCollision(unit.x, unit.y, unit, this.#enemyUnits),
+              	collisionBuildings = this.isObjectsCollision(unit.x, unit.y, unit, this.#enemyBuildings);
+              if (collisionUnits) {
+              	let minDist, closeEnemy;
+              	if (collisionUnits.length > 1) {
+              		const len = collisionUnits.length;
+              		for (let index = 0; index < len; index++) {
+              			const enemy = collisionUnits[index],
+              				dist = countDistance(unit, enemy);
+              			if (!minDist || minDist > dist) {
+              				minDist = dist;
+              				closeEnemy = enemy;
+              			}
+              		}
+              	} else {
+              		closeEnemy = collisionUnits[0];
+              	}
+              	//console.log("closest enemy:", closeEnemy);
+              	unit.activateAttack(closeEnemy);
+              } else if (collisionBuildings) {
+              	let minDist, closeEnemy;
+              	if (collisionBuildings.length > 1) {
+              		const len = collisionBuildings.length;
+              		for (let index = 0; index < len; index++) {
+              			const enemy = collisionBuildings[index],
+              				dist = countDistance(unit, enemy);
+              			if (!minDist || minDist > dist) {
+              				minDist = dist;
+              				closeEnemy = enemy;
+              			}
+              		}
+              	} else {
+              		closeEnemy = collisionBuildings[0];
+              	}
+              	//console.log("closest enemy:", closeEnemy);
+              	unit.activateAttack(closeEnemy);
+              
+              } else {
+              	const {x, y} = unit.countNextStep();
+              	if (this.isBoundariesCollision(x, y, unit)) {
+              		unit.activateIdle();
+              	} else {
+              		unit.stepMove(x, y);
+              	}	
+              }*/
+              break;
+            case _const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ACTIONS.IDLE:
+              if (_classPrivateFieldGet(_isGameStarted, _this) && unit.unitTactic === _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE) {
+                var _enemyObjects = _classPrivateFieldGet(_enemyUnits, _this),
+                  _len4 = _enemyObjects.length;
+                var _closestDistance = void 0,
+                  _closesUnit = void 0;
+                for (var _i3 = 0; _i3 < _len4; ++_i3) {
+                  var _object = _enemyObjects[_i3],
+                    _distance = (0,jsge_src_utils_js__WEBPACK_IMPORTED_MODULE_3__.pointToCircleDistance)(unit.x, unit.y, {
+                      x: _object.x,
+                      y: _object.y,
+                      r: _object.width / 2
+                    });
+                  if (_distance < _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_VIEW_RANGE) {
+                    if (!_closestDistance || _distance < _closestDistance) {
+                      _closestDistance = _distance;
+                      _closesUnit = _object;
+                    }
+                  }
+                }
+                if (_closestDistance && _closestDistance > _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.ARCHER.attackRange) {
+                  console.log("closest distance: ", _closestDistance);
+                  unit.activateMoveToTargetPointInRange(_closesUnit.x, _closesUnit.y);
+                } else {
+                  console.log("enemy in range --->>>>");
+                  unit.activateAttack(_closesUnit);
+                }
+              }
+              break;
+          }
+        }
       }
       var eUnitsLen = _classPrivateFieldGet(_enemyUnits, _this).length;
       for (var _index3 = 0; _index3 < eUnitsLen; _index3++) {
@@ -84639,16 +84771,16 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
           continue;
         }
         if (_unit instanceof _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch) {
-          var _action2 = _unit.activeAction;
-          switch (_action2) {
+          var _action3 = _unit.activeAction;
+          switch (_action3) {
             case _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.MOVE:
               var isCollisionUnit = _this.isObjectsCollision(_unit.x, _unit.y, _unit, _classPrivateFieldGet(_playerUnits, _this)),
                 isCollisionBuilding = _this.isObjectsCollision(_unit.x, _unit.y, _unit, _classPrivateFieldGet(_playerBuildings, _this));
               if (isCollisionUnit) {
-                var _len4 = _classPrivateFieldGet(_playerUnits, _this).length;
+                var _len5 = _classPrivateFieldGet(_playerUnits, _this).length;
                 var _minDist2 = void 0,
                   _closeEnemy2 = void 0;
-                for (var _index4 = 0; _index4 < _len4; _index4++) {
+                for (var _index4 = 0; _index4 < _len5; _index4++) {
                   var _enemy2 = _classPrivateFieldGet(_playerUnits, _this)[_index4],
                     _dist2 = countDistance(_unit, _enemy2);
                   if (!_minDist2 || _minDist2 > _dist2) {
@@ -84671,27 +84803,27 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
               break;
             case _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.IDLE:
               if (_classPrivateFieldGet(_isGameStarted, _this) && _unit.unitTactic === _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE) {
-                var _enemyObjects = _classPrivateFieldGet(_playerUnits, _this),
-                  _len5 = _enemyObjects.length;
-                var _closestDistance = void 0,
-                  _closesUnit = void 0;
-                for (var _i2 = 0; _i2 < _len5; ++_i2) {
-                  var _object = _enemyObjects[_i2],
-                    _distance = (0,jsge_src_utils_js__WEBPACK_IMPORTED_MODULE_3__.pointToCircleDistance)(_unit.x, _unit.y, {
-                      x: _object.x,
-                      y: _object.y,
-                      r: _object.width / 2
+                var _enemyObjects2 = _classPrivateFieldGet(_playerUnits, _this),
+                  _len6 = _enemyObjects2.length;
+                var _closestDistance2 = void 0,
+                  _closesUnit2 = void 0;
+                for (var _i4 = 0; _i4 < _len6; ++_i4) {
+                  var _object2 = _enemyObjects2[_i4],
+                    _distance2 = (0,jsge_src_utils_js__WEBPACK_IMPORTED_MODULE_3__.pointToCircleDistance)(_unit.x, _unit.y, {
+                      x: _object2.x,
+                      y: _object2.y,
+                      r: _object2.width / 2
                     });
-                  if (_distance < _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_VIEW_RANGE) {
-                    if (!_closestDistance || _distance < _closestDistance) {
-                      _closestDistance = _distance;
-                      _closesUnit = _object;
+                  if (_distance2 < _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_VIEW_RANGE) {
+                    if (!_closestDistance2 || _distance2 < _closestDistance2) {
+                      _closestDistance2 = _distance2;
+                      _closesUnit2 = _object2;
                     }
                   }
                 }
-                if (_closestDistance) {
-                  console.log("closes distance: ", _closestDistance);
-                  _unit.activateMoveToTargetPoint(_closesUnit.x, _closesUnit.y);
+                if (_closestDistance2) {
+                  console.log("closes distance: ", _closestDistance2);
+                  _unit.activateMoveToTargetPoint(_closesUnit2.x, _closesUnit2.y);
                 }
               }
               break;
@@ -84819,7 +84951,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
     });
     _classPrivateFieldInitSpec(_this, _peasantBuilt, function (e) {
       var townCenter = e.detail,
-        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
+        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, townCenter, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.peasantAudio);
       var posX = 80,
         posY = 120;
       while (_this.isObjectsCollision(townCenter.x + posX, townCenter.y + posY, newPeasant, _classPrivateFieldGet(_playerUnits, _this))) {
@@ -84838,7 +84970,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
     });
     _classPrivateFieldInitSpec(_this, _buildingDone, function (e) {
       var house = e.detail,
-        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, house, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator);
+        newPeasant = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(0, 0, house, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.peasantAudio);
       console.log(e.detail);
       var posX = 20,
         posY = 20;
@@ -84881,7 +85013,6 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       this.iLoader.addImage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOLD_MINE.name, "./assets/Tiny Swords (Update 010)/Resources/Gold Mine/GoldMine_Inactive.png");
       this.iLoader.addImage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.TOWN_CENTER.name, "./assets/Tiny Swords (Update 010)/Factions/Knights/Buildings/Castle/Castle_Blue.png");
       this.iLoader.addImage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.HOUSE.name, "./assets/house128x192.png");
-      this.iLoader.addImage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.PEASANT.name, "./assets/Tiny Swords (Update 010)/Factions/Knights/Troops/Pawn/Blue/Pawn_Blue.png");
       this.iLoader.addAudio(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.AUDIO.WHAT1, "./assets/audio/peasantwhat1.mp3");
       this.iLoader.addAudio(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.AUDIO.WHAT2, "./assets/audio/peasantwhat2.mp3");
       this.iLoader.addAudio(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.AUDIO.WHAT3, "./assets/audio/peasantwhat3.mp3");
@@ -84936,9 +85067,9 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       var townCenter = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitBuilding(850, 600, 320, 256, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.TOWN_CENTER.name, 0, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
       townCenter.sortIndex = 4;
       _classPrivateFieldGet(_playerBuildings, this).push(townCenter);
-      var peasant1 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 580, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator),
-        peasant2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 640, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator),
-        peasant3 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 700, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
+      var peasant1 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 580, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.peasantAudio),
+        peasant2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 640, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.peasantAudio),
+        peasant3 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitPeasant(1050, 700, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.peasantAudio);
       this.addRenderObject(townCenter);
       this.addRenderObject(peasant1);
       this.addRenderObject(peasant2);
@@ -85570,6 +85701,7 @@ function UiApp(eventManger) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   UnitArcher: () => (/* binding */ UnitArcher),
 /* harmony export */   UnitBuilding: () => (/* binding */ BaseBuilding),
 /* harmony export */   UnitGoblinHouse: () => (/* binding */ UnitGoblinHouse),
 /* harmony export */   UnitGoblinTorch: () => (/* binding */ UnitGoblinTorch),
@@ -85579,6 +85711,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var jsge__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsge */ "./node_modules/jsge/src/index.js");
 /* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./const.js */ "./src/const.js");
+/* harmony import */ var jsge_src_base_2d_Primitives_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! jsge/src/base/2d/Primitives.js */ "./node_modules/jsge/src/base/2d/Primitives.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _superPropGet(t, o, e, r) { var p = _get(_getPrototypeOf(1 & r ? t.prototype : t), o, e); return 2 & r && "function" == typeof p ? function (t) { return p.apply(e, t); } : p; }
 function _get() { return _get = "undefined" != typeof Reflect && Reflect.get ? Reflect.get.bind() : function (e, t, r) { var p = _superPropBase(e, t); if (p) { var n = Object.getOwnPropertyDescriptor(p, t); return n.get ? n.get.call(arguments.length < 3 ? e : r) : n.value; } }, _get.apply(null, arguments); }
@@ -85606,6 +85739,7 @@ function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.h
 var countDistance = jsge__WEBPACK_IMPORTED_MODULE_0__.utils.countDistance,
   angle_2points = jsge__WEBPACK_IMPORTED_MODULE_0__.utils.angle_2points,
   randomFromArray = jsge__WEBPACK_IMPORTED_MODULE_0__.utils.randomFromArray;
+
 
 var _draw = /*#__PURE__*/new WeakMap();
 var _frame = /*#__PURE__*/new WeakMap();
@@ -85973,9 +86107,9 @@ var BaseUnit = /*#__PURE__*/function (_BaseEntity3) {
   return _createClass(BaseUnit, [{
     key: "die",
     value: function die() {
-      var grave = this.draw.image(this.x, this.y, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_OBJECTS.SKILL.atlasKey, 140, "rgba(0, 0, 0, 1)");
+      var grave = this.draw.image(this.x, this.y, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_OBJECTS.SKILL.atlasKey, 160, "rgba(0, 0, 0, 1)");
       grave.sortIndex = 1;
-      grave.addAnimation("graveAppear", [140, 141, 142, 143, 144, 145, 147, 148, 149, 150, 151, 152, 153]);
+      grave.addAnimation("graveAppear", [160, 161, 162, 163, 164, 165, 168, 169, 170, 171, 172, 173, 174]);
       grave.emit("graveAppear");
       if (this.frame) {
         this.frame.destroy();
@@ -86023,7 +86157,7 @@ var UnitPeasant = /*#__PURE__*/function (_BaseUnit2) {
   function UnitPeasant(mapX, mapY, closestTownCenter, drawFactory, isShowHealth, eventsAggregator, audio) {
     var _this6;
     _classCallCheck(this, UnitPeasant);
-    _this6 = _callSuper(this, UnitPeasant, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.PEASANT.name, 0, drawFactory, isShowHealth, {
+    _this6 = _callSuper(this, UnitPeasant, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.PEASANT.name, 272, drawFactory, isShowHealth, {
       r: 30
     }]);
     /**
@@ -86054,9 +86188,9 @@ var UnitPeasant = /*#__PURE__*/function (_BaseUnit2) {
         _this6.stopRepeatedAnimation(activeAnimation);
       }
       if (_classPrivateFieldGet(_hasGold, _this6) || _classPrivateFieldGet(_hasWood, _this6)) {
-        _this6.imageIndex = 29;
+        _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_IDLE_RIGHT);
       } else {
-        _this6.imageIndex = 0;
+        _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.IDLE_RIGHT);
       }
       if (isClicked) {
         randomFromArray(_classPrivateFieldGet(_audio, _this6).get(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.WHAT)).play();
@@ -86151,24 +86285,15 @@ var UnitPeasant = /*#__PURE__*/function (_BaseUnit2) {
         _classPrivateFieldSet(_woodAmount, _this6, Math.round((_classPrivateFieldGet(_woodAmount, _this6) + .05) * 100) / 100);
         _classPrivateFieldGet(_targetTree, _this6).health = Math.round((_classPrivateFieldGet(_targetTree, _this6).health - .05) * 100) / 100;
         var direction = angle_2points(_this6.x, _this6.y, _classPrivateFieldGet(_targetTree, _this6).x, _classPrivateFieldGet(_targetTree, _this6).y);
-        if (direction > -Math.PI / 4 && direction < Math.PI / 4) {
+        if (direction >= -Math.PI / 2 && direction <= Math.PI / 2) {
           //console.log("chop right");
-          if (_this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_RIGHT) {
-            _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_RIGHT);
+          if (_this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CHOP_RIGHT) {
+            _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CHOP_RIGHT);
           }
-        } else if (direction > Math.PI / 4 && direction < 3 * Math.PI / 4) {
-          //console.log("chop down");
-          if (_this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_DOWN) {
-            _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_DOWN);
-          }
-        } else if (direction > 3 * Math.PI / 4 || direction < -3 * Math.PI / 4) {
+        } else if (direction > Math.PI / 2 || direction < -Math.PI / 2) {
           //console.log("chop left");
-          if (_this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_LEFT) {
-            _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_LEFT);
-          }
-        } else if (direction > -3 * Math.PI / 4 && direction < Math.PI / 4) {
-          if (_this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_UP) {
-            _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_UP);
+          if (_this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CHOP_LEFT) {
+            _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CHOP_LEFT);
           }
         }
       } else {
@@ -86187,26 +86312,16 @@ var UnitPeasant = /*#__PURE__*/function (_BaseUnit2) {
         direction = angle_2points(x, y, tX, tY),
         newCoordX = x + forceToUse * Math.cos(direction),
         newCoordY = y + forceToUse * Math.sin(direction);
-      if (direction > -Math.PI / 4 && direction < Math.PI / 4) {
+      if (direction >= -Math.PI / 2 && direction <= Math.PI / 2) {
         //console.log("move right");
         if (hasGold && _this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_RIGHT) {
           _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_RIGHT);
         } else if (!hasGold && _this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_RIGHT) _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_RIGHT);
-      } else if (direction >= Math.PI / 4 && direction < 3 * Math.PI / 4) {
-        //console.log("move down");
-        if (hasGold && _this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_DOWN) {
-          _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_DOWN);
-        } else if (!hasGold && _this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_DOWN) _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_DOWN);
-      } else if (direction > 3 * Math.PI / 4 || direction < -3 * Math.PI / 4) {
+      } else if (direction > Math.PI / 2 || direction < -Math.PI / 2) {
         //console.log("move left");
         if (hasGold && _this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_LEFT) {
           _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_LEFT);
         } else if (!hasGold && _this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_LEFT) _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_LEFT);
-      } else if (direction > -3 * Math.PI / 4 && direction < Math.PI / 4) {
-        //console.log("move up");
-        if (hasGold && _this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_UP) {
-          _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_UP);
-        } else if (!hasGold && _this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_UP) _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_UP);
       } else {
         console.log("unrecognized move to ", direction);
       }
@@ -86238,18 +86353,12 @@ var UnitPeasant = /*#__PURE__*/function (_BaseUnit2) {
           direction = angle_2points(x, y, tX, tY),
           newCoordX = x + forceToUse * Math.cos(direction),
           newCoordY = y + forceToUse * Math.sin(direction);
-        if (direction > -Math.PI / 4 && direction < Math.PI / 4) {
+        if (direction >= -Math.PI / 2 && direction <= Math.PI / 2) {
           //console.log("move right");
           if (_this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_RIGHT) _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_RIGHT);
-        } else if (direction >= Math.PI / 4 && direction < 3 * Math.PI / 4) {
-          //console.log("move down");
-          if (_this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_DOWN) _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_DOWN);
-        } else if (direction > 3 * Math.PI / 4 || direction < -3 * Math.PI / 4) {
+        } else if (direction > Math.PI / 2 || direction < -Math.PI / 2) {
           //console.log("move left");
           if (_this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_LEFT) _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_LEFT);
-        } else if (direction > -3 * Math.PI / 4 && direction < Math.PI / 4) {
-          //console.log("move up");
-          if (_this6.activeAnimation !== _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_UP) _this6.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_UP);
         } else {
           console.log("unrecognized move to ", direction);
         }
@@ -86305,7 +86414,7 @@ var UnitPeasant = /*#__PURE__*/function (_BaseUnit2) {
       var saySomething = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
       _classPrivateFieldSet(_activeAction, _this6, _const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ACTIONS.MOVE);
       _this6.targetPoint = [targetX, targetY];
-      if (saySomething) {
+      if (saySomething && _classPrivateFieldGet(_audio, _this6).has(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.YES)) {
         randomFromArray(_classPrivateFieldGet(_audio, _this6).get(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.YES)).play();
       }
     });
@@ -86329,18 +86438,18 @@ var UnitPeasant = /*#__PURE__*/function (_BaseUnit2) {
         }));
       }
     });
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_DOWN, [6, 7, 8, 9, 10, 11], true);
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_UP, [6, 7, 8, 9, 10, 11], true);
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_RIGHT, [6, 7, 8, 9, 10, 11], true);
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_LEFT, [6, 7, 8, 9, 10, 11], true);
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_DOWN, [30, 31, 32, 33, 34, 35], true);
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_UP, [30, 31, 32, 33, 34, 35], true);
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_RIGHT, [30, 31, 32, 33, 34, 35], true);
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_LEFT, [30, 31, 32, 33, 34, 35], true);
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_DOWN, [18, 19, 20, 21, 22, 23], true);
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_UP, [18, 19, 20, 21, 22, 23], true);
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_RIGHT, [18, 19, 20, 21, 22, 23], true);
-    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.FIGHT_LEFT, [18, 19, 20, 21, 22, 23], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.IDLE_RIGHT, [272, 273, 274, 275, 276, 277], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.IDLE_LEFT, [285, 284, 283, 282, 281, 280], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_RIGHT, [288, 289, 290, 291, 292, 293], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.MOVE_LEFT, [301, 300, 299, 298, 297, 296], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.BUILD_RIGHT, [304, 305, 306, 307, 308, 309], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.BUILD_LEFT, [317, 316, 315, 314, 313, 312], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CHOP_RIGHT, [320, 321, 322, 323, 324, 325], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CHOP_LEFT, [333, 332, 331, 330, 329, 328], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_IDLE_RIGHT, [336, 337, 338, 339, 340, 341], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_IDLE_LEFT, [349, 348, 347, 346, 345, 344], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_RIGHT, [352, 353, 354, 355, 356, 357], true);
+    _this6.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.PEASANT.ANIMATIONS.CARRY_LEFT, [365, 364, 363, 362, 361, 360], true);
     _classPrivateFieldSet(_closestTownCenter, _this6, closestTownCenter);
     _classPrivateFieldSet(_eventsAggregator2, _this6, eventsAggregator);
     _classPrivateFieldSet(_audio, _this6, audio);
@@ -86542,17 +86651,17 @@ var UnitKnight = /*#__PURE__*/function (_BaseUnit3) {
       _superPropGet((_this7, UnitKnight), "die", _this7, 3)([]);
     });
     _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.IDLE_RIGHT, [0, 1, 2, 3, 4, 5], true);
-    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.MOVE_RIGHT, [7, 8, 9, 10, 11, 12], true);
-    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_RIGHT_1, [14, 15, 16, 17, 18, 19], true);
-    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_RIGHT_2, [21, 22, 23, 24, 25, 26], true);
-    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.IDLE_LEFT, [33, 32, 31, 30, 29, 28], true);
-    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.MOVE_LEFT, [40, 39, 38, 37, 36, 35], true);
-    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_LEFT_1, [47, 46, 45, 44, 43, 42], true);
-    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_LEFT_2, [54, 53, 52, 51, 50, 49], true);
-    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_DOWN_1, [56, 57, 58, 59, 60, 61], true);
-    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_DOWN_2, [63, 64, 65, 66, 67, 68], true);
-    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_UP_1, [70, 71, 72, 73, 74, 75], true);
-    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_UP_2, [77, 78, 79, 80, 81, 82], true);
+    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.MOVE_RIGHT, [8, 9, 10, 11, 12, 13], true);
+    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_RIGHT_1, [16, 17, 18, 19, 20, 21], true);
+    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_RIGHT_2, [24, 25, 26, 27, 28, 29], true);
+    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.IDLE_LEFT, [37, 36, 35, 34, 33, 32], true);
+    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.MOVE_LEFT, [45, 44, 43, 42, 41, 40], true);
+    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_LEFT_1, [53, 52, 51, 50, 49, 48], true);
+    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_LEFT_2, [61, 60, 59, 58, 57, 56], true);
+    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_DOWN_1, [64, 65, 66, 67, 68, 69], true);
+    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_DOWN_2, [72, 73, 74, 75, 76, 77], true);
+    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_UP_1, [80, 81, 82, 83, 84, 85], true);
+    _this7.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.FIGHT_UP_2, [88, 89, 90, 91, 92, 93], true);
     _classPrivateFieldSet(_eventsAggregator3, _this7, eventsAggregator);
     _classPrivateFieldSet(_audio2, _this7, audio);
     _this7.sortIndex = 2;
@@ -86572,47 +86681,58 @@ var UnitKnight = /*#__PURE__*/function (_BaseUnit3) {
   }]);
 }(BaseUnit);
 var _activeAction3 = /*#__PURE__*/new WeakMap();
-var _targetPoint2 = /*#__PURE__*/new WeakMap();
 var _buildingType3 = /*#__PURE__*/new WeakMap();
 var _eventsAggregator4 = /*#__PURE__*/new WeakMap();
-var _audioInProgress2 = /*#__PURE__*/new WeakMap();
-var _audio3 = /*#__PURE__*/new WeakMap();
 var _attackInterval2 = /*#__PURE__*/new WeakMap();
+var _audio3 = /*#__PURE__*/new WeakMap();
+var _audioInProgress2 = /*#__PURE__*/new WeakMap();
 var _attackAction2 = /*#__PURE__*/new WeakMap();
+var _stopActiveAudio2 = /*#__PURE__*/new WeakMap();
 var _playAudio2 = /*#__PURE__*/new WeakMap();
-var UnitGoblinTorch = /*#__PURE__*/function (_BaseUnit4) {
-  function UnitGoblinTorch(mapX, mapY, drawFactory, isShowHealth, eventsAggregator, audio) {
+var UnitArcher = /*#__PURE__*/function (_BaseUnit4) {
+  function UnitArcher(mapX, mapY, drawFactory, isShowHealth, eventsAggregator, audio) {
     var _this8;
-    _classCallCheck(this, UnitGoblinTorch);
-    _this8 = _callSuper(this, UnitGoblinTorch, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TORCH.name, 84, drawFactory, isShowHealth, {
+    _classCallCheck(this, UnitArcher);
+    _this8 = _callSuper(this, UnitArcher, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.ARCHER.name, 176, drawFactory, isShowHealth, {
       r: 30
     }]);
     /**
      * @type {string}
      */
     _classPrivateFieldInitSpec(_this8, _activeAction3, void 0);
-    _classPrivateFieldInitSpec(_this8, _targetPoint2, void 0);
     _classPrivateFieldInitSpec(_this8, _buildingType3, void 0);
     _classPrivateFieldInitSpec(_this8, _eventsAggregator4, void 0);
-    _classPrivateFieldInitSpec(_this8, _audioInProgress2, void 0);
-    _classPrivateFieldInitSpec(_this8, _audio3, void 0);
     _classPrivateFieldInitSpec(_this8, _attackInterval2, void 0);
+    _classPrivateFieldInitSpec(_this8, _audio3, void 0);
+    _classPrivateFieldInitSpec(_this8, _audioInProgress2, void 0);
     _defineProperty(_this8, "activateIdle", function () {
-      _classPrivateFieldSet(_activeAction3, _this8, _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.IDLE);
-      _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.IDLE_LEFT);
+      var isClicked = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      _classPrivateFieldSet(_activeAction3, _this8, _const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ACTIONS.IDLE);
+      var activeAnimation = _this8.activeAnimation;
+      console.log("idle++++>>>>");
+      console.log(activeAnimation);
+      if (activeAnimation === _const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.MOVE_LEFT || activeAnimation === _const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.IDLE_LEFT) {
+        _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.IDLE_LEFT);
+      } else {
+        _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.IDLE_RIGHT);
+      }
+      _classPrivateFieldGet(_stopActiveAudio2, _this8).call(_this8);
+      if (isClicked) {
+        randomFromArray(_classPrivateFieldGet(_audio3, _this8).get(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.WHAT)).play();
+      }
       if (_classPrivateFieldGet(_attackInterval2, _this8)) {
         clearInterval(_classPrivateFieldGet(_attackInterval2, _this8));
         _classPrivateFieldSet(_attackInterval2, _this8, null);
       }
     });
     _defineProperty(_this8, "activateAttack", function (unit) {
-      if (_classPrivateFieldGet(_activeAction3, _this8) !== _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.FIGHT) {
+      if (_classPrivateFieldGet(_activeAction3, _this8) !== _const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ACTIONS.FIGHT) {
         clearInterval(_classPrivateFieldGet(_attackInterval2, _this8));
-        _classPrivateFieldSet(_activeAction3, _this8, _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.FIGHT);
+        _classPrivateFieldSet(_activeAction3, _this8, _const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ACTIONS.FIGHT);
         _classPrivateFieldGet(_attackAction2, _this8).call(_this8, unit);
         _classPrivateFieldSet(_attackInterval2, _this8, setInterval(function () {
           return _classPrivateFieldGet(_attackAction2, _this8).call(_this8, unit);
-        }, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TORCH.attackSpeed));
+        }, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.ARCHER.attackSpeed));
       }
     });
     _classPrivateFieldInitSpec(_this8, _attackAction2, function (unit) {
@@ -86622,27 +86742,25 @@ var UnitGoblinTorch = /*#__PURE__*/function (_BaseUnit4) {
           tX = unit.x,
           tY = unit.y,
           direction = angle_2points(x, y, tX, tY);
+        _classPrivateFieldGet(_stopActiveAudio2, _this8).call(_this8);
+        _classPrivateFieldGet(_playAudio2, _this8).call(_this8, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.FIGHT);
+        console.log("enemy direction: ", direction);
         if (direction >= -Math.PI / 4 && direction <= Math.PI / 4) {
           //console.log("move right");
-          _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_RIGHT_1);
+          _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_RIGHT);
         } else if (direction >= Math.PI / 4 && direction < 3 * Math.PI / 4) {
           //	//console.log("move down");
-          _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_DOWN_1);
+          _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_DOWN);
         } else if (direction >= 3 * Math.PI / 4 || direction <= -3 * Math.PI / 4) {
           //console.log("move left");
-          _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_LEFT_1);
+          _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_LEFT);
         } else if (direction > -3 * Math.PI / 4 && direction < Math.PI / 4) {
           //console.log("move up");
-          _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_UP_1);
+          _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_UP);
         } else {
           console.log("unrecognized move to ", direction);
         }
-        unit.reduceHealth(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TORCH.attackDamage);
       } else {
-        console.log("die!");
-        if (unit.isRemoved === false) {
-          unit.die();
-        }
         _this8.activateIdle();
       }
     });
@@ -86658,22 +86776,38 @@ var UnitGoblinTorch = /*#__PURE__*/function (_BaseUnit4) {
         console.log("reached");
         _this8.activateIdle();
       } else {
+        var direction = angle_2points(x, y, tX, tY);
+        if (direction > -Math.PI / 4 && direction < Math.PI / 4) {
+          //console.log("move right");
+          //this.emit(ARCHER.ANIMATIONS.MOVE);
+        } else if (direction >= Math.PI / 4 && direction < 3 * Math.PI / 4) {
+          //console.log("move down");
+          //this.emit(ARCHER.ANIMATIONS.MOVE);
+        } else if (direction > 3 * Math.PI / 4 || direction < -3 * Math.PI / 4) {
+          //console.log("move left");
+          //this.emit(ARCHER.ANIMATIONS.MOVE);
+        } else if (direction > -3 * Math.PI / 4 && direction < Math.PI / 4) {
+          //console.log("move up");
+          //this.emit(ARCHER.ANIMATIONS.MOVE);
+        } else {
+          console.log("unrecognized move to ", direction);
+        }
         _this8.xPos = newCoordX;
         _this8.yPos = newCoordY;
       }
     });
     _defineProperty(_this8, "activateMoveToTargetPoint", function (targetX, targetY) {
       var saySomething = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-      _classPrivateFieldSet(_activeAction3, _this8, _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.MOVE);
+      _classPrivateFieldSet(_activeAction3, _this8, _const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ACTIONS.MOVE);
       _this8.targetPoint = [targetX, targetY];
-      //this.emit(KNIGHT.ANIMATIONS.MOVE);
+      //this.emit(ARCHER.ANIMATIONS.MOVE);
       var direction = angle_2points(_this8.x, _this8.y, targetX, targetY);
       if (direction >= -Math.PI / 2 && direction <= Math.PI / 2) {
         //console.log("move right");
-        _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.MOVE_RIGHT);
+        _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.MOVE_RIGHT);
       } else if (direction > Math.PI / 2 || direction < -Math.PI / 2) {
         //console.log("move left");
-        _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.MOVE_LEFT);
+        _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.MOVE_LEFT);
       } else {
         console.log("unrecognized move to ", direction);
       }
@@ -86682,35 +86816,60 @@ var UnitGoblinTorch = /*#__PURE__*/function (_BaseUnit4) {
         _classPrivateFieldSet(_attackInterval2, _this8, null);
       }
       if (saySomething) {
-        randomFromArray(_this8.knightYesAudioArr.get(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.ATTACK)).play();
+        randomFromArray(_classPrivateFieldGet(_audio3, _this8).get(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.YES)).play();
+      }
+    });
+    _defineProperty(_this8, "activateMoveToTargetPointInRange", function (targetX, targetY) {
+      // not sure this is correct formula CHAT GPT make this ---->>>>
+      var len = Math.sqrt(Math.pow(targetX - _this8.x, 2) + Math.pow(targetY - _this8.y, 2)),
+        x = _this8.x + _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.ARCHER.attackRange * ((targetX - _this8.x) / len),
+        y = _this8.y + _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.ARCHER.attackRange * ((targetY - _this8.y) / len);
+      _this8.activateMoveToTargetPoint(x, y);
+    });
+    _classPrivateFieldInitSpec(_this8, _stopActiveAudio2, function () {
+      if (_classPrivateFieldGet(_audioInProgress2, _this8)) {
+        //this.#audioInProgress.pause();
       }
     });
     _classPrivateFieldInitSpec(_this8, _playAudio2, function (audioType) {
       var loop = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       if (_classPrivateFieldGet(_audioInProgress2, _this8)) {
-        console.log(_classPrivateFieldGet(_audioInProgress2, _this8));
         //this.#audioInProgress.pause();
       }
-      _classPrivateFieldSet(_audioInProgress2, _this8, randomFromArray(_classPrivateFieldGet(_audio3, _this8).get(audioType)));
-      console.log(_classPrivateFieldGet(_audioInProgress2, _this8));
-      _classPrivateFieldGet(_audioInProgress2, _this8).loop = loop;
-      _classPrivateFieldGet(_audioInProgress2, _this8).play();
+      var audioEl = _classPrivateFieldGet(_audio3, _this8).get(audioType);
+      if (audioEl) {
+        _classPrivateFieldSet(_audioInProgress2, _this8, randomFromArray(_classPrivateFieldGet(_audio3, _this8).get(audioType)));
+        //console.log(audio);
+        _classPrivateFieldGet(_audioInProgress2, _this8).loop = loop;
+        _classPrivateFieldGet(_audioInProgress2, _this8).play();
+      } else {
+        throw new Error("audio " + audioType + " is not defined");
+      }
     });
-    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.IDLE_RIGHT, [84, 85, 86, 87, 88, 89], true);
-    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.MOVE_RIGHT, [91, 92, 93, 94, 95, 96], true);
-    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_RIGHT_1, [98, 99, 100, 101, 102, 103], true);
-    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_DOWN_1, [105, 106, 107, 108, 109, 110], true);
-    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_UP_1, [112, 113, 114, 115, 116, 117], true);
-    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.IDLE_LEFT, [125, 124, 123, 122, 121, 120, 119], true);
-    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.MOVE_LEFT, [132, 131, 130, 129, 128, 127], true);
-    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_LEFT_1, [139, 138, 137, 136, 135, 134], true);
+    _defineProperty(_this8, "die", function () {
+      _this8.activateIdle();
+      _classPrivateFieldGet(_playAudio2, _this8).call(_this8, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.DEATH);
+      _superPropGet((_this8, UnitArcher), "die", _this8, 3)([]);
+    });
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.IDLE_RIGHT, [176, 177, 178, 179, 180, 181], true);
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.MOVE_RIGHT, [184, 185, 186, 187, 188, 189], true);
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.IDLE_LEFT, [199, 198, 197, 196, 195, 194], true);
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.MOVE_LEFT, [207, 206, 205, 204, 203, 202], true);
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_UP, [208, 209, 210, 211, 212, 213, 214, 215], true);
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_UP_RIGHT, [216, 217, 218, 219, 220, 221, 222, 223], true);
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_RIGHT, [224, 225, 226, 227, 228, 229, 230, 231], true);
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_DOWN_RIGHT, [232, 233, 234, 235, 236, 237, 238, 239], true);
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_DOWN, [240, 241, 242, 243, 244, 245, 246, 247], true);
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_UP_LEFT, [255, 254, 253, 252, 251, 250, 249, 248], true);
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_LEFT, [263, 262, 261, 260, 259, 258, 257, 256], true);
+    _this8.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_DOWN_LEFT, [271, 270, 269, 268, 267, 266, 265, 264], true);
     _classPrivateFieldSet(_eventsAggregator4, _this8, eventsAggregator);
     _classPrivateFieldSet(_audio3, _this8, audio);
     _this8.sortIndex = 2;
     return _this8;
   }
-  _inherits(UnitGoblinTorch, _BaseUnit4);
-  return _createClass(UnitGoblinTorch, [{
+  _inherits(UnitArcher, _BaseUnit4);
+  return _createClass(UnitArcher, [{
     key: "activeAction",
     get: function get() {
       return _classPrivateFieldGet(_activeAction3, this);
@@ -86720,11 +86879,161 @@ var UnitGoblinTorch = /*#__PURE__*/function (_BaseUnit4) {
     get: function get() {
       return _classPrivateFieldGet(_buildingType3, this);
     }
+  }]);
+}(BaseUnit);
+var _activeAction4 = /*#__PURE__*/new WeakMap();
+var _targetPoint2 = /*#__PURE__*/new WeakMap();
+var _buildingType4 = /*#__PURE__*/new WeakMap();
+var _eventsAggregator5 = /*#__PURE__*/new WeakMap();
+var _audioInProgress3 = /*#__PURE__*/new WeakMap();
+var _audio4 = /*#__PURE__*/new WeakMap();
+var _attackInterval3 = /*#__PURE__*/new WeakMap();
+var _attackAction3 = /*#__PURE__*/new WeakMap();
+var _playAudio3 = /*#__PURE__*/new WeakMap();
+var UnitGoblinTorch = /*#__PURE__*/function (_BaseUnit5) {
+  function UnitGoblinTorch(mapX, mapY, drawFactory, isShowHealth, eventsAggregator, audio) {
+    var _this9;
+    _classCallCheck(this, UnitGoblinTorch);
+    _this9 = _callSuper(this, UnitGoblinTorch, [mapX, mapY, 192, 192, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TORCH.name, 96, drawFactory, isShowHealth, {
+      r: 30
+    }]);
+    /**
+     * @type {string}
+     */
+    _classPrivateFieldInitSpec(_this9, _activeAction4, void 0);
+    _classPrivateFieldInitSpec(_this9, _targetPoint2, void 0);
+    _classPrivateFieldInitSpec(_this9, _buildingType4, void 0);
+    _classPrivateFieldInitSpec(_this9, _eventsAggregator5, void 0);
+    _classPrivateFieldInitSpec(_this9, _audioInProgress3, void 0);
+    _classPrivateFieldInitSpec(_this9, _audio4, void 0);
+    _classPrivateFieldInitSpec(_this9, _attackInterval3, void 0);
+    _defineProperty(_this9, "activateIdle", function () {
+      _classPrivateFieldSet(_activeAction4, _this9, _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.IDLE);
+      _this9.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.IDLE_LEFT);
+      if (_classPrivateFieldGet(_attackInterval3, _this9)) {
+        clearInterval(_classPrivateFieldGet(_attackInterval3, _this9));
+        _classPrivateFieldSet(_attackInterval3, _this9, null);
+      }
+    });
+    _defineProperty(_this9, "activateAttack", function (unit) {
+      if (_classPrivateFieldGet(_activeAction4, _this9) !== _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.FIGHT) {
+        clearInterval(_classPrivateFieldGet(_attackInterval3, _this9));
+        _classPrivateFieldSet(_activeAction4, _this9, _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.FIGHT);
+        _classPrivateFieldGet(_attackAction3, _this9).call(_this9, unit);
+        _classPrivateFieldSet(_attackInterval3, _this9, setInterval(function () {
+          return _classPrivateFieldGet(_attackAction3, _this9).call(_this9, unit);
+        }, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TORCH.attackSpeed));
+      }
+    });
+    _classPrivateFieldInitSpec(_this9, _attackAction3, function (unit) {
+      if (unit.health > 0) {
+        var x = _this9.x,
+          y = _this9.y,
+          tX = unit.x,
+          tY = unit.y,
+          direction = angle_2points(x, y, tX, tY);
+        if (direction >= -Math.PI / 4 && direction <= Math.PI / 4) {
+          //console.log("move right");
+          _this9.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_RIGHT_1);
+        } else if (direction >= Math.PI / 4 && direction < 3 * Math.PI / 4) {
+          //	//console.log("move down");
+          _this9.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_DOWN_1);
+        } else if (direction >= 3 * Math.PI / 4 || direction <= -3 * Math.PI / 4) {
+          //console.log("move left");
+          _this9.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_LEFT_1);
+        } else if (direction > -3 * Math.PI / 4 && direction < Math.PI / 4) {
+          //console.log("move up");
+          _this9.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_UP_1);
+        } else {
+          console.log("unrecognized move to ", direction);
+        }
+        unit.reduceHealth(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TORCH.attackDamage);
+      } else {
+        console.log("die!");
+        if (unit.isRemoved === false) {
+          unit.die();
+        }
+        _this9.activateIdle();
+      }
+    });
+    _defineProperty(_this9, "stepMove", function (newCoordX, newCoordY) {
+      var x = _this9.x,
+        y = _this9.y,
+        tX = _this9.targetPoint[0],
+        tY = _this9.targetPoint[1];
+      if (countDistance(_this9, {
+        x: tX,
+        y: tY
+      }) < 5) {
+        console.log("reached");
+        _this9.activateIdle();
+      } else {
+        _this9.xPos = newCoordX;
+        _this9.yPos = newCoordY;
+      }
+    });
+    _defineProperty(_this9, "activateMoveToTargetPoint", function (targetX, targetY) {
+      var saySomething = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      _classPrivateFieldSet(_activeAction4, _this9, _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.MOVE);
+      _this9.targetPoint = [targetX, targetY];
+      var direction = angle_2points(_this9.x, _this9.y, targetX, targetY);
+      if (direction >= -Math.PI / 2 && direction <= Math.PI / 2) {
+        //console.log("move right");
+        _this9.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.MOVE_RIGHT);
+      } else if (direction > Math.PI / 2 || direction < -Math.PI / 2) {
+        //console.log("move left");
+        _this9.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.MOVE_LEFT);
+      } else {
+        console.log("unrecognized move to ", direction);
+      }
+      if (_classPrivateFieldGet(_attackInterval3, _this9)) {
+        clearInterval(_classPrivateFieldGet(_attackInterval3, _this9));
+        _classPrivateFieldSet(_attackInterval3, _this9, null);
+      }
+      if (saySomething) {
+        randomFromArray(_this9.knightYesAudioArr.get(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.ATTACK)).play();
+      }
+    });
+    _classPrivateFieldInitSpec(_this9, _playAudio3, function (audioType) {
+      var loop = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      if (_classPrivateFieldGet(_audioInProgress3, _this9)) {
+        console.log(_classPrivateFieldGet(_audioInProgress3, _this9));
+        //this.#audioInProgress.pause();
+      }
+      _classPrivateFieldSet(_audioInProgress3, _this9, randomFromArray(_classPrivateFieldGet(_audio4, _this9).get(audioType)));
+      console.log(_classPrivateFieldGet(_audioInProgress3, _this9));
+      _classPrivateFieldGet(_audioInProgress3, _this9).loop = loop;
+      _classPrivateFieldGet(_audioInProgress3, _this9).play();
+    });
+    _this9.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.IDLE_RIGHT, [96, 97, 98, 99, 100, 101, 102], true);
+    _this9.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.MOVE_RIGHT, [104, 105, 106, 107, 108, 109], true);
+    _this9.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_RIGHT_1, [112, 113, 114, 115, 116, 117], true);
+    _this9.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_DOWN_1, [120, 121, 122, 123, 124, 125], true);
+    _this9.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_UP_1, [128, 129, 130, 131, 132, 133], true);
+    _this9.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.IDLE_LEFT, [142, 141, 140, 139, 138, 137, 136], true);
+    _this9.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.MOVE_LEFT, [150, 149, 148, 147, 146, 145], true);
+    _this9.addAnimation(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ANIMATIONS.FIGHT_LEFT_1, [158, 157, 156, 155, 154, 153], true);
+    _classPrivateFieldSet(_eventsAggregator5, _this9, eventsAggregator);
+    _classPrivateFieldSet(_audio4, _this9, audio);
+    _this9.sortIndex = 2;
+    return _this9;
+  }
+  _inherits(UnitGoblinTorch, _BaseUnit5);
+  return _createClass(UnitGoblinTorch, [{
+    key: "activeAction",
+    get: function get() {
+      return _classPrivateFieldGet(_activeAction4, this);
+    }
+  }, {
+    key: "buildingType",
+    get: function get() {
+      return _classPrivateFieldGet(_buildingType4, this);
+    }
   }, {
     key: "die",
     value: function die() {
       this.activateIdle();
-      _classPrivateFieldGet(_playAudio2, this).call(this, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.DEATH);
+      _classPrivateFieldGet(_playAudio3, this).call(this, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.DEATH);
       _superPropGet(UnitGoblinTorch, "die", this, 3)([]);
     }
   }]);

@@ -1,7 +1,7 @@
 import { GameStage, CONST } from "jsge";
 import { utils } from "jsge";
-import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT, KNIGHT, GOBLIN_TORCH, GAME_AUDIO_TYPES, UNIT_TACTIC, UNIT_VIEW_RANGE } from "./const.js";
-import { UnitPeasant, UnitBuilding, UnitKnight, UnitGoblinTorch } from "./units.js";
+import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT, KNIGHT, GOBLIN_TORCH, GAME_AUDIO_TYPES, UNIT_TACTIC, UNIT_VIEW_RANGE, ARCHER } from "./const.js";
+import { UnitPeasant, UnitBuilding, UnitKnight, UnitGoblinTorch, UnitArcher } from "./units.js";
 import { pointToCircleDistance } from "jsge/src/utils.js";
 
 const isPointInsidePolygon = utils.isPointInsidePolygon,
@@ -49,8 +49,6 @@ export class Stage2 extends GameStage {
 		this.iLoader.addImage(GAME_UNITS.GOLD_MINE.name, "./assets/Tiny Swords (Update 010)/Resources/Gold Mine/GoldMine_Inactive.png");
 		this.iLoader.addImage(GAME_UNITS.TOWN_CENTER.name, "./assets/Tiny Swords (Update 010)/Factions/Knights/Buildings/Castle/Castle_Blue.png");
 		this.iLoader.addImage(GAME_UNITS.HOUSE.name, "./assets/house128x192.png");
-
-		this.iLoader.addImage(GAME_UNITS.PEASANT.name, "./assets/Tiny Swords (Update 010)/Factions/Knights/Troops/Pawn/Blue/Pawn_Blue.png");
 
 		this.iLoader.addAudio(PEASANT.AUDIO.WHAT1, "./assets/audio/peasantwhat1.mp3");
 		this.iLoader.addAudio(PEASANT.AUDIO.WHAT2, "./assets/audio/peasantwhat2.mp3");
@@ -110,9 +108,9 @@ export class Stage2 extends GameStage {
 		townCenter.sortIndex = 4;
 		this.#playerBuildings.push(townCenter);
 
-		const peasant1 = new UnitPeasant(1050, 580, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator),
-			peasant2 = new UnitPeasant(1050, 640, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator),
-			peasant3 = new UnitPeasant(1050, 700, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
+		const peasant1 = new UnitPeasant(1050, 580, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.peasantAudio),
+			peasant2 = new UnitPeasant(1050, 640, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.peasantAudio),
+			peasant3 = new UnitPeasant(1050, 700, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.peasantAudio);
 
 		this.addRenderObject(townCenter);
 		this.addRenderObject(peasant1);
@@ -583,7 +581,7 @@ export class Stage2 extends GameStage {
 						} else {
 							unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
 						}
-					} else if (unit instanceof UnitKnight) {
+					} else if (unit instanceof UnitKnight || unit instanceof UnitArcher) {
 						unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
 					}
 				}
@@ -655,7 +653,17 @@ export class Stage2 extends GameStage {
 			eUnits = this.#enemyUnits;
 
 		let startX = 550,
-			startY = 1400;
+			startY = 1250;
+
+		for (let i = 0; i < 4; ++i) {
+			const unitArcher = new UnitArcher(startX, startY, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.knightAudio);
+			unitArcher.activateIdle();
+			this.addRenderObject(unitArcher);
+			pUnits.push(unitArcher);
+			startX += 60;
+		}
+		startX = 550,
+		startY = 1400;
 		for (let i = 0; i < 8; ++i) {
 			const unitKnight = new UnitKnight(startX, startY, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.knightAudio),
 				unitGoblinTorch = new UnitGoblinTorch(startX, startY + 100, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.goblinAudio);
@@ -833,6 +841,87 @@ export class Stage2 extends GameStage {
 							}
 							if (closestDistance) {
 								unit.activateMoveToTargetPoint(closesUnit.x, closesUnit.y);
+							}
+						}
+						break;
+				}
+			}
+
+			if (unit instanceof UnitArcher) {
+				const action = unit.activeAction;
+				switch (action) {
+					case ARCHER.ACTIONS.MOVE:
+						// check for obstacles
+						/*
+						const collisionUnits = this.isObjectsCollision(unit.x, unit.y, unit, this.#enemyUnits),
+							collisionBuildings = this.isObjectsCollision(unit.x, unit.y, unit, this.#enemyBuildings);
+						if (collisionUnits) {
+							let minDist, closeEnemy;
+							if (collisionUnits.length > 1) {
+								const len = collisionUnits.length;
+								for (let index = 0; index < len; index++) {
+									const enemy = collisionUnits[index],
+										dist = countDistance(unit, enemy);
+									if (!minDist || minDist > dist) {
+										minDist = dist;
+										closeEnemy = enemy;
+									}
+								}
+							} else {
+								closeEnemy = collisionUnits[0];
+							}
+							//console.log("closest enemy:", closeEnemy);
+							unit.activateAttack(closeEnemy);
+						} else if (collisionBuildings) {
+							let minDist, closeEnemy;
+							if (collisionBuildings.length > 1) {
+								const len = collisionBuildings.length;
+								for (let index = 0; index < len; index++) {
+									const enemy = collisionBuildings[index],
+										dist = countDistance(unit, enemy);
+									if (!minDist || minDist > dist) {
+										minDist = dist;
+										closeEnemy = enemy;
+									}
+								}
+							} else {
+								closeEnemy = collisionBuildings[0];
+							}
+							//console.log("closest enemy:", closeEnemy);
+							unit.activateAttack(closeEnemy);
+					
+						} else {
+							const {x, y} = unit.countNextStep();
+							if (this.isBoundariesCollision(x, y, unit)) {
+								unit.activateIdle();
+							} else {
+								unit.stepMove(x, y);
+							}	
+						}*/
+						break;
+					case ARCHER.ACTIONS.IDLE:
+						if (this.#isGameStarted && unit.unitTactic === UNIT_TACTIC.AGGRESSIVE) {
+							const enemyObjects = this.#enemyUnits,
+								len = enemyObjects.length;
+
+							let closestDistance,
+								closesUnit;
+							for (let i = 0; i < len; ++i) {
+								const object = enemyObjects[i],
+									distance = pointToCircleDistance(unit.x, unit.y, {x: object.x, y: object.y, r: object.width/2});
+								if (distance < UNIT_VIEW_RANGE) {
+									if (!closestDistance || distance < closestDistance) {
+										closestDistance = distance;
+										closesUnit = object;
+									}
+								}
+							}
+							if (closestDistance && (closestDistance > GAME_UNITS.ARCHER.attackRange)) {
+								console.log("closest distance: ", closestDistance);
+								unit.activateMoveToTargetPointInRange(closesUnit.x, closesUnit.y);
+							} else {
+								console.log("enemy in range --->>>>")
+								unit.activateAttack(closesUnit);
 							}
 						}
 						break;
@@ -1060,7 +1149,7 @@ export class Stage2 extends GameStage {
 
 	#peasantBuilt = (e) => {
 		const townCenter = e.detail,
-			newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
+			newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.peasantAudio);
 
 		let posX = 80,
 			posY = 120;
@@ -1084,7 +1173,7 @@ export class Stage2 extends GameStage {
 
 	#buildingDone = (e) => {
 		const house = e.detail,
-			newPeasant = new UnitPeasant(0, 0, house, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
+			newPeasant = new UnitPeasant(0, 0, house, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.peasantAudio);
 		console.log(e.detail);
 		let posX = 20,
 			posY = 20;
