@@ -84015,6 +84015,7 @@ var _mouseY = /*#__PURE__*/new WeakMap();
 var _unitsCount = /*#__PURE__*/new WeakMap();
 var _addUnitPosX = /*#__PURE__*/new WeakMap();
 var _isGameStarted = /*#__PURE__*/new WeakMap();
+var _firstBattleOrcsLeft = /*#__PURE__*/new WeakMap();
 var _Stage2_brand = /*#__PURE__*/new WeakSet();
 var _createUserInterface = /*#__PURE__*/new WeakMap();
 var _pressKeyAction = /*#__PURE__*/new WeakMap();
@@ -84080,6 +84081,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
     _classPrivateFieldInitSpec(_this, _unitsCount, 0);
     _classPrivateFieldInitSpec(_this, _addUnitPosX, 0);
     _classPrivateFieldInitSpec(_this, _isGameStarted, false);
+    _classPrivateFieldInitSpec(_this, _firstBattleOrcsLeft, 14);
     _classPrivateFieldInitSpec(_this, _createUserInterface, function () {
       var windowWidth = document.body.offsetWidth,
         sidebar = document.createElement("div");
@@ -84500,7 +84502,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
         startX += 60;
       }
       startX = 550, startY = 1400;
-      for (var _i = 0; _i < 4; ++_i) {
+      for (var _i = 0; _i < 5; ++_i) {
         var unitKnight = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight(startX, startY, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.knightAudio),
           unitGoblinTorch = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(startX, startY + 100, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.goblinAudio);
         unitKnight.activateIdle();
@@ -84511,13 +84513,20 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
         eUnits.push(unitGoblinTorch);
         startX += 60;
       }
-      startX = 550;
-      startY += 60;
-      for (var _i2 = 0; _i2 < 8; ++_i2) {
+      for (var _i2 = 0; _i2 < 2; ++_i2) {
         var _unitGoblinTorch = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(startX, startY + 100, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.goblinAudio);
         _unitGoblinTorch.activateIdle();
         _this.addRenderObject(_unitGoblinTorch);
         eUnits.push(_unitGoblinTorch);
+        startX += 60;
+      }
+      startX = 550;
+      startY += 60;
+      for (var _i3 = 0; _i3 < 8; ++_i3) {
+        var _unitGoblinTorch2 = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(startX, startY + 100, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.goblinAudio);
+        _unitGoblinTorch2.activateIdle();
+        _this.addRenderObject(_unitGoblinTorch2);
+        eUnits.push(_unitGoblinTorch2);
         startX += 60;
       }
     });
@@ -84752,8 +84761,8 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                   _len5 = _enemyObjects.length;
                 var _closestDistance = void 0,
                   _closesUnit = void 0;
-                for (var _i3 = 0; _i3 < _len5; ++_i3) {
-                  var _object = _enemyObjects[_i3],
+                for (var _i4 = 0; _i4 < _len5; ++_i4) {
+                  var _object = _enemyObjects[_i4],
                     _distance = (0,jsge_src_utils_js__WEBPACK_IMPORTED_MODULE_3__.pointToCircleDistance)(unit.x, unit.y, {
                       x: _object.x,
                       y: _object.y,
@@ -84767,10 +84776,8 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                   }
                 }
                 if (_closestDistance && _closestDistance > _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.ARCHER.attackRange) {
-                  console.log("closest distance: ", _closestDistance);
                   unit.activateMoveToTargetPointInRange(_closesUnit.x, _closesUnit.y);
-                } else {
-                  console.log("enemy in range --->>>>");
+                } else if (_closestDistance) {
                   unit.activateAttack(_closesUnit);
                 }
               }
@@ -84782,9 +84789,16 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       for (var _index5 = 0; _index5 < eUnitsLen; _index5++) {
         var _unit = _classPrivateFieldGet(_enemyUnits, _this)[_index5];
         if (_unit.isRemoved) {
+          var _this$firstBattleOrcs, _this$firstBattleOrcs2;
           _classPrivateFieldGet(_enemyUnits, _this).splice(_index5, 1);
           _index5--;
           eUnitsLen--;
+          _classPrivateFieldSet(_firstBattleOrcsLeft, _this, (_this$firstBattleOrcs = _classPrivateFieldGet(_firstBattleOrcsLeft, _this), _this$firstBattleOrcs2 = _this$firstBattleOrcs--, _this$firstBattleOrcs)), _this$firstBattleOrcs2;
+          if (_classPrivateFieldGet(_firstBattleOrcsLeft, _this) === 0) {
+            console.log("========================");
+            console.log("trigger first battle win");
+            console.log("========================");
+          }
           continue;
         }
         if (_unit instanceof _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch) {
@@ -84824,8 +84838,8 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                   _len7 = _enemyObjects2.length;
                 var _closestDistance2 = void 0,
                   _closesUnit2 = void 0;
-                for (var _i4 = 0; _i4 < _len7; ++_i4) {
-                  var _object2 = _enemyObjects2[_i4],
+                for (var _i5 = 0; _i5 < _len7; ++_i5) {
+                  var _object2 = _enemyObjects2[_i5],
                     _distance2 = (0,jsge_src_utils_js__WEBPACK_IMPORTED_MODULE_3__.pointToCircleDistance)(_unit.x, _unit.y, {
                       x: _object2.x,
                       y: _object2.y,
@@ -84839,7 +84853,6 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                   }
                 }
                 if (_closestDistance2) {
-                  console.log("closes distance: ", _closestDistance2);
                   _unit.activateMoveToTargetPoint(_closesUnit2.x, _closesUnit2.y);
                 }
               }
@@ -85914,7 +85927,6 @@ var BaseEntity = /*#__PURE__*/function (_DrawImageObject) {
       if (_classPrivateFieldGet(_isShowHealth, this)) {
         _classPrivateFieldGet(_healthBar, this).width = healthLeftPers * _classPrivateFieldGet(_healthBarMaxWidth, this);
       }
-      console.log("opponent health: ", this.health);
     }
   }]);
 }(jsge__WEBPACK_IMPORTED_MODULE_0__.DrawImageObject);
@@ -86552,8 +86564,6 @@ var UnitKnight = /*#__PURE__*/function (_BaseUnit3) {
       var isClicked = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
       _classPrivateFieldSet(_activeAction2, _this7, _const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ACTIONS.IDLE);
       var activeAnimation = _this7.activeAnimation;
-      console.log("idle++++>>>>");
-      console.log(activeAnimation);
       if (activeAnimation === _const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.MOVE_LEFT || activeAnimation === _const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.IDLE_LEFT) {
         _this7.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ANIMATIONS.IDLE_LEFT);
       } else {
@@ -86786,7 +86796,6 @@ var UnitArcher = /*#__PURE__*/function (_BaseUnit4) {
           direction = angle_2points(x, y, tX, tY);
         _classPrivateFieldGet(_stopActiveAudio2, _this8).call(_this8);
         _classPrivateFieldGet(_playAudio2, _this8).call(_this8, _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.FIGHT);
-        console.log("enemy direction: ", direction);
         if (direction >= -Math.PI / 4 && direction <= Math.PI / 4) {
           //console.log("move right");
           _this8.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ANIMATIONS.FIGHT_RIGHT);
@@ -86818,7 +86827,6 @@ var UnitArcher = /*#__PURE__*/function (_BaseUnit4) {
         x: tX,
         y: tY
       }) < 5) {
-        console.log("reached");
         _this8.activateIdle();
       } else {
         var direction = angle_2points(x, y, tX, tY);
@@ -87010,7 +87018,6 @@ var UnitGoblinTorch = /*#__PURE__*/function (_BaseUnit5) {
         x: tX,
         y: tY
       }) < 5) {
-        console.log("reached");
         _this9.activateIdle();
       } else {
         _this9.xPos = newCoordX;
@@ -87046,7 +87053,6 @@ var UnitGoblinTorch = /*#__PURE__*/function (_BaseUnit5) {
         //this.#audioInProgress.pause();
       }
       _classPrivateFieldSet(_audioInProgress3, _this9, randomFromArray(_classPrivateFieldGet(_audio4, _this9).get(audioType)));
-      console.log(_classPrivateFieldGet(_audioInProgress3, _this9));
       _classPrivateFieldGet(_audioInProgress3, _this9).loop = loop;
       _classPrivateFieldGet(_audioInProgress3, _this9).play();
     });

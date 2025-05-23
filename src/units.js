@@ -114,7 +114,6 @@ class BaseEntity extends DrawImageObject {
 		if (this.#isShowHealth) {
 			this.#healthBar.width = healthLeftPers * this.#healthBarMaxWidth;
 		}
-		console.log("opponent health: ", this.health);
 	}
 }
 
@@ -700,8 +699,6 @@ class UnitKnight extends BaseUnit {
 	activateIdle = (isClicked = false) => {
 		this.#activeAction = KNIGHT.ACTIONS.IDLE;
 		const activeAnimation = this.activeAnimation;
-		console.log("idle++++>>>>");
-		console.log(activeAnimation);
 		if (activeAnimation === KNIGHT.ANIMATIONS.MOVE_LEFT || activeAnimation === KNIGHT.ANIMATIONS.IDLE_LEFT) {
 			this.emit(KNIGHT.ANIMATIONS.IDLE_LEFT);
 		} else {
@@ -930,7 +927,6 @@ class UnitArcher extends BaseUnit {
 			this.#stopActiveAudio();
 			this.#playAudio(GAME_AUDIO_TYPES.FIGHT);
 			
-			console.log("enemy direction: ", direction);
 			if (direction >= -Math.PI/4 && direction <= Math.PI/4) {
 				//console.log("move right");
 				this.emit(ARCHER.ANIMATIONS.FIGHT_RIGHT);
@@ -962,7 +958,6 @@ class UnitArcher extends BaseUnit {
 			tX = this.targetPoint[0],
 			tY = this.targetPoint[1];
 		if (countDistance(this, {x:tX, y: tY}) < 5) {
-			console.log("reached");
 			this.activateIdle();
 		} else {
             const direction = angle_2points(x, y, tX, tY);
@@ -1142,7 +1137,6 @@ class UnitGoblinTorch extends BaseUnit {
 			tX = this.targetPoint[0],
 			tY = this.targetPoint[1];
 		if (countDistance(this, {x:tX, y: tY}) < 5) {
-			console.log("reached");
 			this.activateIdle();
 		} else {
         	this.xPos = newCoordX;
@@ -1181,7 +1175,6 @@ class UnitGoblinTorch extends BaseUnit {
 			//this.#audioInProgress.pause();
 		}
 		this.#audioInProgress = randomFromArray(this.#audio.get(audioType));
-		console.log(this.#audioInProgress);
 		this.#audioInProgress.loop = loop;
 		this.#audioInProgress.play();
 	}

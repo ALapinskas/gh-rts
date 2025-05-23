@@ -45,6 +45,7 @@ export class Stage2 extends GameStage {
 	#addUnitPosX = 0;
 
 	#isGameStarted = false;
+	#firstBattleOrcsLeft = 14;
 	register() {
     	this.iLoader.addTileMap("s_map", "./assets/level2.tmx");
 		this.iLoader.addImage(GAME_UNITS.GOLD_MINE.name, "./assets/Tiny Swords (Update 010)/Resources/Gold Mine/GoldMine_Inactive.png");
@@ -665,7 +666,7 @@ export class Stage2 extends GameStage {
 		}
 		startX = 550,
 		startY = 1400;
-		for (let i = 0; i < 4; ++i) {
+		for (let i = 0; i < 5; ++i) {
 			const unitKnight = new UnitKnight(startX, startY, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.knightAudio),
 				unitGoblinTorch = new UnitGoblinTorch(startX, startY + 100, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.goblinAudio);
 
@@ -674,6 +675,14 @@ export class Stage2 extends GameStage {
 				this.addRenderObject(unitKnight);
 				this.addRenderObject(unitGoblinTorch);
 				pUnits.push(unitKnight);
+				eUnits.push(unitGoblinTorch);
+				startX += 60;
+		}
+		for (let i = 0; i < 2; ++i) {
+			const unitGoblinTorch = new UnitGoblinTorch(startX, startY + 100, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.goblinAudio);
+
+				unitGoblinTorch.activateIdle();
+				this.addRenderObject(unitGoblinTorch);
 				eUnits.push(unitGoblinTorch);
 				startX += 60;
 		}
@@ -924,10 +933,8 @@ export class Stage2 extends GameStage {
 								}
 							}
 							if (closestDistance && (closestDistance > GAME_UNITS.ARCHER.attackRange)) {
-								console.log("closest distance: ", closestDistance);
 								unit.activateMoveToTargetPointInRange(closesUnit.x, closesUnit.y);
-							} else {
-								console.log("enemy in range --->>>>")
+							} else if (closestDistance) {
 								unit.activateAttack(closesUnit);
 							}
 						}
@@ -943,6 +950,12 @@ export class Stage2 extends GameStage {
 				this.#enemyUnits.splice(index, 1);
 				index--;
 				eUnitsLen--;
+				this.#firstBattleOrcsLeft--;
+				if (this.#firstBattleOrcsLeft === 0) {
+					console.log("========================");
+					console.log("trigger first battle win");
+					console.log("========================");
+				}
 				continue;
 			}
 			if (unit instanceof UnitGoblinTorch) {
@@ -995,7 +1008,6 @@ export class Stage2 extends GameStage {
 								}
 							}
 							if (closestDistance) {
-								console.log("closes distance: ", closestDistance);
 								unit.activateMoveToTargetPoint(closesUnit.x, closesUnit.y);
 							}
 						}
