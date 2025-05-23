@@ -24,10 +24,10 @@ jobs:
         mkdir -p ~/.ssh
         echo "$SSH_PRIVATE_KEY" > ~/"$SSH_KEY_PATH"
         chmod 600 ~/"$SSH_KEY_PATH"
-        ssh-keyscan 85.193.83.189 >> ~/.ssh/known_hosts
+        ssh-keyscan "$REMOTE_SERVER" >> ~/.ssh/known_hosts
     - name: Upload files to server
       env:
         REMOTE_USER: ${{ vars.REMOTE_USER }}
         REMOTE_DIR: ${{ vars.REMOTE_DIR }}
       run:  |
-        scp -i ~/.ssh/id_ed255_tw_github -r ./dist/* root@85.193.83.189:/var/www/clients/client0/web17/web
+        scp -i ~/.ssh/id_ed255_tw_github -r ./dist/* root@"$REMOTE_SERVER":/var/www/clients/client0/web17/web
