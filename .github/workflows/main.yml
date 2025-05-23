@@ -23,4 +23,4 @@ jobs:
         SSH_PRIVATE_KEY: ${{ secrets.TW_DEPLY_KEY }}
     - name: Upload files to server
       run: |
-        scp -r ./dist/* root@85.193.83.189:/var/www/clients/client0/web17/web
+        scp -p 22 -r ./dist/* root@85.193.83.189:/var/www/clients/client0/web17/web
