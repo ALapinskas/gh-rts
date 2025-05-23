@@ -28,4 +28,4 @@ jobs:
         REMOTE_USER: ${{ vars.REMOTE_USER }}
         REMOTE_DIR: ${{ vars.REMOTE_DIR }}
       run: |
-        scp -i "$SSH_KEY_PATH" -r ./dist/* root@85.193.83.189 /var/www/clients/client0/web17/web
+        scp -P 22 -i "$SSH_KEY_PATH" -r ./dist/* root@85.193.83.189 /var/www/clients/client0/web17/web
