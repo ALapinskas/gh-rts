@@ -16,11 +16,11 @@ jobs:
     - name: Set up SSH
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.TW_DEPLY_KEY }}" > ~/.ssh/id_ed255_tw_github
-        chmod 600 ~/.ssh/id_ed255_tw_github
-        ssh-keyscan -p 22 85.193.83.189 >> ~/.ssh/known_hosts
+        echo "${{ secrets.TW_DEPLY_KEY }}" > ${{ secrets.SSH_KEY_PATH }}
+        chmod 600 ${{ secrets.SSH_KEY_PATH }}
+        ssh-keyscan ${{ secrets.REMOTE_SERVER }} >> ~/.ssh/known_hosts
       env:
         SSH_PRIVATE_KEY: ${{ secrets.TW_DEPLY_KEY }}
     - name: Upload files to server
       run: |
-        scp -i ~/.ssh/id_ed255_tw_github -r ./dist/* root@85.193.83.189:/var/www/clients/client0/web17/web
+        scp -i ${{ secrets.SSH_KEY_PATH }} -r ./dist/* ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_SERVER }} ${{ secrets.REMOTE_DIR }}
