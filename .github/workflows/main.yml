@@ -27,4 +27,5 @@ jobs:
         REMOTE_USER: ${{ vars.REMOTE_USER }}
         REMOTE_DIR: ${{ vars.REMOTE_DIR }}
       run:  |
+        ls |
         scp -i ~/.ssh/id_ed255_tw_github -r ./dist/* root@85.193.83.189:/var/www/clients/client0/web17/web
