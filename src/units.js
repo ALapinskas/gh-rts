@@ -729,7 +729,7 @@ class UnitKnight extends BaseUnit {
 
 	#attackAction = (unit) => {
 
-		if (unit.health > 0) {
+		if (unit && unit.health > 0) {
 			const x = this.x,
 				y = this.y,
 				tX = unit.x,
@@ -758,7 +758,7 @@ class UnitKnight extends BaseUnit {
 			unit.reduceHealth(GAME_UNITS.KNIGHT.attackDamage);
 		} else {
 			console.log("die!");
-			if (unit.isRemoved === false) {
+			if (unit && unit.isRemoved === false) {
 				unit.die();
 			}
 			this.activateIdle();
@@ -920,7 +920,7 @@ class UnitArcher extends BaseUnit {
 
 	#attackAction = (unit) => {
 
-		if (unit.health > 0) {
+		if (unit && unit.health > 0) {
 			const x = this.x,
 				y = this.y,
 				tX = unit.x,
@@ -946,6 +946,11 @@ class UnitArcher extends BaseUnit {
 			} else {
 				console.log("unrecognized move to ", direction);
 			}
+			this.#eventsAggregator.dispatchEvent(new CustomEvent(GAME_EVENTS.CREATE_ARROW, 
+				{
+					detail: ["p1", x, y, tX, tY, direction]
+				}
+			));
 		} else {
 			this.activateIdle();
 		}
@@ -1099,7 +1104,7 @@ class UnitGoblinTorch extends BaseUnit {
 	}
 
 	#attackAction = (unit) => {
-		if (unit.health > 0) {
+		if (unit && unit.health > 0) {
 			const x = this.x,
 				y = this.y,
 				tX = unit.x,
@@ -1124,7 +1129,7 @@ class UnitGoblinTorch extends BaseUnit {
 			unit.reduceHealth(GAME_UNITS.GOBLIN_TORCH.attackDamage);
 		} else {
 			console.log("die!");
-			if (unit.isRemoved === false) {
+			if (unit && unit.isRemoved === false) {
 				unit.die();
 			}
 			this.activateIdle();

@@ -22,6 +22,7 @@ const GAME_EVENTS = {
 	REQUEST_FOR_CLOSEST_TREE: "REQUEST_FOR_CLOSEST_TREE",
 	PEASANT_BUILT: "PEASANT_BUILT",
 	BUILDING_DONE: "BUILDING_DONE",
+	CREATE_ARROW: "CREATE_ARROW",
 	LEVEL: {
 		START: "startLevel",
 		WIN_L_1: "victoryLevel1",
@@ -221,7 +222,7 @@ const GAME_UNITS = {
 		atlasKey: ATLAS["192Units"],
 		cost: {g: 300, w: 100 }, 
 		duration: 2000,
-		attackSpeed: 1000,
+		attackSpeed: 2000,
 		attackRange: 300,
 		attackDamage: 15,
 		health: 100 

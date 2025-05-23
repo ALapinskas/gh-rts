@@ -82495,6 +82495,7 @@ var GAME_EVENTS = {
   REQUEST_FOR_CLOSEST_TREE: "REQUEST_FOR_CLOSEST_TREE",
   PEASANT_BUILT: "PEASANT_BUILT",
   BUILDING_DONE: "BUILDING_DONE",
+  CREATE_ARROW: "CREATE_ARROW",
   LEVEL: {
     START: "startLevel",
     WIN_L_1: "victoryLevel1",
@@ -82687,7 +82688,7 @@ var GAME_UNITS = {
       w: 100
     },
     duration: 2000,
-    attackSpeed: 1000,
+    attackSpeed: 2000,
     attackRange: 300,
     attackDamage: 15,
     health: 100
@@ -83997,6 +83998,7 @@ var _playerWoodCounter = /*#__PURE__*/new WeakMap();
 var _playerPeopleLimit = /*#__PURE__*/new WeakMap();
 var _playerPeopleLimitCounter = /*#__PURE__*/new WeakMap();
 var _playerUnits = /*#__PURE__*/new WeakMap();
+var _playerArrows = /*#__PURE__*/new WeakMap();
 var _playerBuildings = /*#__PURE__*/new WeakMap();
 var _neutralBuildings = /*#__PURE__*/new WeakMap();
 var _enemyUnits = /*#__PURE__*/new WeakMap();
@@ -84030,6 +84032,7 @@ var _clickedBuildPeasant = /*#__PURE__*/new WeakMap();
 var _createBattle = /*#__PURE__*/new WeakMap();
 var _attachAudio = /*#__PURE__*/new WeakMap();
 var _render = /*#__PURE__*/new WeakMap();
+var _createArrow = /*#__PURE__*/new WeakMap();
 var _createGoldBag = /*#__PURE__*/new WeakMap();
 var _createWoodBunch = /*#__PURE__*/new WeakMap();
 var _goldMined = /*#__PURE__*/new WeakMap();
@@ -84060,6 +84063,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
     // lets say town center increase limit to 5 and house to 3
     _classPrivateFieldInitSpec(_this, _playerPeopleLimitCounter, void 0);
     _classPrivateFieldInitSpec(_this, _playerUnits, []);
+    _classPrivateFieldInitSpec(_this, _playerArrows, []);
     _classPrivateFieldInitSpec(_this, _playerBuildings, []);
     _classPrivateFieldInitSpec(_this, _neutralBuildings, []);
     _classPrivateFieldInitSpec(_this, _enemyUnits, []);
@@ -84496,7 +84500,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
         startX += 60;
       }
       startX = 550, startY = 1400;
-      for (var _i = 0; _i < 8; ++_i) {
+      for (var _i = 0; _i < 4; ++_i) {
         var unitKnight = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight(startX, startY, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.knightAudio),
           unitGoblinTorch = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(startX, startY + 100, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.goblinAudio);
         unitKnight.activateIdle();
@@ -84509,7 +84513,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       }
       startX = 550;
       startY += 60;
-      for (var _i2 = 0; _i2 < 6; ++_i2) {
+      for (var _i2 = 0; _i2 < 8; ++_i2) {
         var _unitGoblinTorch = new _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitGoblinTorch(startX, startY + 100, _this.draw, _this.iSystem.systemSettings.gameOptions.showLifeLines, _this.eventsAggregator, _this.goblinAudio);
         _unitGoblinTorch.activateIdle();
         _this.addRenderObject(_unitGoblinTorch);
@@ -84531,12 +84535,63 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       _this.goblinAudio.set(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.DEATH, [_this.iLoader.getAudio(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.AUDIO.DEATH1)]);
     });
     _classPrivateFieldInitSpec(_this, _render, function () {
-      var pUnitsLen = _classPrivateFieldGet(_playerUnits, _this).length;
-      for (var index = 0; index < pUnitsLen; index++) {
-        var unit = _classPrivateFieldGet(_playerUnits, _this)[index];
-        if (unit.isRemoved) {
-          _classPrivateFieldGet(_playerUnits, _this).splice(index, 1);
+      var pArrows = _classPrivateFieldGet(_playerArrows, _this),
+        paLen = pArrows.length;
+      for (var index = 0; index < paLen; index++) {
+        var arrow = _classPrivateFieldGet(_playerArrows, _this)[index];
+        var forceToUse = 1.5,
+          //this.#moveSpeed,
+          newCoordX = arrow.x + forceToUse * Math.cos(arrow.rotation),
+          newCoordY = arrow.y + forceToUse * Math.sin(arrow.rotation);
+        var collisionUnits = _this.isObjectsCollision(arrow.x, arrow.y, arrow, _classPrivateFieldGet(_enemyUnits, _this)),
+          collisionBuildings = _this.isObjectsCollision(arrow.x, arrow.y, arrow, _classPrivateFieldGet(_enemyBuildings, _this));
+        if (collisionUnits) {
+          var minDist = void 0,
+            closeEnemy = void 0;
+          if (collisionUnits.length > 1) {
+            var len = collisionUnits.length;
+            for (var _index = 0; _index < len; _index++) {
+              var enemy = collisionUnits[_index],
+                dist = countDistance(arrow, enemy);
+              if (!minDist || minDist > dist) {
+                minDist = dist;
+                closeEnemy = enemy;
+              }
+            }
+          } else {
+            closeEnemy = collisionUnits[0];
+          }
+          closeEnemy.reduceHealth(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.ARCHER.attackDamage);
+          if (closeEnemy.health <= 0) {
+            closeEnemy.die();
+          }
+          arrow.destroy();
+          _classPrivateFieldGet(_playerArrows, _this).splice(index, 1);
           index--;
+          paLen--;
+          continue;
+        } else if (countDistance({
+          x: newCoordX,
+          y: newCoordY
+        }, {
+          x: arrow.tX,
+          y: arrow.tY
+        }) <= 10) {
+          arrow.destroy();
+          _classPrivateFieldGet(_playerArrows, _this).splice(index, 1);
+          index--;
+          paLen--;
+          continue;
+        }
+        arrow.x = newCoordX;
+        arrow.y = newCoordY;
+      }
+      var pUnitsLen = _classPrivateFieldGet(_playerUnits, _this).length;
+      for (var _index2 = 0; _index2 < pUnitsLen; _index2++) {
+        var unit = _classPrivateFieldGet(_playerUnits, _this)[_index2];
+        if (unit.isRemoved) {
+          _classPrivateFieldGet(_playerUnits, _this).splice(_index2, 1);
+          _index2--;
           pUnitsLen--;
           _classPrivateFieldGet(_recalculatePeopleLimits, _this).call(_this);
           continue;
@@ -84569,7 +84624,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                 unit.stopRepeatedAnimation(unit.activeAnimation);
                 unit.destroy();
                 // remove from array
-                _classPrivateFieldGet(_playerUnits, _this).splice(index, 1);
+                _classPrivateFieldGet(_playerUnits, _this).splice(_index2, 1);
                 var type = unit.buildingType;
                 var startIndex = 1,
                   imageType = _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.HOUSE.name;
@@ -84601,33 +84656,15 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
           switch (_action) {
             case _const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ACTIONS.MOVE:
               // check for obstacles
-              var collisionUnits = _this.isObjectsCollision(unit.x, unit.y, unit, _classPrivateFieldGet(_enemyUnits, _this)),
-                collisionBuildings = _this.isObjectsCollision(unit.x, unit.y, unit, _classPrivateFieldGet(_enemyBuildings, _this));
-              if (collisionUnits) {
-                var minDist = void 0,
-                  closeEnemy = void 0;
-                if (collisionUnits.length > 1) {
-                  var len = collisionUnits.length;
-                  for (var _index = 0; _index < len; _index++) {
-                    var enemy = collisionUnits[_index],
-                      dist = countDistance(unit, enemy);
-                    if (!minDist || minDist > dist) {
-                      minDist = dist;
-                      closeEnemy = enemy;
-                    }
-                  }
-                } else {
-                  closeEnemy = collisionUnits[0];
-                }
-                //console.log("closest enemy:", closeEnemy);
-                unit.activateAttack(closeEnemy);
-              } else if (collisionBuildings) {
+              var _collisionUnits = _this.isObjectsCollision(unit.x, unit.y, unit, _classPrivateFieldGet(_enemyUnits, _this)),
+                _collisionBuildings = _this.isObjectsCollision(unit.x, unit.y, unit, _classPrivateFieldGet(_enemyBuildings, _this));
+              if (_collisionUnits) {
                 var _minDist = void 0,
                   _closeEnemy = void 0;
-                if (collisionBuildings.length > 1) {
-                  var _len2 = collisionBuildings.length;
-                  for (var _index2 = 0; _index2 < _len2; _index2++) {
-                    var _enemy = collisionBuildings[_index2],
+                if (_collisionUnits.length > 1) {
+                  var _len2 = _collisionUnits.length;
+                  for (var _index3 = 0; _index3 < _len2; _index3++) {
+                    var _enemy = _collisionUnits[_index3],
                       _dist = countDistance(unit, _enemy);
                     if (!_minDist || _minDist > _dist) {
                       _minDist = _dist;
@@ -84635,10 +84672,28 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                     }
                   }
                 } else {
-                  _closeEnemy = collisionBuildings[0];
+                  _closeEnemy = _collisionUnits[0];
                 }
                 //console.log("closest enemy:", closeEnemy);
                 unit.activateAttack(_closeEnemy);
+              } else if (_collisionBuildings) {
+                var _minDist2 = void 0,
+                  _closeEnemy2 = void 0;
+                if (_collisionBuildings.length > 1) {
+                  var _len3 = _collisionBuildings.length;
+                  for (var _index4 = 0; _index4 < _len3; _index4++) {
+                    var _enemy2 = _collisionBuildings[_index4],
+                      _dist2 = countDistance(unit, _enemy2);
+                    if (!_minDist2 || _minDist2 > _dist2) {
+                      _minDist2 = _dist2;
+                      _closeEnemy2 = _enemy2;
+                    }
+                  }
+                } else {
+                  _closeEnemy2 = _collisionBuildings[0];
+                }
+                //console.log("closest enemy:", closeEnemy);
+                unit.activateAttack(_closeEnemy2);
               } else {
                 var _unit$countNextStep = unit.countNextStep(),
                   _x = _unit$countNextStep.x,
@@ -84653,10 +84708,10 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
             case _const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ACTIONS.IDLE:
               if (_classPrivateFieldGet(_isGameStarted, _this) && unit.unitTactic === _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE) {
                 var enemyObjects = _classPrivateFieldGet(_enemyUnits, _this),
-                  _len3 = enemyObjects.length;
+                  _len4 = enemyObjects.length;
                 var closestDistance = void 0,
                   closesUnit = void 0;
-                for (var i = 0; i < _len3; ++i) {
+                for (var i = 0; i < _len4; ++i) {
                   var object = enemyObjects[i],
                     distance = (0,jsge_src_utils_js__WEBPACK_IMPORTED_MODULE_3__.pointToCircleDistance)(unit.x, unit.y, {
                       x: object.x,
@@ -84681,61 +84736,23 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
           var _action2 = unit.activeAction;
           switch (_action2) {
             case _const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ACTIONS.MOVE:
+              var _unit$countNextStep2 = unit.countNextStep(),
+                _x2 = _unit$countNextStep2.x,
+                _y2 = _unit$countNextStep2.y;
               // check for obstacles
-              /*
-              const collisionUnits = this.isObjectsCollision(unit.x, unit.y, unit, this.#enemyUnits),
-              	collisionBuildings = this.isObjectsCollision(unit.x, unit.y, unit, this.#enemyBuildings);
-              if (collisionUnits) {
-              	let minDist, closeEnemy;
-              	if (collisionUnits.length > 1) {
-              		const len = collisionUnits.length;
-              		for (let index = 0; index < len; index++) {
-              			const enemy = collisionUnits[index],
-              				dist = countDistance(unit, enemy);
-              			if (!minDist || minDist > dist) {
-              				minDist = dist;
-              				closeEnemy = enemy;
-              			}
-              		}
-              	} else {
-              		closeEnemy = collisionUnits[0];
-              	}
-              	//console.log("closest enemy:", closeEnemy);
-              	unit.activateAttack(closeEnemy);
-              } else if (collisionBuildings) {
-              	let minDist, closeEnemy;
-              	if (collisionBuildings.length > 1) {
-              		const len = collisionBuildings.length;
-              		for (let index = 0; index < len; index++) {
-              			const enemy = collisionBuildings[index],
-              				dist = countDistance(unit, enemy);
-              			if (!minDist || minDist > dist) {
-              				minDist = dist;
-              				closeEnemy = enemy;
-              			}
-              		}
-              	} else {
-              		closeEnemy = collisionBuildings[0];
-              	}
-              	//console.log("closest enemy:", closeEnemy);
-              	unit.activateAttack(closeEnemy);
-              
+              if (_this.isBoundariesCollision(_x2, _y2, unit)) {
+                unit.activateIdle();
               } else {
-              	const {x, y} = unit.countNextStep();
-              	if (this.isBoundariesCollision(x, y, unit)) {
-              		unit.activateIdle();
-              	} else {
-              		unit.stepMove(x, y);
-              	}	
-              }*/
+                unit.stepMove(_x2, _y2);
+              }
               break;
             case _const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ACTIONS.IDLE:
               if (_classPrivateFieldGet(_isGameStarted, _this) && unit.unitTactic === _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE) {
                 var _enemyObjects = _classPrivateFieldGet(_enemyUnits, _this),
-                  _len4 = _enemyObjects.length;
+                  _len5 = _enemyObjects.length;
                 var _closestDistance = void 0,
                   _closesUnit = void 0;
-                for (var _i3 = 0; _i3 < _len4; ++_i3) {
+                for (var _i3 = 0; _i3 < _len5; ++_i3) {
                   var _object = _enemyObjects[_i3],
                     _distance = (0,jsge_src_utils_js__WEBPACK_IMPORTED_MODULE_3__.pointToCircleDistance)(unit.x, unit.y, {
                       x: _object.x,
@@ -84762,11 +84779,11 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
         }
       }
       var eUnitsLen = _classPrivateFieldGet(_enemyUnits, _this).length;
-      for (var _index3 = 0; _index3 < eUnitsLen; _index3++) {
-        var _unit = _classPrivateFieldGet(_enemyUnits, _this)[_index3];
+      for (var _index5 = 0; _index5 < eUnitsLen; _index5++) {
+        var _unit = _classPrivateFieldGet(_enemyUnits, _this)[_index5];
         if (_unit.isRemoved) {
-          _classPrivateFieldGet(_enemyUnits, _this).splice(_index3, 1);
-          _index3--;
+          _classPrivateFieldGet(_enemyUnits, _this).splice(_index5, 1);
+          _index5--;
           eUnitsLen--;
           continue;
         }
@@ -84777,37 +84794,37 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
               var isCollisionUnit = _this.isObjectsCollision(_unit.x, _unit.y, _unit, _classPrivateFieldGet(_playerUnits, _this)),
                 isCollisionBuilding = _this.isObjectsCollision(_unit.x, _unit.y, _unit, _classPrivateFieldGet(_playerBuildings, _this));
               if (isCollisionUnit) {
-                var _len5 = _classPrivateFieldGet(_playerUnits, _this).length;
-                var _minDist2 = void 0,
-                  _closeEnemy2 = void 0;
-                for (var _index4 = 0; _index4 < _len5; _index4++) {
-                  var _enemy2 = _classPrivateFieldGet(_playerUnits, _this)[_index4],
-                    _dist2 = countDistance(_unit, _enemy2);
-                  if (!_minDist2 || _minDist2 > _dist2) {
-                    _minDist2 = _dist2;
-                    _closeEnemy2 = _enemy2;
+                var _len6 = _classPrivateFieldGet(_playerUnits, _this).length;
+                var _minDist3 = void 0,
+                  _closeEnemy3 = void 0;
+                for (var _index6 = 0; _index6 < _len6; _index6++) {
+                  var _enemy3 = _classPrivateFieldGet(_playerUnits, _this)[_index6],
+                    _dist3 = countDistance(_unit, _enemy3);
+                  if (!_minDist3 || _minDist3 > _dist3) {
+                    _minDist3 = _dist3;
+                    _closeEnemy3 = _enemy3;
                   }
                 }
                 //console.log("closest enemy:", closeEnemy);
-                _unit.activateAttack(_closeEnemy2);
+                _unit.activateAttack(_closeEnemy3);
               } else if (isCollisionBuilding) {} else {
-                var _unit$countNextStep2 = _unit.countNextStep(),
-                  _x2 = _unit$countNextStep2.x,
-                  _y2 = _unit$countNextStep2.y;
-                if (_this.isBoundariesCollision(_x2, _y2, _unit)) {
+                var _unit$countNextStep3 = _unit.countNextStep(),
+                  _x3 = _unit$countNextStep3.x,
+                  _y3 = _unit$countNextStep3.y;
+                if (_this.isBoundariesCollision(_x3, _y3, _unit)) {
                   _unit.activateIdle();
                 } else {
-                  _unit.stepMove(_x2, _y2);
+                  _unit.stepMove(_x3, _y3);
                 }
               }
               break;
             case _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.IDLE:
               if (_classPrivateFieldGet(_isGameStarted, _this) && _unit.unitTactic === _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE) {
                 var _enemyObjects2 = _classPrivateFieldGet(_playerUnits, _this),
-                  _len6 = _enemyObjects2.length;
+                  _len7 = _enemyObjects2.length;
                 var _closestDistance2 = void 0,
                   _closesUnit2 = void 0;
-                for (var _i4 = 0; _i4 < _len6; ++_i4) {
+                for (var _i4 = 0; _i4 < _len7; ++_i4) {
                   var _object2 = _enemyObjects2[_i4],
                     _distance2 = (0,jsge_src_utils_js__WEBPACK_IMPORTED_MODULE_3__.pointToCircleDistance)(_unit.x, _unit.y, {
                       x: _object2.x,
@@ -84831,15 +84848,38 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
         }
       }
       var eBuildingsLen = _classPrivateFieldGet(_enemyBuildings, _this).length;
-      for (var _index5 = 0; _index5 < eBuildingsLen; _index5++) {
-        var _unit2 = _classPrivateFieldGet(_enemyBuildings, _this)[_index5];
+      for (var _index7 = 0; _index7 < eBuildingsLen; _index7++) {
+        var _unit2 = _classPrivateFieldGet(_enemyBuildings, _this)[_index7];
         if (_unit2.isRemoved) {
-          _classPrivateFieldGet(_enemyBuildings, _this).splice(_index5, 1);
-          _index5--;
+          _classPrivateFieldGet(_enemyBuildings, _this).splice(_index7, 1);
+          _index7--;
           eBuildingsLen--;
           continue;
         }
       }
+    });
+    _classPrivateFieldInitSpec(_this, _createArrow, function (e) {
+      var _e$detail = _slicedToArray(e.detail, 6),
+        player = _e$detail[0],
+        x = _e$detail[1],
+        y = _e$detail[2],
+        tX = _e$detail[3],
+        tY = _e$detail[4],
+        direction = _e$detail[5];
+      var arrow = _this.draw.image(x, y, 192, 192, "192Units", 182, [{
+        x: -30,
+        y: 0
+      }, {
+        x: 30,
+        y: 0
+      }]);
+      arrow.rotation = direction;
+      arrow.x = x;
+      arrow.y = y;
+      arrow.tX = tX;
+      arrow.tY = tY;
+      arrow.sortIndex = 3;
+      _classPrivateFieldGet(_playerArrows, _this).push(arrow);
     });
     _classPrivateFieldInitSpec(_this, _createGoldBag, function (e) {
       var peasantId = e.detail.peasantId,
@@ -85196,6 +85236,7 @@ function _registerSystemEventsListeners() {
   this.eventsAggregator.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.REQUEST_FOR_CLOSEST_TREE, _classPrivateFieldGet(_requestForClosestTree, this));
   this.eventsAggregator.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.PEASANT_BUILT, _classPrivateFieldGet(_peasantBuilt, this));
   this.eventsAggregator.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.BUILDING_DONE, _classPrivateFieldGet(_buildingDone, this));
+  this.eventsAggregator.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.CREATE_ARROW, _classPrivateFieldGet(_createArrow, this));
 }
 function _unregisterSystemEventsListeners() {
   this.iSystem.removeEventListener(jsge__WEBPACK_IMPORTED_MODULE_0__.CONST.EVENTS.SYSTEM.RENDER.START, _classPrivateFieldGet(_render, this));
@@ -85208,6 +85249,7 @@ function _unregisterSystemEventsListeners() {
   this.eventsAggregator.removeEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.REQUEST_FOR_CLOSEST_TREE, _classPrivateFieldGet(_requestForClosestTree, this));
   this.eventsAggregator.removeEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.PEASANT_BUILT, _classPrivateFieldGet(_peasantBuilt, this));
   this.eventsAggregator.removeEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.BUILDING_DONE, _classPrivateFieldGet(_buildingDone, this));
+  this.eventsAggregator.removeEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.CREATE_ARROW, _classPrivateFieldGet(_createArrow, this));
 }
 var EvensAggregator = /*#__PURE__*/function (_EventTarget) {
   function EvensAggregator() {
@@ -85217,36 +85259,36 @@ var EvensAggregator = /*#__PURE__*/function (_EventTarget) {
   _inherits(EvensAggregator, _EventTarget);
   return _createClass(EvensAggregator);
 }(/*#__PURE__*/_wrapNativeSuper(EventTarget));
-var _x3 = /*#__PURE__*/new WeakMap();
-var _y3 = /*#__PURE__*/new WeakMap();
+var _x4 = /*#__PURE__*/new WeakMap();
+var _y4 = /*#__PURE__*/new WeakMap();
 var _health = /*#__PURE__*/new WeakMap();
-var _index6 = /*#__PURE__*/new WeakMap();
+var _index8 = /*#__PURE__*/new WeakMap();
 var Tree = /*#__PURE__*/function () {
   function Tree(x, y, treeHealth, index) {
     _classCallCheck(this, Tree);
-    _classPrivateFieldInitSpec(this, _x3, void 0);
-    _classPrivateFieldInitSpec(this, _y3, void 0);
+    _classPrivateFieldInitSpec(this, _x4, void 0);
+    _classPrivateFieldInitSpec(this, _y4, void 0);
     _classPrivateFieldInitSpec(this, _health, void 0);
-    _classPrivateFieldInitSpec(this, _index6, void 0);
-    _classPrivateFieldSet(_x3, this, x);
-    _classPrivateFieldSet(_y3, this, y);
-    _classPrivateFieldSet(_index6, this, index);
+    _classPrivateFieldInitSpec(this, _index8, void 0);
+    _classPrivateFieldSet(_x4, this, x);
+    _classPrivateFieldSet(_y4, this, y);
+    _classPrivateFieldSet(_index8, this, index);
     _classPrivateFieldSet(_health, this, treeHealth);
   }
   return _createClass(Tree, [{
     key: "index",
     get: function get() {
-      return _classPrivateFieldGet(_index6, this);
+      return _classPrivateFieldGet(_index8, this);
     }
   }, {
     key: "x",
     get: function get() {
-      return _classPrivateFieldGet(_x3, this);
+      return _classPrivateFieldGet(_x4, this);
     }
   }, {
     key: "y",
     get: function get() {
-      return _classPrivateFieldGet(_y3, this);
+      return _classPrivateFieldGet(_y4, this);
     }
   }, {
     key: "health",
@@ -86537,7 +86579,7 @@ var UnitKnight = /*#__PURE__*/function (_BaseUnit3) {
       }
     });
     _classPrivateFieldInitSpec(_this7, _attackAction, function (unit) {
-      if (unit.health > 0) {
+      if (unit && unit.health > 0) {
         var x = _this7.x,
           y = _this7.y,
           tX = unit.x,
@@ -86564,7 +86606,7 @@ var UnitKnight = /*#__PURE__*/function (_BaseUnit3) {
         unit.reduceHealth(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.KNIGHT.attackDamage);
       } else {
         console.log("die!");
-        if (unit.isRemoved === false) {
+        if (unit && unit.isRemoved === false) {
           unit.die();
         }
         _this7.activateIdle();
@@ -86736,7 +86778,7 @@ var UnitArcher = /*#__PURE__*/function (_BaseUnit4) {
       }
     });
     _classPrivateFieldInitSpec(_this8, _attackAction2, function (unit) {
-      if (unit.health > 0) {
+      if (unit && unit.health > 0) {
         var x = _this8.x,
           y = _this8.y,
           tX = unit.x,
@@ -86760,6 +86802,9 @@ var UnitArcher = /*#__PURE__*/function (_BaseUnit4) {
         } else {
           console.log("unrecognized move to ", direction);
         }
+        _classPrivateFieldGet(_eventsAggregator4, _this8).dispatchEvent(new CustomEvent(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.CREATE_ARROW, {
+          detail: ["p1", x, y, tX, tY, direction]
+        }));
       } else {
         _this8.activateIdle();
       }
@@ -86926,7 +86971,7 @@ var UnitGoblinTorch = /*#__PURE__*/function (_BaseUnit5) {
       }
     });
     _classPrivateFieldInitSpec(_this9, _attackAction3, function (unit) {
-      if (unit.health > 0) {
+      if (unit && unit.health > 0) {
         var x = _this9.x,
           y = _this9.y,
           tX = unit.x,
@@ -86950,7 +86995,7 @@ var UnitGoblinTorch = /*#__PURE__*/function (_BaseUnit5) {
         unit.reduceHealth(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.GOBLIN_TORCH.attackDamage);
       } else {
         console.log("die!");
-        if (unit.isRemoved === false) {
+        if (unit && unit.isRemoved === false) {
           unit.die();
         }
         _this9.activateIdle();

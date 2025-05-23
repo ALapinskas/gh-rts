@@ -21,6 +21,7 @@ export class Stage2 extends GameStage {
 	#playerPeopleLimit = 5; // lets say town center increase limit to 5 and house to 3
 	#playerPeopleLimitCounter;
 	#playerUnits = [];
+	#playerArrows = [];
 	#playerBuildings = [];
 	#neutralBuildings = [];
 	#enemyUnits = [];
@@ -664,7 +665,7 @@ export class Stage2 extends GameStage {
 		}
 		startX = 550,
 		startY = 1400;
-		for (let i = 0; i < 8; ++i) {
+		for (let i = 0; i < 4; ++i) {
 			const unitKnight = new UnitKnight(startX, startY, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.knightAudio),
 				unitGoblinTorch = new UnitGoblinTorch(startX, startY + 100, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.goblinAudio);
 
@@ -678,7 +679,7 @@ export class Stage2 extends GameStage {
 		}
 		startX = 550;
 		startY += 60;
-		for (let i = 0; i < 6; ++i) {
+		for (let i = 0; i < 8; ++i) {
 			const unitGoblinTorch = new UnitGoblinTorch(startX, startY + 100, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator, this.goblinAudio);
 
 			unitGoblinTorch.activateIdle();
@@ -706,6 +707,52 @@ export class Stage2 extends GameStage {
 	}
 
 	#render = () => {
+		let pArrows = this.#playerArrows,
+			paLen = pArrows.length;
+		for (let index = 0; index < paLen; index++) {
+			const arrow = this.#playerArrows[index];
+
+			const forceToUse = 1.5,//this.#moveSpeed,
+				newCoordX = arrow.x + forceToUse * Math.cos(arrow.rotation),
+				newCoordY = arrow.y + forceToUse * Math.sin(arrow.rotation);
+
+			const collisionUnits = this.isObjectsCollision(arrow.x, arrow.y, arrow, this.#enemyUnits),
+				collisionBuildings = this.isObjectsCollision(arrow.x, arrow.y, arrow, this.#enemyBuildings);
+			if (collisionUnits) {
+				let minDist, closeEnemy;
+				if (collisionUnits.length > 1) {
+					const len = collisionUnits.length;
+					for (let index = 0; index < len; index++) {
+						const enemy = collisionUnits[index],
+							dist = countDistance(arrow, enemy);
+						if (!minDist || minDist > dist) {
+							minDist = dist;
+							closeEnemy = enemy;
+						}
+					}
+				} else {
+					closeEnemy = collisionUnits[0];
+				}
+				
+				closeEnemy.reduceHealth(GAME_UNITS.ARCHER.attackDamage);
+				if (closeEnemy.health <= 0) {
+					closeEnemy.die();
+				}
+				arrow.destroy();
+				this.#playerArrows.splice(index, 1);
+				index--;
+				paLen--;
+				continue;
+			} else if (countDistance({x: newCoordX, y: newCoordY}, {x: arrow.tX, y: arrow.tY}) <= 10) {
+				arrow.destroy();
+				this.#playerArrows.splice(index, 1);
+				index--;
+				paLen--;
+				continue;
+			}
+			arrow.x = newCoordX;
+			arrow.y = newCoordY;
+		}
 		let pUnitsLen = this.#playerUnits.length;
 		for (let index = 0; index < pUnitsLen; index++) {
 			const unit = this.#playerUnits[index];
@@ -851,53 +898,13 @@ export class Stage2 extends GameStage {
 				const action = unit.activeAction;
 				switch (action) {
 					case ARCHER.ACTIONS.MOVE:
+						const {x, y} = unit.countNextStep();
 						// check for obstacles
-						/*
-						const collisionUnits = this.isObjectsCollision(unit.x, unit.y, unit, this.#enemyUnits),
-							collisionBuildings = this.isObjectsCollision(unit.x, unit.y, unit, this.#enemyBuildings);
-						if (collisionUnits) {
-							let minDist, closeEnemy;
-							if (collisionUnits.length > 1) {
-								const len = collisionUnits.length;
-								for (let index = 0; index < len; index++) {
-									const enemy = collisionUnits[index],
-										dist = countDistance(unit, enemy);
-									if (!minDist || minDist > dist) {
-										minDist = dist;
-										closeEnemy = enemy;
-									}
-								}
-							} else {
-								closeEnemy = collisionUnits[0];
-							}
-							//console.log("closest enemy:", closeEnemy);
-							unit.activateAttack(closeEnemy);
-						} else if (collisionBuildings) {
-							let minDist, closeEnemy;
-							if (collisionBuildings.length > 1) {
-								const len = collisionBuildings.length;
-								for (let index = 0; index < len; index++) {
-									const enemy = collisionBuildings[index],
-										dist = countDistance(unit, enemy);
-									if (!minDist || minDist > dist) {
-										minDist = dist;
-										closeEnemy = enemy;
-									}
-								}
-							} else {
-								closeEnemy = collisionBuildings[0];
-							}
-							//console.log("closest enemy:", closeEnemy);
-							unit.activateAttack(closeEnemy);
-					
+						if (this.isBoundariesCollision(x, y, unit)) {
+							unit.activateIdle();
 						} else {
-							const {x, y} = unit.countNextStep();
-							if (this.isBoundariesCollision(x, y, unit)) {
-								unit.activateIdle();
-							} else {
-								unit.stepMove(x, y);
-							}	
-						}*/
+							unit.stepMove(x, y);
+						}	
 						break;
 					case ARCHER.ACTIONS.IDLE:
 						if (this.#isGameStarted && unit.unitTactic === UNIT_TACTIC.AGGRESSIVE) {
@@ -1019,6 +1026,8 @@ export class Stage2 extends GameStage {
 		this.eventsAggregator.addEventListener(GAME_EVENTS.REQUEST_FOR_CLOSEST_TREE, this.#requestForClosestTree);
 		this.eventsAggregator.addEventListener(GAME_EVENTS.PEASANT_BUILT, this.#peasantBuilt);
 		this.eventsAggregator.addEventListener(GAME_EVENTS.BUILDING_DONE, this.#buildingDone);
+
+		this.eventsAggregator.addEventListener(GAME_EVENTS.CREATE_ARROW, this.#createArrow);
 	}
 
 	#unregisterSystemEventsListeners() {
@@ -1032,6 +1041,19 @@ export class Stage2 extends GameStage {
 		this.eventsAggregator.removeEventListener(GAME_EVENTS.REQUEST_FOR_CLOSEST_TREE, this.#requestForClosestTree);
 		this.eventsAggregator.removeEventListener(GAME_EVENTS.PEASANT_BUILT, this.#peasantBuilt);
 		this.eventsAggregator.removeEventListener(GAME_EVENTS.BUILDING_DONE, this.#buildingDone);
+		this.eventsAggregator.removeEventListener(GAME_EVENTS.CREATE_ARROW, this.#createArrow);
+	}
+
+	#createArrow = (e) => {
+		const [player, x, y, tX, tY, direction] = e.detail;
+		const arrow = this.draw.image(x, y, 192, 192, "192Units", 182, [{x: -30, y: 0}, {x: 30, y: 0}]);
+		arrow.rotation = direction;
+		arrow.x = x;
+		arrow.y = y;
+		arrow.tX = tX;
+		arrow.tY = tY;
+		arrow.sortIndex = 3;
+		this.#playerArrows.push(arrow);
 	}
 
 	#createGoldBag = (e) => {
