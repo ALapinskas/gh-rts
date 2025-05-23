@@ -19,7 +19,6 @@ jobs:
         echo "${{ secrets.TW_DEPLY_KEY }}" > ~/.ssh/id_ed255_tw_github
         chmod 600 ~/.ssh/id_ed255_tw_github
         ssh-keyscan -p 22 85.193.83.189 >> ~/.ssh/known_hosts
-        ssh -vvv -i ~/.ssh/id_ed255_tw_github root@85.193.83.189 "echo 'SSH connection success'"
       env:
         SSH_PRIVATE_KEY: ${{ secrets.TW_DEPLY_KEY }}
     - name: Upload files to server
