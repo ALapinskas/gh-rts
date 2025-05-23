@@ -18,9 +18,9 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.TW_DEPLY_KEY }}" > ~/.ssh/id_ed255_tw_github
         chmod 600 ~/.ssh/id_ed255_tw_github
-        ssh-keyscan 85.193.83.189 >> ~/.ssh/known_hosts
+        ssh-keyscan -p 22 85.193.83.189 >> ~/.ssh/known_hosts
       env:
         SSH_PRIVATE_KEY: ${{ secrets.TW_DEPLY_KEY }}
     - name: Upload files to server
       run: |
-        scp -p 22 -r ./dist/* root@85.193.83.189:/var/www/clients/client0/web17/web
+        scp -P 22 -r ./dist/* root@85.193.83.189:/var/www/clients/client0/web17/web
