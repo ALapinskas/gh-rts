@@ -1,0 +1,33 @@
+name: Upload /dist/* to Server
+
+on:
+  push:
+    branches:
+      - master  # Change this to the branch you want to trigger the workflow
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    env:
+        SSH_KEY_PATH: ${{ vars.SSH_KEY_PATH }}
+        REMOTE_SERVER: ${{ vars.REMOTE_SERVER }}
+        
+    steps:
+    - name: Checkout code
+
+      uses: actions/checkout@v2
+    - name: Set up SSH
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.TW_DEPLY_KEY }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/"$SSH_KEY_PATH"
+        chmod 600 ~/"$SSH_KEY_PATH"
+        ssh-keyscan "$REMOTE_SERVER" >> ~/.ssh/known_hosts
+    - name: Upload files to server
+      env:
+        REMOTE_USER: ${{ vars.REMOTE_USER }}
+        REMOTE_DIR: ${{ vars.REMOTE_DIR }}
+      run:  |
+        scp -i ~/"$SSH_KEY_PATH" -r ./dist/* "$REMOTE_USER"@"$REMOTE_SERVER":/"$REMOTE_DIR"
