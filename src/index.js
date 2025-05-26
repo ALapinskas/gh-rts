@@ -16,6 +16,7 @@ const createWoodBunch = (x, y) => {
 }
 //SystemSettings.gameOptions.debug.boundaries.drawLayerBoundaries = true;
 //SystemSettings.gameOptions.debug.boundaries.drawObjectBoundaries = true;
+//SystemSettings.gameOptions.debug.checkWebGlErrors = true;
 app.registerStage(GAME_STAGES.START, StartStage);
 app.registerStage(GAME_STAGES.STAGE_1, Stage1);
 app.registerStage(GAME_STAGES.STAGE_2, Stage2);

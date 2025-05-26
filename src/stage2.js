@@ -744,7 +744,7 @@ export class Stage2 extends GameStage {
 				}
 				
 				closeEnemy.reduceHealth(GAME_UNITS.ARCHER.attackDamage);
-				if (closeEnemy.health <= 0) {
+				if (closeEnemy.health <= 0 && closeEnemy.isRemoved === false) {
 					closeEnemy.die();
 				}
 				arrow.destroy();
