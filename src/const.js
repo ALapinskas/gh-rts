@@ -23,15 +23,14 @@ const GAME_EVENTS = {
 	PEASANT_BUILT: "PEASANT_BUILT",
 	BUILDING_DONE: "BUILDING_DONE",
 	CREATE_ARROW: "CREATE_ARROW",
-	LEVEL: {
-		START: "startLevel",
-		WIN_L_1: "victoryLevel1",
-		WIN_L_2: "victoryLevel2"
+	SYSTEM_EVENTS: {
+		OPEN_DIALOG: "openDialog",
+		CHANGE_DIALOG_STYLE: "changeStyle",
+		START_LEVEL: "startLevel"
 	},
-	DIALOG: {
-		CHANGE_STATE: "changeState",
-		CHANGE_STYLE: "changeStyle",
-		CHANGE_OPTIONS: "changeOptions"
+	DIALOG_EVENTS: {
+		CHANGE_OPTIONS: "changeOptions",
+		CLOSED: "closed"
 	}
 }
 
@@ -256,20 +255,24 @@ const GAME_STAGES = {
 const STAGE_TEXTS = {
 	STAGE_1: {
 		START: {
+			key: "START",
 			title:"Глава 1.",
 			text: "Эти леса кишат гоблинами. Найдите их базу и уничтожьте!"
 		},
 		WIN: {
+			key: "WIN",
 			title:"Победа!",
 			text: "Лес зачищен, поздравляю!"
 		}
 	},
 	STAGE_2: {
 		START: {
+			key: "START",
 			title:"Глава 2.",
 			text: "Тут должен быть текст - описание главы 2"
 		},
 		WIN: {
+			key: "WIN",
 			title:"Победа!",
 			text: "Текст - победы главы 2"
 		}

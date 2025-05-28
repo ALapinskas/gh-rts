@@ -82496,15 +82496,14 @@ var GAME_EVENTS = {
   PEASANT_BUILT: "PEASANT_BUILT",
   BUILDING_DONE: "BUILDING_DONE",
   CREATE_ARROW: "CREATE_ARROW",
-  LEVEL: {
-    START: "startLevel",
-    WIN_L_1: "victoryLevel1",
-    WIN_L_2: "victoryLevel2"
+  SYSTEM_EVENTS: {
+    OPEN_DIALOG: "openDialog",
+    CHANGE_DIALOG_STYLE: "changeStyle",
+    START_LEVEL: "startLevel"
   },
-  DIALOG: {
-    CHANGE_STATE: "changeState",
-    CHANGE_STYLE: "changeStyle",
-    CHANGE_OPTIONS: "changeOptions"
+  DIALOG_EVENTS: {
+    CHANGE_OPTIONS: "changeOptions",
+    CLOSED: "closed"
   }
 };
 var UNIT_DIRECTION = {
@@ -82762,20 +82761,24 @@ var GAME_STAGES = {
 var STAGE_TEXTS = {
   STAGE_1: {
     START: {
+      key: "START",
       title: "Глава 1.",
       text: "Эти леса кишат гоблинами. Найдите их базу и уничтожьте!"
     },
     WIN: {
+      key: "WIN",
       title: "Победа!",
       text: "Лес зачищен, поздравляю!"
     }
   },
   STAGE_2: {
     START: {
+      key: "START",
       title: "Глава 2.",
       text: "Тут должен быть текст - описание главы 2"
     },
     WIN: {
+      key: "WIN",
       title: "Победа!",
       text: "Текст - победы главы 2"
     }
@@ -82863,6 +82866,7 @@ var _unitsCount = /*#__PURE__*/new WeakMap();
 var _addUnitPosX = /*#__PURE__*/new WeakMap();
 var _isWin = /*#__PURE__*/new WeakMap();
 var _attachAudio = /*#__PURE__*/new WeakMap();
+var _onDialogClosed = /*#__PURE__*/new WeakMap();
 var _Stage1_brand = /*#__PURE__*/new WeakSet();
 var _createUserInterface = /*#__PURE__*/new WeakMap();
 var _pressKeyAction = /*#__PURE__*/new WeakMap();
@@ -82937,6 +82941,24 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
       _this.goblinAudio = new Map();
       _this.goblinAudio.set(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.DEATH, [_this.iLoader.getAudio(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.AUDIO.DEATH1)]);
     });
+    _classPrivateFieldInitSpec(_this, _onDialogClosed, function (e) {
+      var _e$data$ = e.data[0],
+        currentLevel = _e$data$.currentLevel,
+        currentState = _e$data$.currentState;
+      if (currentLevel === 1) {
+        if (currentState === _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.START.key) {
+          _this.registerListeners();
+        } else if (currentState === _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.WIN.key) {
+          _this.iSystem.stopGameStage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_STAGES.STAGE_1);
+          _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {
+            level: 2,
+            title: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.START.title,
+            text: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.START.text
+          });
+          _this.iSystem.startGameStage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_STAGES.STAGE_2);
+        }
+      }
+    });
     _classPrivateFieldInitSpec(_this, _createUserInterface, function () {
       var windowWidth = document.body.offsetWidth,
         sidebar = document.createElement("div");
@@ -82994,7 +83016,6 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
     });
     _classPrivateFieldInitSpec(_this, _pressKeyAction, function (event) {
       var code = event.code;
-      console.log("pressed: ", code);
       if (code === "Space") {
         var _this$unitsCount, _this$unitsCount2, _this$unitsCount3, _this$unitsCount4;
         var townCenter = _classPrivateFieldGet(_playerBuildings, _this).find(function (building) {
@@ -83014,7 +83035,6 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
         _classPrivateFieldSet(_unitsCount, _this, (_this$unitsCount3 = _classPrivateFieldGet(_unitsCount, _this), _this$unitsCount4 = _this$unitsCount3++, _this$unitsCount3)), _this$unitsCount4;
         newPeasant.activateMoveToTargetPoint(1500, 1500);
         newPeasant2.activateMoveToTargetPoint(1500, 1500);
-        console.log("units: ", _classPrivateFieldGet(_unitsCount, _this));
         _classPrivateFieldSet(_addUnitPosX, _this, _classPrivateFieldGet(_addUnitPosX, _this) - 20);
       }
     });
@@ -83172,7 +83192,6 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
       }
     });
     _classPrivateFieldInitSpec(_this, _orderToBuildBuilding, function (type) {
-      console.log("order build ", type);
       var costWood = _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[type].cost.w,
         costGold = _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS[type].cost.g;
       if (!_assertClassBrand(_Stage1_brand, _this, _isEnoughGold).call(_this, costGold)) {
@@ -83256,8 +83275,6 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
         yCell = Math.floor(clickYWithOffset / _classPrivateFieldGet(_treesLayer, _this).tilemap.tileheight),
         clickedCellIndex = _classPrivateFieldGet(_treesLayer, _this).layerData.height * yCell + xCell,
         clickedCellTile = _classPrivateFieldGet(_treesLayer, _this).layerData.data[clickedCellIndex];
-      console.log("x cell: ", xCell);
-      console.log("y cell: ", yCell);
       if (clickedCellTile !== 0 && clickedCellTile !== _const_js__WEBPACK_IMPORTED_MODULE_1__.TREE_STUB_INDEX) {
         console.log(clickedCellIndex);
         console.log("tree cell clicked");
@@ -83671,9 +83688,12 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
     });
     _classPrivateFieldInitSpec(_this, _activateVictory, function () {
       _classPrivateFieldSet(_isWin, _this, true);
-      _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.LEVEL.WIN_L_1);
-      _this.iSystem.stopGameStage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_STAGES.STAGE_1);
-      _this.iSystem.startGameStage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_STAGES.STAGE_2);
+      _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {
+        level: 1,
+        messageKey: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.WIN.key,
+        title: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.WIN.title,
+        text: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.WIN.text
+      });
     });
     return _this;
   }
@@ -83714,7 +83734,6 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
   }, {
     key: "init",
     value: function init() {
-      var _this2 = this;
       var _this$stageData$canva2 = _slicedToArray(this.stageData.canvasDimensions, 2),
         w = _this$stageData$canva2[0],
         h = _this$stageData$canva2[1];
@@ -83784,20 +83803,18 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
       this.#playerUnits.push(peasant2);
       this.#playerUnits.push(peasant3);
       */
-      this.iSystem.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.LEVEL.START, function () {
-        return _assertClassBrand(_Stage1_brand, _this2, _startLevel).call(_this2);
-      });
+      this.iSystem.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG_EVENTS.CLOSED, _classPrivateFieldGet(_onDialogClosed, this));
     }
   }, {
     key: "start",
     value: function start() {
-      var _this3 = this;
+      var _this2 = this;
       this.stageData.centerCameraPosition(100, 300);
       _classPrivateFieldGet(_createUserInterface, this).call(this);
       setTimeout(function () {
-        var _this3$stageData$canv = _slicedToArray(_this3.stageData.canvasDimensions, 2),
-          w = _this3$stageData$canv[0],
-          h = _this3$stageData$canv[1];
+        var _this2$stageData$canv = _slicedToArray(_this2.stageData.canvasDimensions, 2),
+          w = _this2$stageData$canv[0],
+          h = _this2$stageData$canv[1];
       }, 100);
       _classPrivateFieldSet(_unitsCount, this, _classPrivateFieldGet(_playerUnits, this).length);
       console.log("level1 started");
@@ -83851,10 +83868,6 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
     }
   }]);
 }(jsge__WEBPACK_IMPORTED_MODULE_0__.GameStage);
-function _startLevel() {
-  console.log("start level 1");
-  this.registerListeners();
-}
 function _registerKeyboardListeners() {
   document.addEventListener("keydown", _classPrivateFieldGet(_pressKeyAction, this));
   document.addEventListener("keyup", _classPrivateFieldGet(_removeKeyAction, this));
@@ -83882,15 +83895,13 @@ function _isEnoughWood(costWood) {
 function _isEnoughHouses() {
   var units = _classPrivateFieldGet(_playerUnits, this).length,
     maxUnits = _classPrivateFieldGet(_playerPeopleLimit, this);
-  console.log("u: ", units);
-  console.log("l: ", maxUnits);
   return maxUnits > units;
 }
 function _registerSystemEventsListeners() {
   this.iSystem.addEventListener(jsge__WEBPACK_IMPORTED_MODULE_0__.CONST.EVENTS.SYSTEM.RENDER.START, _classPrivateFieldGet(_render, this));
-  this.iSystem.addEventListener();
 }
 function _unregisterSystemEventsListeners() {
+  this.iSystem.removeEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG_EVENTS.CLOSED, _classPrivateFieldGet(_onDialogClosed, this));
   this.iSystem.removeEventListener(jsge__WEBPACK_IMPORTED_MODULE_0__.CONST.EVENTS.SYSTEM.RENDER.START, _classPrivateFieldGet(_render, this));
 }
 var _x2 = /*#__PURE__*/new WeakMap();
@@ -83951,6 +83962,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./const.js */ "./src/const.js");
 /* harmony import */ var _units_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./units.js */ "./src/units.js");
 /* harmony import */ var jsge_src_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! jsge/src/utils.js */ "./node_modules/jsge/src/utils.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _wrapNativeSuper(t) { var r = "function" == typeof Map ? new Map() : void 0; return _wrapNativeSuper = function _wrapNativeSuper(t) { if (null === t || !_isNativeFunction(t)) return t; if ("function" != typeof t) throw new TypeError("Super expression must either be null or a function"); if (void 0 !== r) { if (r.has(t)) return r.get(t); r.set(t, Wrapper); } function Wrapper() { return _construct(t, arguments, _getPrototypeOf(this).constructor); } return Wrapper.prototype = Object.create(t.prototype, { constructor: { value: Wrapper, enumerable: !1, writable: !0, configurable: !0 } }), _setPrototypeOf(Wrapper, t); }, _wrapNativeSuper(t); }
 function _construct(t, e, r) { if (_isNativeReflectConstruct()) return Reflect.construct.apply(null, arguments); var o = [null]; o.push.apply(o, e); var p = new (t.bind.apply(t, o))(); return r && _setPrototypeOf(p, r.prototype), p; }
@@ -83980,6 +83992,7 @@ function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("C
 function _classPrivateFieldGet(s, a) { return s.get(_assertClassBrand(s, a)); }
 function _classPrivateFieldSet(s, a, r) { return s.set(_assertClassBrand(s, a), r), r; }
 function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
+
 
 
 
@@ -84017,6 +84030,7 @@ var _addUnitPosX = /*#__PURE__*/new WeakMap();
 var _isGameStarted = /*#__PURE__*/new WeakMap();
 var _firstBattleOrcsLeft = /*#__PURE__*/new WeakMap();
 var _Stage2_brand = /*#__PURE__*/new WeakSet();
+var _onDialogClosed = /*#__PURE__*/new WeakMap();
 var _createUserInterface = /*#__PURE__*/new WeakMap();
 var _pressKeyAction = /*#__PURE__*/new WeakMap();
 var _removeKeyAction = /*#__PURE__*/new WeakMap();
@@ -84082,6 +84096,16 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
     _classPrivateFieldInitSpec(_this, _addUnitPosX, 0);
     _classPrivateFieldInitSpec(_this, _isGameStarted, false);
     _classPrivateFieldInitSpec(_this, _firstBattleOrcsLeft, 14);
+    _classPrivateFieldInitSpec(_this, _onDialogClosed, function (e) {
+      var _e$data$ = e.data[0],
+        currentLevel = _e$data$.currentLevel,
+        currentState = _e$data$.currentState;
+      console.log("start level", currentLevel);
+      if (currentLevel === 2) {
+        _classPrivateFieldSet(_isGameStarted, _this, true);
+        _this.registerListeners();
+      }
+    });
     _classPrivateFieldInitSpec(_this, _createUserInterface, function () {
       var windowWidth = document.body.offsetWidth,
         sidebar = document.createElement("div");
@@ -84571,7 +84595,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
             closeEnemy = collisionUnits[0];
           }
           closeEnemy.reduceHealth(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.ARCHER.attackDamage);
-          if (closeEnemy.health <= 0) {
+          if (closeEnemy.health <= 0 && closeEnemy.isRemoved === false) {
             closeEnemy.die();
           }
           arrow.destroy();
@@ -85092,7 +85116,6 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
   }, {
     key: "init",
     value: function init() {
-      var _this2 = this;
       var _this$stageData$canva2 = _slicedToArray(this.stageData.canvasDimensions, 2),
         w = _this$stageData$canva2[0],
         h = _this$stageData$canva2[1];
@@ -85135,20 +85158,18 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       // this.personSightView.rotation = -Math.PI/6;
       // this.personSightView._isMask = true;
       _classPrivateFieldGet(_createBattle, this).call(this);
-      this.iSystem.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.LEVEL.START, function () {
-        return _assertClassBrand(_Stage2_brand, _this2, _startLevel).call(_this2);
-      });
+      this.iSystem.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG_EVENTS.CLOSED, _classPrivateFieldGet(_onDialogClosed, this));
     }
   }, {
     key: "start",
     value: function start() {
-      var _this3 = this;
+      var _this2 = this;
       _classPrivateFieldGet(_createUserInterface, this).call(this);
       setTimeout(function () {
-        var _this3$stageData$canv = _slicedToArray(_this3.stageData.canvasDimensions, 2),
-          w = _this3$stageData$canv[0],
-          h = _this3$stageData$canv[1];
-        _this3.stageData.centerCameraPosition(720, 1400);
+        var _this2$stageData$canv = _slicedToArray(_this2.stageData.canvasDimensions, 2),
+          w = _this2$stageData$canv[0],
+          h = _this2$stageData$canv[1];
+        _this2.stageData.centerCameraPosition(720, 1400);
       }, 100);
       _classPrivateFieldSet(_unitsCount, this, _classPrivateFieldGet(_playerUnits, this).length);
       console.log("strategy started x:" + 2000);
@@ -85215,13 +85236,9 @@ function _registerMouseListeners() {
   document.addEventListener("click", _classPrivateFieldGet(_mouseClickAction, this));
 }
 function _unregisterMouseListeners() {
+  this.iSystem.removeEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.SYSTEM_EVENTS.START_LEVEL, _classPrivateFieldGet(_onDialogClosed, this));
   document.removeEventListener("mousemove", _classPrivateFieldGet(_mouseMoveAction, this));
   document.removeEventListener("click", _classPrivateFieldGet(_mouseClickAction, this));
-}
-function _startLevel() {
-  _classPrivateFieldSet(_isGameStarted, this, true);
-  console.log("start level 1");
-  this.registerListeners();
 }
 function _isEnoughGold(costGold) {
   var gold = _classPrivateFieldGet(_playerGold, this);
@@ -85368,6 +85385,7 @@ var isPointRectIntersect = jsge__WEBPACK_IMPORTED_MODULE_0__.utils.isPointRectIn
 var LEFT_SHIFT = -70;
 var MENU_CLICK_AUDIO_NAME = "menu_click";
 var _menuClickMediaElement = /*#__PURE__*/new WeakMap();
+var _showWinMessage = /*#__PURE__*/new WeakMap();
 var _drawOptions = /*#__PURE__*/new WeakMap();
 var _changeOptions = /*#__PURE__*/new WeakMap();
 var _mouseHoverEvent = /*#__PURE__*/new WeakMap();
@@ -85384,11 +85402,14 @@ var StartStage = /*#__PURE__*/function (_GameStage) {
     _this = _callSuper(this, StartStage, [].concat(args));
     _classPrivateFieldInitSpec(_this, _menuClickMediaElement, void 0);
     _defineProperty(_this, "uiApp", void 0);
+    _classPrivateFieldInitSpec(_this, _showWinMessage, function (e) {
+      console.log("show win ", e);
+    });
     _classPrivateFieldInitSpec(_this, _drawOptions, function () {
       var _this$stageData$canva = _slicedToArray(_this.stageData.canvasDimensions, 2),
         w = _this$stageData$canva[0],
         h = _this$stageData$canva[1];
-      _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_STYLE, w / 2 + LEFT_SHIFT + LEFT_SHIFT - 40, _this.navItemLevel2.y + 20);
+      _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.SYSTEM_EVENTS.CHANGE_DIALOG_STYLE, w / 2 + LEFT_SHIFT + LEFT_SHIFT - 40, _this.navItemLevel2.y + 20);
     });
     _classPrivateFieldInitSpec(_this, _changeOptions, function (e) {
       var options = e.data[0];
@@ -85430,13 +85451,23 @@ var StartStage = /*#__PURE__*/function (_GameStage) {
       if (isPointRectIntersect(event.offsetX, event.offsetY, _this.navItemLevel1.boundariesBox)) {
         _classPrivateFieldGet(_menuClickMediaElement, _this).play();
         _this.iSystem.stopGameStage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_STAGES.START);
-        _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_STATE, true, 1);
+        _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {
+          level: 1,
+          messageKey: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.START.key,
+          title: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.START.title,
+          text: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.START.text
+        });
         _this.iSystem.startGameStage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_STAGES.STAGE_1);
       }
       if (isPointRectIntersect(event.offsetX, event.offsetY, _this.navItemLevel2.boundariesBox)) {
         _classPrivateFieldGet(_menuClickMediaElement, _this).play();
         _this.iSystem.stopGameStage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_STAGES.START);
-        _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_STATE, true, 2);
+        _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {
+          level: 2,
+          messageKey: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.START.key,
+          title: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.START.title,
+          text: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.START.text
+        });
         _this.iSystem.startGameStage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_STAGES.STAGE_2);
       }
     });
@@ -85493,7 +85524,7 @@ var StartStage = /*#__PURE__*/function (_GameStage) {
       canvas.addEventListener("mousemove", _classPrivateFieldGet(_mouseHoverEvent, this));
       canvas.addEventListener("click", _classPrivateFieldGet(_mouseClickEvent, this));
       document.addEventListener("keydown", _classPrivateFieldGet(_pressKeyAction, this));
-      this.iSystem.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_OPTIONS, _classPrivateFieldGet(_changeOptions, this));
+      this.iSystem.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG_EVENTS.CHANGE_OPTIONS, _classPrivateFieldGet(_changeOptions, this));
     }
   }, {
     key: "unregisterEventListeners",
@@ -85503,6 +85534,7 @@ var StartStage = /*#__PURE__*/function (_GameStage) {
       canvas.removeEventListener("click", _classPrivateFieldGet(_mouseClickEvent, this));
       document.removeEventListener("keydown", _classPrivateFieldGet(_pressKeyAction, this));
       canvas.style.cursor = "default";
+      this.iSystem.removeEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG_EVENTS.CHANGE_OPTIONS, _classPrivateFieldGet(_changeOptions, this));
     }
   }]);
 }(jsge__WEBPACK_IMPORTED_MODULE_0__.GameStage);
@@ -85552,46 +85584,43 @@ var LevelDialog = function LevelDialog(_ref) {
     _useState8 = _slicedToArray(_useState7, 2),
     level = _useState8[0],
     setLevel = _useState8[1];
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(""),
+    _useState0 = _slicedToArray(_useState9, 2),
+    messageKey = _useState0[0],
+    setMessageKey = _useState0[1];
   console.log("======>>>>>>level dialog, open: ", open);
   console.log(eventManger);
-  eventManger.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_STATE, function (e) {
-    var _e$data = _slicedToArray(e.data, 2),
-      open = _e$data[0],
-      level = _e$data[1];
-    if (open === true) {
-      if (level === 1) {
-        setTitle(_const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.START.title);
-        setText(_const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.START.text);
-        setLevel(1);
-      } else if (level === 2) {
-        setTitle(_const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.START.title);
-        setText(_const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.START.text);
-        setLevel(2);
-      }
-      setState(true);
-    }
-  });
-  eventManger.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.LEVEL.WIN_L_1, function (e) {
-    setTitle(_const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.WIN.title);
-    setText(_const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_1.WIN.text);
+  eventManger.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, function (e) {
+    var _e$data$ = e.data[0],
+      level = _e$data$.level,
+      messageKey = _e$data$.messageKey,
+      title = _e$data$.title,
+      text = _e$data$.text;
+    setTitle(title);
+    setText(text);
+    setLevel(level);
     setState(true);
+    setMessageKey(messageKey);
   });
-  function startLevel() {
+  function closeDialog() {
     setState(false);
-    eventManger.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.LEVEL.START, level);
+    eventManger.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG_EVENTS.CLOSED, {
+      currentLevel: level,
+      currentState: messageKey
+    });
   }
   return /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.DialogRoot, {
     lazyMount: true,
     open: isOpen
   }, /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_3__.Portal, null, /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.DialogBackdrop, null), /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.DialogPositioner, null, /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.DialogContent, null, /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.DialogHeader, null, /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.DialogTitle, null, title)), /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.DialogBody, null, /*#__PURE__*/React.createElement("p", null, text)), /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.DialogFooter, null, /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_4__.Button, {
     onClick: function onClick() {
-      return startLevel();
+      return closeDialog();
     }
   }, "\u041F\u043E\u043D\u044F\u0442\u043D\u043E")), /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.DialogCloseTrigger, {
     asChild: true
   }, /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_5__.CloseButton, {
     onClick: function onClick() {
-      return startLevel();
+      return closeDialog();
     },
     size: "sm"
   }))))));
@@ -85650,7 +85679,7 @@ var OptionsCard = function OptionsCard(_ref) {
     _useState6 = _slicedToArray(_useState5, 2),
     isVisible = _useState6[0],
     setVisible = _useState6[1];
-  eventManger.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_STYLE, function (e) {
+  eventManger.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.SYSTEM_EVENTS.CHANGE_DIALOG_STYLE, function (e) {
     var _e$data = _slicedToArray(e.data, 2),
       x = _e$data[0],
       y = _e$data[1];
@@ -85661,7 +85690,7 @@ var OptionsCard = function OptionsCard(_ref) {
     });
     setVisible(true);
   });
-  eventManger.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_STATE, function (e) {
+  eventManger.addEventListener(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, function (e) {
     var _e$data2 = _slicedToArray(e.data, 2),
       open = _e$data2[0],
       level = _e$data2[1];
@@ -85674,7 +85703,7 @@ var OptionsCard = function OptionsCard(_ref) {
       bool = true;
     }
     setOptions(_objectSpread(_objectSpread({}, options), {}, _defineProperty({}, target.value, bool)));
-    eventManger.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG.CHANGE_OPTIONS, _defineProperty({}, target.value, bool));
+    eventManger.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.DIALOG_EVENTS.CHANGE_OPTIONS, _defineProperty({}, target.value, bool));
   }
   return /*#__PURE__*/React.createElement(_chakra_ui_react__WEBPACK_IMPORTED_MODULE_2__.CheckboxGroup, {
     defaultValue: ["next"],
@@ -87300,6 +87329,7 @@ var createWoodBunch = function createWoodBunch(x, y) {
 };
 //SystemSettings.gameOptions.debug.boundaries.drawLayerBoundaries = true;
 //SystemSettings.gameOptions.debug.boundaries.drawObjectBoundaries = true;
+//SystemSettings.gameOptions.debug.checkWebGlErrors = true;
 app.registerStage(_const_js__WEBPACK_IMPORTED_MODULE_3__.GAME_STAGES.START, _start_js__WEBPACK_IMPORTED_MODULE_4__.StartStage);
 app.registerStage(_const_js__WEBPACK_IMPORTED_MODULE_3__.GAME_STAGES.STAGE_1, _stage1_js__WEBPACK_IMPORTED_MODULE_1__.Stage1);
 app.registerStage(_const_js__WEBPACK_IMPORTED_MODULE_3__.GAME_STAGES.STAGE_2, _stage2_js__WEBPACK_IMPORTED_MODULE_2__.Stage2);

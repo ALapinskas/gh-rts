@@ -1,6 +1,6 @@
 import { GameStage, CONST } from "jsge";
 import { utils } from "jsge";
-import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT, KNIGHT, ATLAS, GAME_AUDIO_TYPES, GOBLIN_TORCH, GAME_STAGES } from "./const.js";
+import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT, KNIGHT, ATLAS, GAME_AUDIO_TYPES, GOBLIN_TORCH, GAME_STAGES, STAGE_TEXTS } from "./const.js";
 import { UnitPeasant, UnitBuilding, UnitGoblinTorch, UnitKnight, UnitGoblinHouse, UnitGoblinTower } from "./units.js";
 
 const isPointInsidePolygon = utils.isPointInsidePolygon,
@@ -160,7 +160,7 @@ export class Stage1 extends GameStage {
 		this.#playerUnits.push(peasant2);
 		this.#playerUnits.push(peasant3);
 		*/
-		this.iSystem.addEventListener(GAME_EVENTS.LEVEL.START, () => this.#startLevel());
+		this.iSystem.addEventListener(GAME_EVENTS.DIALOG_EVENTS.CLOSED, this.#onDialogClosed);
     }
     start() {
        	this.stageData.centerCameraPosition(100, 300);
@@ -193,9 +193,17 @@ export class Stage1 extends GameStage {
 		this.goblinAudio = new Map();
 		this.goblinAudio.set(GAME_AUDIO_TYPES.DEATH, [this.iLoader.getAudio(GOBLIN_TORCH.AUDIO.DEATH1)]);
 	}
-	#startLevel() {
-		console.log("start level 1");
-		this.registerListeners();
+	#onDialogClosed = (e) => {
+		const {currentLevel, currentState} = e.data[0];
+		if (currentLevel === 1) {
+			if (currentState === STAGE_TEXTS.STAGE_1.START.key) {
+				this.registerListeners();
+			} else if (currentState === STAGE_TEXTS.STAGE_1.WIN.key) {
+				this.iSystem.stopGameStage(GAME_STAGES.STAGE_1);
+				this.iSystem.emit(GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {level: 2, title: STAGE_TEXTS.STAGE_2.START.title, text: STAGE_TEXTS.STAGE_2.START.text});
+				this.iSystem.startGameStage(GAME_STAGES.STAGE_2);
+			}
+		}
 	}
 	
 	registerListeners() {
@@ -303,7 +311,6 @@ export class Stage1 extends GameStage {
 	#pressKeyAction = (event) => {
         const code = event.code;
 		
-		console.log("pressed: ", code);
 		if (code === "Space") {
 			
 			const townCenter = this.#playerBuildings.find((building) => building.key === GAME_UNITS.TOWN_CENTER.name);
@@ -322,7 +329,6 @@ export class Stage1 extends GameStage {
 			this.#unitsCount++;
 			newPeasant.activateMoveToTargetPoint(1500, 1500);
 			newPeasant2.activateMoveToTargetPoint(1500, 1500);
-			console.log("units: ", this.#unitsCount);
 			this.#addUnitPosX -= 20;
 		}
     };
@@ -495,7 +501,6 @@ export class Stage1 extends GameStage {
 	}
 
 	#orderToBuildBuilding = (type) => {
-		console.log("order build ", type);
 		const costWood = GAME_UNITS[type].cost.w,
 			costGold = GAME_UNITS[type].cost.g;
 		if (!this.#isEnoughGold(costGold)) {
@@ -533,8 +538,7 @@ export class Stage1 extends GameStage {
 	#isEnoughHouses() {
 		const units = this.#playerUnits.length,
 			maxUnits = this.#playerPeopleLimit;
-		console.log("u: ", units);
-		console.log("l: ", maxUnits);
+			
 		return maxUnits > units;
 	}
 	#processMapClick = (e) => {
@@ -600,8 +604,7 @@ export class Stage1 extends GameStage {
 			yCell = Math.floor(clickYWithOffset / this.#treesLayer.tilemap.tileheight),
 			clickedCellIndex = this.#treesLayer.layerData.height * yCell + xCell,
 			clickedCellTile = this.#treesLayer.layerData.data[clickedCellIndex];
-		console.log("x cell: ", xCell);
-		console.log("y cell: ", yCell);
+			
 		if (clickedCellTile !== 0 && clickedCellTile !== TREE_STUB_INDEX) {
 			console.log(clickedCellIndex);
 			console.log("tree cell clicked");
@@ -864,11 +867,10 @@ export class Stage1 extends GameStage {
 	}
 	#registerSystemEventsListeners() {
 		this.iSystem.addEventListener(CONST.EVENTS.SYSTEM.RENDER.START, this.#render);
-
-		this.iSystem.addEventListener()
 	}
 
 	#unregisterSystemEventsListeners() {
+		this.iSystem.removeEventListener(GAME_EVENTS.DIALOG_EVENTS.CLOSED, this.#onDialogClosed);
 		this.iSystem.removeEventListener(CONST.EVENTS.SYSTEM.RENDER.START, this.#render);
 	}
 
@@ -1069,9 +1071,7 @@ export class Stage1 extends GameStage {
 
 	#activateVictory = () => {
 		this.#isWin = true;
-		this.iSystem.emit(GAME_EVENTS.LEVEL.WIN_L_1);
-		this.iSystem.stopGameStage(GAME_STAGES.STAGE_1);
-		this.iSystem.startGameStage(GAME_STAGES.STAGE_2);
+		this.iSystem.emit(GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {level: 1, messageKey: STAGE_TEXTS.STAGE_1.WIN.key, title: STAGE_TEXTS.STAGE_1.WIN.title, text: STAGE_TEXTS.STAGE_1.WIN.text});
 	}
 }
 class Tree {

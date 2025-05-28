@@ -3,6 +3,7 @@ import { utils } from "jsge";
 import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT, KNIGHT, GOBLIN_TORCH, GAME_AUDIO_TYPES, UNIT_TACTIC, UNIT_VIEW_RANGE, ARCHER } from "./const.js";
 import { UnitPeasant, UnitBuilding, UnitKnight, UnitGoblinTorch, UnitArcher } from "./units.js";
 import { pointToCircleDistance } from "jsge/src/utils.js";
+import { lazy } from "react";
 
 const isPointInsidePolygon = utils.isPointInsidePolygon,
 	countDistance = utils.countDistance, 
@@ -128,7 +129,7 @@ export class Stage2 extends GameStage {
 		// this.personSightView.rotation = -Math.PI/6;
 		// this.personSightView._isMask = true;
 		this.#createBattle();
-		this.iSystem.addEventListener(GAME_EVENTS.LEVEL.START, () => this.#startLevel());
+		this.iSystem.addEventListener(GAME_EVENTS.DIALOG_EVENTS.CLOSED, this.#onDialogClosed);
     }
     start() {
 		this.#createUserInterface();
@@ -174,14 +175,18 @@ export class Stage2 extends GameStage {
     }
 
     #unregisterMouseListeners() {
+		this.iSystem.removeEventListener(GAME_EVENTS.SYSTEM_EVENTS.START_LEVEL, this.#onDialogClosed);
         document.removeEventListener("mousemove", this.#mouseMoveAction);
         document.removeEventListener("click", this.#mouseClickAction);
     }
 
-	#startLevel() {
-		this.#isGameStarted = true;
-		console.log("start level 1");
-		this.registerListeners();
+	#onDialogClosed = (e) => {
+		const {currentLevel, currentState} = e.data[0];
+		console.log("start level", currentLevel);
+		if (currentLevel === 2) {
+			this.#isGameStarted = true;
+			this.registerListeners();
+		}
 	}
 
 	#createUserInterface = () => {

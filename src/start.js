@@ -1,6 +1,6 @@
 import { GameStage, CONST } from "jsge";
 import { utils } from "jsge";
-import { GAME_STAGES, GAME_EVENTS } from "./const.js";
+import { GAME_STAGES, GAME_EVENTS, STAGE_TEXTS } from "./const.js";
 import UiApp from "./ui/ui-init.js";
 import { createRoot } from 'react-dom/client';
 import React from "react";
@@ -54,13 +54,16 @@ export class StartStage extends GameStage {
         canvas.addEventListener("mousemove", this.#mouseHoverEvent);            
         canvas.addEventListener("click", this.#mouseClickEvent);
         document.addEventListener("keydown", this.#pressKeyAction);
-        this.iSystem.addEventListener(GAME_EVENTS.DIALOG.CHANGE_OPTIONS, this.#changeOptions);
-        
+        this.iSystem.addEventListener(GAME_EVENTS.DIALOG_EVENTS.CHANGE_OPTIONS, this.#changeOptions);
+    }
+ 
+    #showWinMessage = (e) => {
+        console.log("show win ", e);
     }
 
     #drawOptions = () => {
         const [w, h] = this.stageData.canvasDimensions;
-        this.iSystem.emit(GAME_EVENTS.DIALOG.CHANGE_STYLE, w/2 + LEFT_SHIFT + LEFT_SHIFT - 40, this.navItemLevel2.y + 20);
+        this.iSystem.emit(GAME_EVENTS.SYSTEM_EVENTS.CHANGE_DIALOG_STYLE, w/2 + LEFT_SHIFT + LEFT_SHIFT - 40, this.navItemLevel2.y + 20);
     }
 
     #changeOptions = (e) => {
@@ -111,13 +114,13 @@ export class StartStage extends GameStage {
         if (isPointRectIntersect(event.offsetX, event.offsetY, this.navItemLevel1.boundariesBox)) {
             this.#menuClickMediaElement.play();
             this.iSystem.stopGameStage(GAME_STAGES.START);
-            this.iSystem.emit(GAME_EVENTS.DIALOG.CHANGE_STATE, true, 1);
+            this.iSystem.emit(GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {level: 1, messageKey: STAGE_TEXTS.STAGE_1.START.key, title: STAGE_TEXTS.STAGE_1.START.title, text: STAGE_TEXTS.STAGE_1.START.text});
             this.iSystem.startGameStage(GAME_STAGES.STAGE_1);
         }
         if (isPointRectIntersect(event.offsetX, event.offsetY, this.navItemLevel2.boundariesBox)) {
             this.#menuClickMediaElement.play();
             this.iSystem.stopGameStage(GAME_STAGES.START);
-            this.iSystem.emit(GAME_EVENTS.DIALOG.CHANGE_STATE, true, 2);
+            this.iSystem.emit(GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {level: 2, messageKey: STAGE_TEXTS.STAGE_2.START.key, title: STAGE_TEXTS.STAGE_2.START.title, text: STAGE_TEXTS.STAGE_2.START.text});
             this.iSystem.startGameStage(GAME_STAGES.STAGE_2);
         }
     };
@@ -133,8 +136,8 @@ export class StartStage extends GameStage {
         canvas.removeEventListener("click", this.#mouseClickEvent);
         document.removeEventListener("keydown", this.#pressKeyAction);
         canvas.style.cursor = "default";
+        this.iSystem.removeEventListener(GAME_EVENTS.DIALOG_EVENTS.CHANGE_OPTIONS, this.#changeOptions);
     }
-
     #pressKeyAction = (event) => {
         console.log("press key, " + event.code);
     };

@@ -6,36 +6,23 @@ export const LevelDialog = ({eventManger}) => {
     const [title, setTitle] = useState("");
     const [text, setText] = useState("");
     const [level, setLevel] = useState(0);
+    const [messageKey, setMessageKey] = useState("");
 
     console.log("======>>>>>>level dialog, open: ", open);
     console.log(eventManger);
-    eventManger.addEventListener(GAME_EVENTS.DIALOG.CHANGE_STATE, (e) => {
-        const [open, level] = e.data;
-        if (open === true) {
-            if (level === 1) {
-                setTitle(STAGE_TEXTS.STAGE_1.START.title);
-                setText(STAGE_TEXTS.STAGE_1.START.text);
-                setLevel(1);
-            } else if (level === 2) {
-                setTitle(STAGE_TEXTS.STAGE_2.START.title);
-                setText(STAGE_TEXTS.STAGE_2.START.text);
-                setLevel(2);
-            }
-            setState(true);
-            
-        }
+    eventManger.addEventListener(GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, (e) => {
+        const { level, messageKey, title, text } = e.data[0];
         
-    });
-
-    eventManger.addEventListener(GAME_EVENTS.LEVEL.WIN_L_1, (e) => {   
-        setTitle(STAGE_TEXTS.STAGE_1.WIN.title);
-        setText(STAGE_TEXTS.STAGE_1.WIN.text);
+        setTitle(title);
+        setText(text);
+        setLevel(level);
         setState(true);
+        setMessageKey(messageKey);
     });
 
-    function startLevel() {
+    function closeDialog() {
         setState(false);
-        eventManger.emit(GAME_EVENTS.LEVEL.START, level);
+        eventManger.emit(GAME_EVENTS.DIALOG_EVENTS.CLOSED, {currentLevel: level, currentState: messageKey});
     }
     return (
         <Dialog.Root lazyMount open={isOpen}>
@@ -52,10 +39,10 @@ export const LevelDialog = ({eventManger}) => {
                 </p>
                 </Dialog.Body>
                 <Dialog.Footer>
-                <Button onClick={() => startLevel()}>Понятно</Button>
+                <Button onClick={() => closeDialog()}>Понятно</Button>
                 </Dialog.Footer>
                 <Dialog.CloseTrigger asChild>
-                <CloseButton onClick={() => startLevel()} size="sm"  />
+                <CloseButton onClick={() => closeDialog()} size="sm"  />
                 </Dialog.CloseTrigger>
             </Dialog.Content>
             </Dialog.Positioner>

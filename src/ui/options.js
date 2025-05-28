@@ -7,14 +7,14 @@ export const OptionsCard = ({eventManger}) => {
     const [position, setPosition] = useState({x: 0, y: 0});
     const [isVisible, setVisible] = useState(false);
     
-    eventManger.addEventListener(GAME_EVENTS.DIALOG.CHANGE_STYLE, (e) => {
+    eventManger.addEventListener(GAME_EVENTS.SYSTEM_EVENTS.CHANGE_DIALOG_STYLE, (e) => {
         const [x, y] = e.data;
         console.log(e.data);
         setPosition({x, y});
         setVisible(true);
     });
 
-    eventManger.addEventListener(GAME_EVENTS.DIALOG.CHANGE_STATE, (e) => {
+    eventManger.addEventListener(GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, (e) => {
         const [open, level] = e.data;
         
         setVisible(false);
@@ -27,7 +27,7 @@ export const OptionsCard = ({eventManger}) => {
             bool = true;
         }
         setOptions({...options, [target.value]: bool});
-        eventManger.emit(GAME_EVENTS.DIALOG.CHANGE_OPTIONS, {[target.value]: bool});
+        eventManger.emit(GAME_EVENTS.DIALOG_EVENTS.CHANGE_OPTIONS, {[target.value]: bool});
     }
     return (
         <CheckboxGroup defaultValue={["next"]} style={{display: isVisible ? "block" : "none", position: "absolute", left: position.x, top: position.y}}>
