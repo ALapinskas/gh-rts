@@ -43,6 +43,8 @@ export class Stage1 extends GameStage {
 	#addUnitPosX = 0;
 
 	#isWin = false;
+
+	#crossArr = [];
 	register() {
     	this.iLoader.addTileMap("level1_map", "./assets/level1.tmx");
 		this.iLoader.addImage(GAME_UNITS.GOLD_MINE.name, "./assets/Tiny Swords (Update 010)/Resources/Gold Mine/GoldMine_Inactive.png");
@@ -200,7 +202,7 @@ export class Stage1 extends GameStage {
 				this.registerListeners();
 			} else if (currentState === STAGE_TEXTS.STAGE_1.WIN.key) {
 				this.iSystem.stopGameStage(GAME_STAGES.STAGE_1);
-				this.iSystem.emit(GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {level: 2, title: STAGE_TEXTS.STAGE_2.START.title, text: STAGE_TEXTS.STAGE_2.START.text});
+				this.iSystem.emit(GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {level: 2, messageKey: STAGE_TEXTS.STAGE_2.START.key, title: STAGE_TEXTS.STAGE_2.START.title, text: STAGE_TEXTS.STAGE_2.START.text});
 				this.iSystem.startGameStage(GAME_STAGES.STAGE_2);
 			}
 		}
@@ -631,15 +633,23 @@ export class Stage1 extends GameStage {
 							unit.activateDragTree(tree);
 						} else {
 							unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
+							this.#drawCross(clickXWithOffset, clickYWithOffset);
 						}
 					} else if (unit instanceof UnitKnight) {
 						unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
+						this.#drawCross(clickXWithOffset, clickYWithOffset);
 					}
 				}
 			});
 		}
 	}
 
+	#drawCross = (x, y) => {
+		const cross = this.draw.image(x, y, 64, 64, ATLAS["64x64"], 42);
+		cross.addAnimation("markMoveT", [42, 43, 44, 45], false);
+		cross.emit("markMoveT");
+		this.#crossArr.push(cross);
+	}
 	#configureUnitUI = (unit) => {
 		while (this.#buildItems.lastChild) {
 			this.#buildItems.removeChild(this.#buildItems.lastChild);
@@ -700,6 +710,15 @@ export class Stage1 extends GameStage {
 	}
 
 	#render = () => {
+		let crossLen = this.#crossArr.length;
+		for (let index = 0; index < crossLen; index++) {
+			const cross = this.#crossArr[index];
+			if (cross.imageIndex === 45) {
+				this.#crossArr.splice(index, 1);
+            	index--;
+                crossLen--;
+			}
+		}
 		let pUnitsLen = this.#playerUnits.length;
 		for (let index = 0; index < pUnitsLen; index++) {
 			const unit = this.#playerUnits[index];

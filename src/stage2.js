@@ -1,6 +1,6 @@
 import { GameStage, CONST } from "jsge";
 import { utils } from "jsge";
-import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT, KNIGHT, GOBLIN_TORCH, GAME_AUDIO_TYPES, UNIT_TACTIC, UNIT_VIEW_RANGE, ARCHER } from "./const.js";
+import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT, KNIGHT, GOBLIN_TORCH, GAME_AUDIO_TYPES, UNIT_TACTIC, UNIT_VIEW_RANGE, ARCHER, STAGE_TEXTS, ATLAS } from "./const.js";
 import { UnitPeasant, UnitBuilding, UnitKnight, UnitGoblinTorch, UnitArcher } from "./units.js";
 import { pointToCircleDistance } from "jsge/src/utils.js";
 import { lazy } from "react";
@@ -45,8 +45,10 @@ export class Stage2 extends GameStage {
 
 	#addUnitPosX = 0;
 
-	#isGameStarted = false;
-	#firstBattleOrcsLeft = 14;
+	#isGamePaused = true;
+	#firstBattleOrcsLeft = 15;
+	#showWinFirstBattle = false;
+	#crossArr = [];
 	register() {
     	this.iLoader.addTileMap("s_map", "./assets/level2.tmx");
 		this.iLoader.addImage(GAME_UNITS.GOLD_MINE.name, "./assets/Tiny Swords (Update 010)/Resources/Gold Mine/GoldMine_Inactive.png");
@@ -184,8 +186,13 @@ export class Stage2 extends GameStage {
 		const {currentLevel, currentState} = e.data[0];
 		console.log("start level", currentLevel);
 		if (currentLevel === 2) {
-			this.#isGameStarted = true;
-			this.registerListeners();
+			if (currentState === STAGE_TEXTS.STAGE_2.START.key) {
+				this.#isGamePaused = false;
+				this.registerListeners();
+			} else if (currentState === STAGE_TEXTS.STAGE_2.WIN_1_BATTLE.key) {
+				this.#isGamePaused = false;
+				this.stageData.centerCameraPosition(850, 600);
+			}
 		}
 	}
 
@@ -294,90 +301,93 @@ export class Stage2 extends GameStage {
     };
 
     #mouseMoveAction = (e) => {
-        const [xOffset, yOffset] = this.stageData.worldOffset,
-            x = e.offsetX,
-            y = e.offsetY,
-            cursorPosX = x + xOffset,
-            cursorPosY = y + yOffset,
-			[ viewWidth, viewHeight ] = this.stageData.canvasDimensions,
-			xShiftRight = viewWidth - x,
-			yShiftBottom = viewHeight - y,
-			xShift = viewWidth/2 + xOffset,
-			yShift = viewHeight/2 + yOffset;
-			
-		let newPosX = xShift,
-			newPosY = yShift;
-		document.getElementsByTagName("canvas")[0].style.cursor = "default";
-		if (x < this.#QUICK_SCROLL_POINT) {
-			//console.log("quick scroll left");
-			newPosX = xShift-20;
-			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_w.png'), auto";
-		} else if (x < this.#SLOW_SCROLL_POINT) {
-			//console.log("slow scroll left");
-			newPosX = xShift-5;
-			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_w.png'), auto";
-			console.log("sss");
-		}
-		if (xShiftRight < this.#QUICK_SCROLL_POINT) {
-			//console.log("quick scroll right");
-			newPosX = xShift+20;
-			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_e.png'), auto";
-		} else if (xShiftRight < this.#SLOW_SCROLL_POINT) {
-			//console.log("slow scroll right");
-			newPosX = xShift+20;
-			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_e.png'), auto";
-		}
+		if (!this.#isGamePaused) {
+			const [xOffset, yOffset] = this.stageData.worldOffset,
+				x = e.offsetX,
+				y = e.offsetY,
+				cursorPosX = x + xOffset,
+				cursorPosY = y + yOffset,
+				[ viewWidth, viewHeight ] = this.stageData.canvasDimensions,
+				xShiftRight = viewWidth - x,
+				yShiftBottom = viewHeight - y,
+				xShift = viewWidth/2 + xOffset,
+				yShift = viewHeight/2 + yOffset;
+				
+			let newPosX = xShift,
+				newPosY = yShift;
+			document.getElementsByTagName("canvas")[0].style.cursor = "default";
+			if (x < this.#QUICK_SCROLL_POINT) {
+				//console.log("quick scroll left");
+				newPosX = xShift-20;
+				document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_w.png'), auto";
+			} else if (x < this.#SLOW_SCROLL_POINT) {
+				//console.log("slow scroll left");
+				newPosX = xShift-5;
+				document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_w.png'), auto";
+				console.log("sss");
+			}
+			if (xShiftRight < this.#QUICK_SCROLL_POINT) {
+				//console.log("quick scroll right");
+				newPosX = xShift+20;
+				document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_e.png'), auto";
+			} else if (xShiftRight < this.#SLOW_SCROLL_POINT) {
+				//console.log("slow scroll right");
+				newPosX = xShift+20;
+				document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_e.png'), auto";
+			}
 
-		if (y < this.#QUICK_SCROLL_POINT) {
-			//console.log("quick scroll up");
-			newPosY = yShift-20;
-			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_n.png'), auto";
-		} else if (y < this.#SLOW_SCROLL_POINT) {
-			//console.log("slow scroll up");
-			newPosY = yShift-5;
-			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_n.png'), auto";
-		}
-		if (yShiftBottom < this.#QUICK_SCROLL_POINT) {
-			//console.log("quick scroll down");
-			newPosY = yShift+20;
-			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_s.png'), auto";
-		} else if (yShiftBottom < this.#SLOW_SCROLL_POINT) {
-			//console.log("slow scroll down");
-			newPosY = yShift+5;
-			document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_s.png'), auto";
-		}
-		this.stageData.centerCameraPosition(newPosX, newPosY);
-		this.#mouseX = cursorPosX;
-		this.#mouseY = cursorPosY;
-		
-		if (this.#buildTemplate) {
-			this.#buildTemplate.x = cursorPosX;
-			this.#buildTemplate.y = cursorPosY;
-			this.#buildTemplateOverlap.x = cursorPosX - this.#buildTemplateOverlap.width/2;
-			this.#buildTemplateOverlap.y = cursorPosY - this.#buildTemplateOverlap.height/2;
-			if (this.isBoundariesCollision(cursorPosX, cursorPosY, this.#buildTemplateOverlap) 
-				|| this.isObjectsCollision(cursorPosX, cursorPosY, this.#buildTemplateOverlap, this.#playerBuildings)
-				|| this.isObjectsCollision(cursorPosX, cursorPosY, this.#buildTemplateOverlap, this.#neutralBuildings)) {
-				this.#buildTemplateOverlap.bgColor = "rgba(224, 12, 21, 0.6)";
-				this.#isBuildPlaceClear = false;
-			} else {
-				this.#buildTemplateOverlap.bgColor = "rgba(0, 0, 0, 0.3";
-				this.#isBuildPlaceClear = true;
+			if (y < this.#QUICK_SCROLL_POINT) {
+				//console.log("quick scroll up");
+				newPosY = yShift-20;
+				document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_n.png'), auto";
+			} else if (y < this.#SLOW_SCROLL_POINT) {
+				//console.log("slow scroll up");
+				newPosY = yShift-5;
+				document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_n.png'), auto";
+			}
+			if (yShiftBottom < this.#QUICK_SCROLL_POINT) {
+				//console.log("quick scroll down");
+				newPosY = yShift+20;
+				document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_s.png'), auto";
+			} else if (yShiftBottom < this.#SLOW_SCROLL_POINT) {
+				//console.log("slow scroll down");
+				newPosY = yShift+5;
+				document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_s.png'), auto";
+			}
+			this.stageData.centerCameraPosition(newPosX, newPosY);
+			this.#mouseX = cursorPosX;
+			this.#mouseY = cursorPosY;
+			
+			if (this.#buildTemplate) {
+				this.#buildTemplate.x = cursorPosX;
+				this.#buildTemplate.y = cursorPosY;
+				this.#buildTemplateOverlap.x = cursorPosX - this.#buildTemplateOverlap.width/2;
+				this.#buildTemplateOverlap.y = cursorPosY - this.#buildTemplateOverlap.height/2;
+				if (this.isBoundariesCollision(cursorPosX, cursorPosY, this.#buildTemplateOverlap) 
+					|| this.isObjectsCollision(cursorPosX, cursorPosY, this.#buildTemplateOverlap, this.#playerBuildings)
+					|| this.isObjectsCollision(cursorPosX, cursorPosY, this.#buildTemplateOverlap, this.#neutralBuildings)) {
+					this.#buildTemplateOverlap.bgColor = "rgba(224, 12, 21, 0.6)";
+					this.#isBuildPlaceClear = false;
+				} else {
+					this.#buildTemplateOverlap.bgColor = "rgba(0, 0, 0, 0.3";
+					this.#isBuildPlaceClear = true;
+				}
 			}
 		}
     };
 
     #mouseClickAction = (e) => {
-		const target = e.target;
-		
-		if (target instanceof Image) {
-			this.#processImageClick(e);
-		} else if (this.#buildTemplate) {
-			this.#processNewBuild(this.#buildTemplate._building_key);
-		} else {
-			this.#processMapClick(e);
+		if (!this.#isGamePaused) {
+			const target = e.target;
+			
+			if (target instanceof Image) {
+				this.#processImageClick(e);
+			} else if (this.#buildTemplate) {
+				this.#processNewBuild(this.#buildTemplate._building_key);
+			} else {
+				this.#processMapClick(e);
+			}
 		}
-		
     }
 
 	#processNewBuild = (key) => {
@@ -587,13 +597,21 @@ export class Stage2 extends GameStage {
 							unit.activateDragTree(tree);
 						} else {
 							unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
+							this.#drawCross(clickXWithOffset, clickYWithOffset);
 						}
 					} else if (unit instanceof UnitKnight || unit instanceof UnitArcher) {
 						unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
+						this.#drawCross(clickXWithOffset, clickYWithOffset);
 					}
 				}
 			});
 		}
+	}
+	#drawCross = (x, y) => {
+		const cross = this.draw.image(x, y, 64, 64, ATLAS["64x64"], 42);
+		cross.addAnimation("markMoveT", [42, 43, 44, 45], false);
+		cross.emit("markMoveT");
+		this.#crossArr.push(cross);
 	}
 
 	#configureUnitUI = (unit) => {
@@ -721,6 +739,15 @@ export class Stage2 extends GameStage {
 	}
 
 	#render = () => {
+		let crossLen = this.#crossArr.length;
+		for (let index = 0; index < crossLen; index++) {
+			const cross = this.#crossArr[index];
+			if (cross.imageIndex === 45) {
+				this.#crossArr.splice(index, 1);
+            	index--;
+                crossLen--;
+			}
+		}
 		let pArrows = this.#playerArrows,
 			paLen = pArrows.length;
 		for (let index = 0; index < paLen; index++) {
@@ -884,7 +911,7 @@ export class Stage2 extends GameStage {
 						}
 						break;
 					case KNIGHT.ACTIONS.IDLE:
-						if (this.#isGameStarted && unit.unitTactic === UNIT_TACTIC.AGGRESSIVE) {
+						if (!this.#isGamePaused && unit.unitTactic === UNIT_TACTIC.AGGRESSIVE) {
 							const enemyObjects = this.#enemyUnits,
 								len = enemyObjects.length;
 
@@ -921,7 +948,7 @@ export class Stage2 extends GameStage {
 						}	
 						break;
 					case ARCHER.ACTIONS.IDLE:
-						if (this.#isGameStarted && unit.unitTactic === UNIT_TACTIC.AGGRESSIVE) {
+						if (!this.#isGamePaused && unit.unitTactic === UNIT_TACTIC.AGGRESSIVE) {
 							const enemyObjects = this.#enemyUnits,
 								len = enemyObjects.length;
 
@@ -956,10 +983,10 @@ export class Stage2 extends GameStage {
 				index--;
 				eUnitsLen--;
 				this.#firstBattleOrcsLeft--;
-				if (this.#firstBattleOrcsLeft === 0) {
-					console.log("========================");
-					console.log("trigger first battle win");
-					console.log("========================");
+				if (this.#firstBattleOrcsLeft === 0 && this.#showWinFirstBattle === false) {// WIN_1_BATTLE
+					this.iSystem.emit(GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {level: 2, messageKey: STAGE_TEXTS.STAGE_2.WIN_1_BATTLE.key, title: STAGE_TEXTS.STAGE_2.WIN_1_BATTLE.title, text: STAGE_TEXTS.STAGE_2.WIN_1_BATTLE.text});
+					this.#showWinFirstBattle = true;
+					this.#isGamePaused = true;
 				}
 				continue;
 			}
@@ -996,7 +1023,7 @@ export class Stage2 extends GameStage {
 						}
 						break;
 					case GOBLIN_TORCH.ACTIONS.IDLE:
-						if (this.#isGameStarted && unit.unitTactic === UNIT_TACTIC.AGGRESSIVE) {
+						if (!this.#isGamePaused && unit.unitTactic === UNIT_TACTIC.AGGRESSIVE) {
 							const enemyObjects = this.#playerUnits,
 								len = enemyObjects.length;
 
