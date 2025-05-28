@@ -82651,6 +82651,7 @@ var GOBLIN_TOWER = {
   }
 };
 var ATLAS = {
+  "64x64": "tinyswords64x64",
   "192x192": "192x192",
   "192Units": "192Units"
 };
@@ -82763,7 +82764,7 @@ var STAGE_TEXTS = {
     START: {
       key: "START",
       title: "Глава 1.",
-      text: "Эти леса кишат гоблинами. Найдите их базу и уничтожьте!"
+      text: "На этом острове есть золотая руда, но тут полно гоблинов. Найдите их базу и уничтожьте!"
     },
     WIN: {
       key: "WIN",
@@ -82776,6 +82777,11 @@ var STAGE_TEXTS = {
       key: "START",
       title: "Глава 2.",
       text: "Тут должен быть текст - описание главы 2"
+    },
+    WIN_1_BATTLE: {
+      key: "WIN_1_BATTLE",
+      title: "Победа!",
+      text: "На подходе еще одно войско гоблинов. Нужно добыть ресурсов, отстроить базу и нанять еще войнов."
     },
     WIN: {
       key: "WIN",
@@ -82865,6 +82871,7 @@ var _mouseY = /*#__PURE__*/new WeakMap();
 var _unitsCount = /*#__PURE__*/new WeakMap();
 var _addUnitPosX = /*#__PURE__*/new WeakMap();
 var _isWin = /*#__PURE__*/new WeakMap();
+var _crossArr = /*#__PURE__*/new WeakMap();
 var _attachAudio = /*#__PURE__*/new WeakMap();
 var _onDialogClosed = /*#__PURE__*/new WeakMap();
 var _Stage1_brand = /*#__PURE__*/new WeakSet();
@@ -82878,6 +82885,7 @@ var _processImageClick = /*#__PURE__*/new WeakMap();
 var _orderToBuildUnit = /*#__PURE__*/new WeakMap();
 var _orderToBuildBuilding = /*#__PURE__*/new WeakMap();
 var _processMapClick = /*#__PURE__*/new WeakMap();
+var _drawCross = /*#__PURE__*/new WeakMap();
 var _configureUnitUI = /*#__PURE__*/new WeakMap();
 var _configureBuildingUI = /*#__PURE__*/new WeakMap();
 var _clickedBuildPeasant = /*#__PURE__*/new WeakMap();
@@ -82928,6 +82936,7 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
     _classPrivateFieldInitSpec(_this, _unitsCount, 0);
     _classPrivateFieldInitSpec(_this, _addUnitPosX, 0);
     _classPrivateFieldInitSpec(_this, _isWin, false);
+    _classPrivateFieldInitSpec(_this, _crossArr, []);
     _classPrivateFieldInitSpec(_this, _attachAudio, function () {
       _this.chopTreeSound = _this.iLoader.getAudio("chopTree");
       _this.knightAudio = new Map();
@@ -82952,6 +82961,7 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
           _this.iSystem.stopGameStage(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_STAGES.STAGE_1);
           _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {
             level: 2,
+            messageKey: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.START.key,
             title: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.START.title,
             text: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.START.text
           });
@@ -83301,13 +83311,21 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
                 unit.activateDragTree(tree);
               } else {
                 unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
+                _classPrivateFieldGet(_drawCross, _this).call(_this, clickXWithOffset, clickYWithOffset);
               }
             } else if (unit instanceof _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight) {
               unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
+              _classPrivateFieldGet(_drawCross, _this).call(_this, clickXWithOffset, clickYWithOffset);
             }
           }
         });
       }
+    });
+    _classPrivateFieldInitSpec(_this, _drawCross, function (x, y) {
+      var cross = _this.draw.image(x, y, 64, 64, _const_js__WEBPACK_IMPORTED_MODULE_1__.ATLAS["64x64"], 42);
+      cross.addAnimation("markMoveT", [42, 43, 44, 45], false);
+      cross.emit("markMoveT");
+      _classPrivateFieldGet(_crossArr, _this).push(cross);
     });
     _classPrivateFieldInitSpec(_this, _configureUnitUI, function (unit) {
       while (_classPrivateFieldGet(_buildItems, _this).lastChild) {
@@ -83362,12 +83380,21 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
       console.log(e);
     });
     _classPrivateFieldInitSpec(_this, _render, function () {
-      var pUnitsLen = _classPrivateFieldGet(_playerUnits, _this).length;
-      for (var index = 0; index < pUnitsLen; index++) {
-        var unit = _classPrivateFieldGet(_playerUnits, _this)[index];
-        if (unit.isRemoved) {
-          _classPrivateFieldGet(_playerUnits, _this).splice(index, 1);
+      var crossLen = _classPrivateFieldGet(_crossArr, _this).length;
+      for (var index = 0; index < crossLen; index++) {
+        var cross = _classPrivateFieldGet(_crossArr, _this)[index];
+        if (cross.imageIndex === 45) {
+          _classPrivateFieldGet(_crossArr, _this).splice(index, 1);
           index--;
+          crossLen--;
+        }
+      }
+      var pUnitsLen = _classPrivateFieldGet(_playerUnits, _this).length;
+      for (var _index = 0; _index < pUnitsLen; _index++) {
+        var unit = _classPrivateFieldGet(_playerUnits, _this)[_index];
+        if (unit.isRemoved) {
+          _classPrivateFieldGet(_playerUnits, _this).splice(_index, 1);
+          _index--;
           pUnitsLen--;
           continue;
         }
@@ -83399,7 +83426,7 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
                 unit.stopRepeatedAnimation(unit.activeAnimation);
                 unit.destroy();
                 // remove from array
-                _classPrivateFieldGet(_playerUnits, _this).splice(index, 1);
+                _classPrivateFieldGet(_playerUnits, _this).splice(_index, 1);
                 var type = unit.buildingType;
                 var startIndex = 1,
                   imageType = _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.HOUSE.name;
@@ -83438,8 +83465,8 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
                   closeEnemy = void 0;
                 if (collisionUnits.length > 1) {
                   var len = collisionUnits.length;
-                  for (var _index = 0; _index < len; _index++) {
-                    var enemy = collisionUnits[_index],
+                  for (var _index2 = 0; _index2 < len; _index2++) {
+                    var enemy = collisionUnits[_index2],
                       dist = countDistance(unit, enemy);
                     if (!minDist || minDist > dist) {
                       minDist = dist;
@@ -83456,8 +83483,8 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
                   _closeEnemy = void 0;
                 if (collisionBuildings.length > 1) {
                   var _len2 = collisionBuildings.length;
-                  for (var _index2 = 0; _index2 < _len2; _index2++) {
-                    var _enemy = collisionBuildings[_index2],
+                  for (var _index3 = 0; _index3 < _len2; _index3++) {
+                    var _enemy = collisionBuildings[_index3],
                       _dist = countDistance(unit, _enemy);
                     if (!_minDist || _minDist > _dist) {
                       _minDist = _dist;
@@ -83486,11 +83513,11 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
         }
       }
       var eUnitsLen = _classPrivateFieldGet(_enemyUnits, _this).length;
-      for (var _index3 = 0; _index3 < eUnitsLen; _index3++) {
-        var _unit = _classPrivateFieldGet(_enemyUnits, _this)[_index3];
+      for (var _index4 = 0; _index4 < eUnitsLen; _index4++) {
+        var _unit = _classPrivateFieldGet(_enemyUnits, _this)[_index4];
         if (_unit.isRemoved) {
-          _classPrivateFieldGet(_enemyUnits, _this).splice(_index3, 1);
-          _index3--;
+          _classPrivateFieldGet(_enemyUnits, _this).splice(_index4, 1);
+          _index4--;
           eUnitsLen--;
           continue;
         }
@@ -83501,8 +83528,8 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
             var _len3 = _classPrivateFieldGet(_playerUnits, _this).length;
             var _minDist2 = void 0,
               _closeEnemy2 = void 0;
-            for (var _index4 = 0; _index4 < _len3; _index4++) {
-              var _enemy2 = _classPrivateFieldGet(_playerUnits, _this)[_index4],
+            for (var _index5 = 0; _index5 < _len3; _index5++) {
+              var _enemy2 = _classPrivateFieldGet(_playerUnits, _this)[_index5],
                 _dist2 = countDistance(_unit, _enemy2);
               if (!_minDist2 || _minDist2 > _dist2) {
                 _minDist2 = _dist2;
@@ -83515,11 +83542,11 @@ var Stage1 = /*#__PURE__*/function (_GameStage) {
         }
       }
       var eBuildingsLen = _classPrivateFieldGet(_enemyBuildings, _this).length;
-      for (var _index5 = 0; _index5 < eBuildingsLen; _index5++) {
-        var _unit2 = _classPrivateFieldGet(_enemyBuildings, _this)[_index5];
+      for (var _index6 = 0; _index6 < eBuildingsLen; _index6++) {
+        var _unit2 = _classPrivateFieldGet(_enemyBuildings, _this)[_index6];
         if (_unit2.isRemoved) {
-          _classPrivateFieldGet(_enemyBuildings, _this).splice(_index5, 1);
-          _index5--;
+          _classPrivateFieldGet(_enemyBuildings, _this).splice(_index6, 1);
+          _index6--;
           eBuildingsLen--;
           continue;
         }
@@ -83907,23 +83934,23 @@ function _unregisterSystemEventsListeners() {
 var _x2 = /*#__PURE__*/new WeakMap();
 var _y2 = /*#__PURE__*/new WeakMap();
 var _health = /*#__PURE__*/new WeakMap();
-var _index6 = /*#__PURE__*/new WeakMap();
+var _index7 = /*#__PURE__*/new WeakMap();
 var Tree = /*#__PURE__*/function () {
   function Tree(x, y, treeHealth, index) {
     _classCallCheck(this, Tree);
     _classPrivateFieldInitSpec(this, _x2, void 0);
     _classPrivateFieldInitSpec(this, _y2, void 0);
     _classPrivateFieldInitSpec(this, _health, void 0);
-    _classPrivateFieldInitSpec(this, _index6, void 0);
+    _classPrivateFieldInitSpec(this, _index7, void 0);
     _classPrivateFieldSet(_x2, this, x);
     _classPrivateFieldSet(_y2, this, y);
-    _classPrivateFieldSet(_index6, this, index);
+    _classPrivateFieldSet(_index7, this, index);
     _classPrivateFieldSet(_health, this, treeHealth);
   }
   return _createClass(Tree, [{
     key: "index",
     get: function get() {
-      return _classPrivateFieldGet(_index6, this);
+      return _classPrivateFieldGet(_index7, this);
     }
   }, {
     key: "x",
@@ -84027,8 +84054,10 @@ var _mouseX = /*#__PURE__*/new WeakMap();
 var _mouseY = /*#__PURE__*/new WeakMap();
 var _unitsCount = /*#__PURE__*/new WeakMap();
 var _addUnitPosX = /*#__PURE__*/new WeakMap();
-var _isGameStarted = /*#__PURE__*/new WeakMap();
+var _isGamePaused = /*#__PURE__*/new WeakMap();
 var _firstBattleOrcsLeft = /*#__PURE__*/new WeakMap();
+var _showWinFirstBattle = /*#__PURE__*/new WeakMap();
+var _crossArr = /*#__PURE__*/new WeakMap();
 var _Stage2_brand = /*#__PURE__*/new WeakSet();
 var _onDialogClosed = /*#__PURE__*/new WeakMap();
 var _createUserInterface = /*#__PURE__*/new WeakMap();
@@ -84041,6 +84070,7 @@ var _processImageClick = /*#__PURE__*/new WeakMap();
 var _orderToBuildUnit = /*#__PURE__*/new WeakMap();
 var _orderToBuildBuilding = /*#__PURE__*/new WeakMap();
 var _processMapClick = /*#__PURE__*/new WeakMap();
+var _drawCross = /*#__PURE__*/new WeakMap();
 var _configureUnitUI = /*#__PURE__*/new WeakMap();
 var _configureBuildingUI = /*#__PURE__*/new WeakMap();
 var _clickedBuildPeasant = /*#__PURE__*/new WeakMap();
@@ -84094,16 +84124,23 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
     _classPrivateFieldInitSpec(_this, _mouseY, void 0);
     _classPrivateFieldInitSpec(_this, _unitsCount, 0);
     _classPrivateFieldInitSpec(_this, _addUnitPosX, 0);
-    _classPrivateFieldInitSpec(_this, _isGameStarted, false);
-    _classPrivateFieldInitSpec(_this, _firstBattleOrcsLeft, 14);
+    _classPrivateFieldInitSpec(_this, _isGamePaused, true);
+    _classPrivateFieldInitSpec(_this, _firstBattleOrcsLeft, 15);
+    _classPrivateFieldInitSpec(_this, _showWinFirstBattle, false);
+    _classPrivateFieldInitSpec(_this, _crossArr, []);
     _classPrivateFieldInitSpec(_this, _onDialogClosed, function (e) {
       var _e$data$ = e.data[0],
         currentLevel = _e$data$.currentLevel,
         currentState = _e$data$.currentState;
       console.log("start level", currentLevel);
       if (currentLevel === 2) {
-        _classPrivateFieldSet(_isGameStarted, _this, true);
-        _this.registerListeners();
+        if (currentState === _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.START.key) {
+          _classPrivateFieldSet(_isGamePaused, _this, false);
+          _this.registerListeners();
+        } else if (currentState === _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.WIN_1_BATTLE.key) {
+          _classPrivateFieldSet(_isGamePaused, _this, false);
+          _this.stageData.centerCameraPosition(850, 600);
+        }
       }
     });
     _classPrivateFieldInitSpec(_this, _createUserInterface, function () {
@@ -84194,85 +84231,89 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       }
     });
     _classPrivateFieldInitSpec(_this, _mouseMoveAction, function (e) {
-      var _this$stageData$world = _slicedToArray(_this.stageData.worldOffset, 2),
-        xOffset = _this$stageData$world[0],
-        yOffset = _this$stageData$world[1],
-        x = e.offsetX,
-        y = e.offsetY,
-        cursorPosX = x + xOffset,
-        cursorPosY = y + yOffset,
-        _this$stageData$canva = _slicedToArray(_this.stageData.canvasDimensions, 2),
-        viewWidth = _this$stageData$canva[0],
-        viewHeight = _this$stageData$canva[1],
-        xShiftRight = viewWidth - x,
-        yShiftBottom = viewHeight - y,
-        xShift = viewWidth / 2 + xOffset,
-        yShift = viewHeight / 2 + yOffset;
-      var newPosX = xShift,
-        newPosY = yShift;
-      document.getElementsByTagName("canvas")[0].style.cursor = "default";
-      if (x < _classPrivateFieldGet(_QUICK_SCROLL_POINT, _this)) {
-        //console.log("quick scroll left");
-        newPosX = xShift - 20;
-        document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_w.png'), auto";
-      } else if (x < _classPrivateFieldGet(_SLOW_SCROLL_POINT, _this)) {
-        //console.log("slow scroll left");
-        newPosX = xShift - 5;
-        document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_w.png'), auto";
-        console.log("sss");
-      }
-      if (xShiftRight < _classPrivateFieldGet(_QUICK_SCROLL_POINT, _this)) {
-        //console.log("quick scroll right");
-        newPosX = xShift + 20;
-        document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_e.png'), auto";
-      } else if (xShiftRight < _classPrivateFieldGet(_SLOW_SCROLL_POINT, _this)) {
-        //console.log("slow scroll right");
-        newPosX = xShift + 20;
-        document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_e.png'), auto";
-      }
-      if (y < _classPrivateFieldGet(_QUICK_SCROLL_POINT, _this)) {
-        //console.log("quick scroll up");
-        newPosY = yShift - 20;
-        document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_n.png'), auto";
-      } else if (y < _classPrivateFieldGet(_SLOW_SCROLL_POINT, _this)) {
-        //console.log("slow scroll up");
-        newPosY = yShift - 5;
-        document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_n.png'), auto";
-      }
-      if (yShiftBottom < _classPrivateFieldGet(_QUICK_SCROLL_POINT, _this)) {
-        //console.log("quick scroll down");
-        newPosY = yShift + 20;
-        document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_s.png'), auto";
-      } else if (yShiftBottom < _classPrivateFieldGet(_SLOW_SCROLL_POINT, _this)) {
-        //console.log("slow scroll down");
-        newPosY = yShift + 5;
-        document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_s.png'), auto";
-      }
-      _this.stageData.centerCameraPosition(newPosX, newPosY);
-      _classPrivateFieldSet(_mouseX, _this, cursorPosX);
-      _classPrivateFieldSet(_mouseY, _this, cursorPosY);
-      if (_classPrivateFieldGet(_buildTemplate, _this)) {
-        _classPrivateFieldGet(_buildTemplate, _this).x = cursorPosX;
-        _classPrivateFieldGet(_buildTemplate, _this).y = cursorPosY;
-        _classPrivateFieldGet(_buildTemplateOverlap, _this).x = cursorPosX - _classPrivateFieldGet(_buildTemplateOverlap, _this).width / 2;
-        _classPrivateFieldGet(_buildTemplateOverlap, _this).y = cursorPosY - _classPrivateFieldGet(_buildTemplateOverlap, _this).height / 2;
-        if (_this.isBoundariesCollision(cursorPosX, cursorPosY, _classPrivateFieldGet(_buildTemplateOverlap, _this)) || _this.isObjectsCollision(cursorPosX, cursorPosY, _classPrivateFieldGet(_buildTemplateOverlap, _this), _classPrivateFieldGet(_playerBuildings, _this)) || _this.isObjectsCollision(cursorPosX, cursorPosY, _classPrivateFieldGet(_buildTemplateOverlap, _this), _classPrivateFieldGet(_neutralBuildings, _this))) {
-          _classPrivateFieldGet(_buildTemplateOverlap, _this).bgColor = "rgba(224, 12, 21, 0.6)";
-          _classPrivateFieldSet(_isBuildPlaceClear, _this, false);
-        } else {
-          _classPrivateFieldGet(_buildTemplateOverlap, _this).bgColor = "rgba(0, 0, 0, 0.3";
-          _classPrivateFieldSet(_isBuildPlaceClear, _this, true);
+      if (!_classPrivateFieldGet(_isGamePaused, _this)) {
+        var _this$stageData$world = _slicedToArray(_this.stageData.worldOffset, 2),
+          xOffset = _this$stageData$world[0],
+          yOffset = _this$stageData$world[1],
+          x = e.offsetX,
+          y = e.offsetY,
+          cursorPosX = x + xOffset,
+          cursorPosY = y + yOffset,
+          _this$stageData$canva = _slicedToArray(_this.stageData.canvasDimensions, 2),
+          viewWidth = _this$stageData$canva[0],
+          viewHeight = _this$stageData$canva[1],
+          xShiftRight = viewWidth - x,
+          yShiftBottom = viewHeight - y,
+          xShift = viewWidth / 2 + xOffset,
+          yShift = viewHeight / 2 + yOffset;
+        var newPosX = xShift,
+          newPosY = yShift;
+        document.getElementsByTagName("canvas")[0].style.cursor = "default";
+        if (x < _classPrivateFieldGet(_QUICK_SCROLL_POINT, _this)) {
+          //console.log("quick scroll left");
+          newPosX = xShift - 20;
+          document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_w.png'), auto";
+        } else if (x < _classPrivateFieldGet(_SLOW_SCROLL_POINT, _this)) {
+          //console.log("slow scroll left");
+          newPosX = xShift - 5;
+          document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_w.png'), auto";
+          console.log("sss");
+        }
+        if (xShiftRight < _classPrivateFieldGet(_QUICK_SCROLL_POINT, _this)) {
+          //console.log("quick scroll right");
+          newPosX = xShift + 20;
+          document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_e.png'), auto";
+        } else if (xShiftRight < _classPrivateFieldGet(_SLOW_SCROLL_POINT, _this)) {
+          //console.log("slow scroll right");
+          newPosX = xShift + 20;
+          document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_e.png'), auto";
+        }
+        if (y < _classPrivateFieldGet(_QUICK_SCROLL_POINT, _this)) {
+          //console.log("quick scroll up");
+          newPosY = yShift - 20;
+          document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_n.png'), auto";
+        } else if (y < _classPrivateFieldGet(_SLOW_SCROLL_POINT, _this)) {
+          //console.log("slow scroll up");
+          newPosY = yShift - 5;
+          document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_n.png'), auto";
+        }
+        if (yShiftBottom < _classPrivateFieldGet(_QUICK_SCROLL_POINT, _this)) {
+          //console.log("quick scroll down");
+          newPosY = yShift + 20;
+          document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_s.png'), auto";
+        } else if (yShiftBottom < _classPrivateFieldGet(_SLOW_SCROLL_POINT, _this)) {
+          //console.log("slow scroll down");
+          newPosY = yShift + 5;
+          document.getElementsByTagName("canvas")[0].style.cursor = "url('assets/cursor-pack-kenney/Outline/Default/navigation_s.png'), auto";
+        }
+        _this.stageData.centerCameraPosition(newPosX, newPosY);
+        _classPrivateFieldSet(_mouseX, _this, cursorPosX);
+        _classPrivateFieldSet(_mouseY, _this, cursorPosY);
+        if (_classPrivateFieldGet(_buildTemplate, _this)) {
+          _classPrivateFieldGet(_buildTemplate, _this).x = cursorPosX;
+          _classPrivateFieldGet(_buildTemplate, _this).y = cursorPosY;
+          _classPrivateFieldGet(_buildTemplateOverlap, _this).x = cursorPosX - _classPrivateFieldGet(_buildTemplateOverlap, _this).width / 2;
+          _classPrivateFieldGet(_buildTemplateOverlap, _this).y = cursorPosY - _classPrivateFieldGet(_buildTemplateOverlap, _this).height / 2;
+          if (_this.isBoundariesCollision(cursorPosX, cursorPosY, _classPrivateFieldGet(_buildTemplateOverlap, _this)) || _this.isObjectsCollision(cursorPosX, cursorPosY, _classPrivateFieldGet(_buildTemplateOverlap, _this), _classPrivateFieldGet(_playerBuildings, _this)) || _this.isObjectsCollision(cursorPosX, cursorPosY, _classPrivateFieldGet(_buildTemplateOverlap, _this), _classPrivateFieldGet(_neutralBuildings, _this))) {
+            _classPrivateFieldGet(_buildTemplateOverlap, _this).bgColor = "rgba(224, 12, 21, 0.6)";
+            _classPrivateFieldSet(_isBuildPlaceClear, _this, false);
+          } else {
+            _classPrivateFieldGet(_buildTemplateOverlap, _this).bgColor = "rgba(0, 0, 0, 0.3";
+            _classPrivateFieldSet(_isBuildPlaceClear, _this, true);
+          }
         }
       }
     });
     _classPrivateFieldInitSpec(_this, _mouseClickAction, function (e) {
-      var target = e.target;
-      if (target instanceof Image) {
-        _classPrivateFieldGet(_processImageClick, _this).call(_this, e);
-      } else if (_classPrivateFieldGet(_buildTemplate, _this)) {
-        _classPrivateFieldGet(_processNewBuild, _this).call(_this, _classPrivateFieldGet(_buildTemplate, _this)._building_key);
-      } else {
-        _classPrivateFieldGet(_processMapClick, _this).call(_this, e);
+      if (!_classPrivateFieldGet(_isGamePaused, _this)) {
+        var target = e.target;
+        if (target instanceof Image) {
+          _classPrivateFieldGet(_processImageClick, _this).call(_this, e);
+        } else if (_classPrivateFieldGet(_buildTemplate, _this)) {
+          _classPrivateFieldGet(_processNewBuild, _this).call(_this, _classPrivateFieldGet(_buildTemplate, _this)._building_key);
+        } else {
+          _classPrivateFieldGet(_processMapClick, _this).call(_this, e);
+        }
       }
     });
     _classPrivateFieldInitSpec(_this, _processNewBuild, function (key) {
@@ -84453,13 +84494,21 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                 unit.activateDragTree(tree);
               } else {
                 unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
+                _classPrivateFieldGet(_drawCross, _this).call(_this, clickXWithOffset, clickYWithOffset);
               }
             } else if (unit instanceof _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitKnight || unit instanceof _units_js__WEBPACK_IMPORTED_MODULE_2__.UnitArcher) {
               unit.activateMoveToTargetPoint(clickXWithOffset, clickYWithOffset, true);
+              _classPrivateFieldGet(_drawCross, _this).call(_this, clickXWithOffset, clickYWithOffset);
             }
           }
         });
       }
+    });
+    _classPrivateFieldInitSpec(_this, _drawCross, function (x, y) {
+      var cross = _this.draw.image(x, y, 64, 64, _const_js__WEBPACK_IMPORTED_MODULE_1__.ATLAS["64x64"], 42);
+      cross.addAnimation("markMoveT", [42, 43, 44, 45], false);
+      cross.emit("markMoveT");
+      _classPrivateFieldGet(_crossArr, _this).push(cross);
     });
     _classPrivateFieldInitSpec(_this, _configureUnitUI, function (unit) {
       while (_classPrivateFieldGet(_buildItems, _this).lastChild) {
@@ -84568,10 +84617,19 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
       _this.goblinAudio.set(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_AUDIO_TYPES.DEATH, [_this.iLoader.getAudio(_const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.AUDIO.DEATH1)]);
     });
     _classPrivateFieldInitSpec(_this, _render, function () {
+      var crossLen = _classPrivateFieldGet(_crossArr, _this).length;
+      for (var index = 0; index < crossLen; index++) {
+        var cross = _classPrivateFieldGet(_crossArr, _this)[index];
+        if (cross.imageIndex === 45) {
+          _classPrivateFieldGet(_crossArr, _this).splice(index, 1);
+          index--;
+          crossLen--;
+        }
+      }
       var pArrows = _classPrivateFieldGet(_playerArrows, _this),
         paLen = pArrows.length;
-      for (var index = 0; index < paLen; index++) {
-        var arrow = _classPrivateFieldGet(_playerArrows, _this)[index];
+      for (var _index = 0; _index < paLen; _index++) {
+        var arrow = _classPrivateFieldGet(_playerArrows, _this)[_index];
         var forceToUse = 1.5,
           //this.#moveSpeed,
           newCoordX = arrow.x + forceToUse * Math.cos(arrow.rotation),
@@ -84583,8 +84641,8 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
             closeEnemy = void 0;
           if (collisionUnits.length > 1) {
             var len = collisionUnits.length;
-            for (var _index = 0; _index < len; _index++) {
-              var enemy = collisionUnits[_index],
+            for (var _index2 = 0; _index2 < len; _index2++) {
+              var enemy = collisionUnits[_index2],
                 dist = countDistance(arrow, enemy);
               if (!minDist || minDist > dist) {
                 minDist = dist;
@@ -84599,8 +84657,8 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
             closeEnemy.die();
           }
           arrow.destroy();
-          _classPrivateFieldGet(_playerArrows, _this).splice(index, 1);
-          index--;
+          _classPrivateFieldGet(_playerArrows, _this).splice(_index, 1);
+          _index--;
           paLen--;
           continue;
         } else if (countDistance({
@@ -84611,8 +84669,8 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
           y: arrow.tY
         }) <= 10) {
           arrow.destroy();
-          _classPrivateFieldGet(_playerArrows, _this).splice(index, 1);
-          index--;
+          _classPrivateFieldGet(_playerArrows, _this).splice(_index, 1);
+          _index--;
           paLen--;
           continue;
         }
@@ -84620,11 +84678,11 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
         arrow.y = newCoordY;
       }
       var pUnitsLen = _classPrivateFieldGet(_playerUnits, _this).length;
-      for (var _index2 = 0; _index2 < pUnitsLen; _index2++) {
-        var unit = _classPrivateFieldGet(_playerUnits, _this)[_index2];
+      for (var _index3 = 0; _index3 < pUnitsLen; _index3++) {
+        var unit = _classPrivateFieldGet(_playerUnits, _this)[_index3];
         if (unit.isRemoved) {
-          _classPrivateFieldGet(_playerUnits, _this).splice(_index2, 1);
-          _index2--;
+          _classPrivateFieldGet(_playerUnits, _this).splice(_index3, 1);
+          _index3--;
           pUnitsLen--;
           _classPrivateFieldGet(_recalculatePeopleLimits, _this).call(_this);
           continue;
@@ -84657,7 +84715,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                 unit.stopRepeatedAnimation(unit.activeAnimation);
                 unit.destroy();
                 // remove from array
-                _classPrivateFieldGet(_playerUnits, _this).splice(_index2, 1);
+                _classPrivateFieldGet(_playerUnits, _this).splice(_index3, 1);
                 var type = unit.buildingType;
                 var startIndex = 1,
                   imageType = _const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_UNITS.HOUSE.name;
@@ -84696,8 +84754,8 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                   _closeEnemy = void 0;
                 if (_collisionUnits.length > 1) {
                   var _len2 = _collisionUnits.length;
-                  for (var _index3 = 0; _index3 < _len2; _index3++) {
-                    var _enemy = _collisionUnits[_index3],
+                  for (var _index4 = 0; _index4 < _len2; _index4++) {
+                    var _enemy = _collisionUnits[_index4],
                       _dist = countDistance(unit, _enemy);
                     if (!_minDist || _minDist > _dist) {
                       _minDist = _dist;
@@ -84714,8 +84772,8 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                   _closeEnemy2 = void 0;
                 if (_collisionBuildings.length > 1) {
                   var _len3 = _collisionBuildings.length;
-                  for (var _index4 = 0; _index4 < _len3; _index4++) {
-                    var _enemy2 = _collisionBuildings[_index4],
+                  for (var _index5 = 0; _index5 < _len3; _index5++) {
+                    var _enemy2 = _collisionBuildings[_index5],
                       _dist2 = countDistance(unit, _enemy2);
                     if (!_minDist2 || _minDist2 > _dist2) {
                       _minDist2 = _dist2;
@@ -84739,7 +84797,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
               }
               break;
             case _const_js__WEBPACK_IMPORTED_MODULE_1__.KNIGHT.ACTIONS.IDLE:
-              if (_classPrivateFieldGet(_isGameStarted, _this) && unit.unitTactic === _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE) {
+              if (!_classPrivateFieldGet(_isGamePaused, _this) && unit.unitTactic === _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE) {
                 var enemyObjects = _classPrivateFieldGet(_enemyUnits, _this),
                   _len4 = enemyObjects.length;
                 var closestDistance = void 0,
@@ -84780,7 +84838,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
               }
               break;
             case _const_js__WEBPACK_IMPORTED_MODULE_1__.ARCHER.ACTIONS.IDLE:
-              if (_classPrivateFieldGet(_isGameStarted, _this) && unit.unitTactic === _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE) {
+              if (!_classPrivateFieldGet(_isGamePaused, _this) && unit.unitTactic === _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE) {
                 var _enemyObjects = _classPrivateFieldGet(_enemyUnits, _this),
                   _len5 = _enemyObjects.length;
                 var _closestDistance = void 0,
@@ -84810,18 +84868,24 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
         }
       }
       var eUnitsLen = _classPrivateFieldGet(_enemyUnits, _this).length;
-      for (var _index5 = 0; _index5 < eUnitsLen; _index5++) {
-        var _unit = _classPrivateFieldGet(_enemyUnits, _this)[_index5];
+      for (var _index6 = 0; _index6 < eUnitsLen; _index6++) {
+        var _unit = _classPrivateFieldGet(_enemyUnits, _this)[_index6];
         if (_unit.isRemoved) {
           var _this$firstBattleOrcs, _this$firstBattleOrcs2;
-          _classPrivateFieldGet(_enemyUnits, _this).splice(_index5, 1);
-          _index5--;
+          _classPrivateFieldGet(_enemyUnits, _this).splice(_index6, 1);
+          _index6--;
           eUnitsLen--;
           _classPrivateFieldSet(_firstBattleOrcsLeft, _this, (_this$firstBattleOrcs = _classPrivateFieldGet(_firstBattleOrcsLeft, _this), _this$firstBattleOrcs2 = _this$firstBattleOrcs--, _this$firstBattleOrcs)), _this$firstBattleOrcs2;
-          if (_classPrivateFieldGet(_firstBattleOrcsLeft, _this) === 0) {
-            console.log("========================");
-            console.log("trigger first battle win");
-            console.log("========================");
+          if (_classPrivateFieldGet(_firstBattleOrcsLeft, _this) === 0 && _classPrivateFieldGet(_showWinFirstBattle, _this) === false) {
+            // WIN_1_BATTLE
+            _this.iSystem.emit(_const_js__WEBPACK_IMPORTED_MODULE_1__.GAME_EVENTS.SYSTEM_EVENTS.OPEN_DIALOG, {
+              level: 2,
+              messageKey: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.WIN_1_BATTLE.key,
+              title: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.WIN_1_BATTLE.title,
+              text: _const_js__WEBPACK_IMPORTED_MODULE_1__.STAGE_TEXTS.STAGE_2.WIN_1_BATTLE.text
+            });
+            _classPrivateFieldSet(_showWinFirstBattle, _this, true);
+            _classPrivateFieldSet(_isGamePaused, _this, true);
           }
           continue;
         }
@@ -84835,8 +84899,8 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
                 var _len6 = _classPrivateFieldGet(_playerUnits, _this).length;
                 var _minDist3 = void 0,
                   _closeEnemy3 = void 0;
-                for (var _index6 = 0; _index6 < _len6; _index6++) {
-                  var _enemy3 = _classPrivateFieldGet(_playerUnits, _this)[_index6],
+                for (var _index7 = 0; _index7 < _len6; _index7++) {
+                  var _enemy3 = _classPrivateFieldGet(_playerUnits, _this)[_index7],
                     _dist3 = countDistance(_unit, _enemy3);
                   if (!_minDist3 || _minDist3 > _dist3) {
                     _minDist3 = _dist3;
@@ -84857,7 +84921,7 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
               }
               break;
             case _const_js__WEBPACK_IMPORTED_MODULE_1__.GOBLIN_TORCH.ACTIONS.IDLE:
-              if (_classPrivateFieldGet(_isGameStarted, _this) && _unit.unitTactic === _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE) {
+              if (!_classPrivateFieldGet(_isGamePaused, _this) && _unit.unitTactic === _const_js__WEBPACK_IMPORTED_MODULE_1__.UNIT_TACTIC.AGGRESSIVE) {
                 var _enemyObjects2 = _classPrivateFieldGet(_playerUnits, _this),
                   _len7 = _enemyObjects2.length;
                 var _closestDistance2 = void 0,
@@ -84885,11 +84949,11 @@ var Stage2 = /*#__PURE__*/function (_GameStage) {
         }
       }
       var eBuildingsLen = _classPrivateFieldGet(_enemyBuildings, _this).length;
-      for (var _index7 = 0; _index7 < eBuildingsLen; _index7++) {
-        var _unit2 = _classPrivateFieldGet(_enemyBuildings, _this)[_index7];
+      for (var _index8 = 0; _index8 < eBuildingsLen; _index8++) {
+        var _unit2 = _classPrivateFieldGet(_enemyBuildings, _this)[_index8];
         if (_unit2.isRemoved) {
-          _classPrivateFieldGet(_enemyBuildings, _this).splice(_index7, 1);
-          _index7--;
+          _classPrivateFieldGet(_enemyBuildings, _this).splice(_index8, 1);
+          _index8--;
           eBuildingsLen--;
           continue;
         }
@@ -85292,23 +85356,23 @@ var EvensAggregator = /*#__PURE__*/function (_EventTarget) {
 var _x4 = /*#__PURE__*/new WeakMap();
 var _y4 = /*#__PURE__*/new WeakMap();
 var _health = /*#__PURE__*/new WeakMap();
-var _index8 = /*#__PURE__*/new WeakMap();
+var _index9 = /*#__PURE__*/new WeakMap();
 var Tree = /*#__PURE__*/function () {
   function Tree(x, y, treeHealth, index) {
     _classCallCheck(this, Tree);
     _classPrivateFieldInitSpec(this, _x4, void 0);
     _classPrivateFieldInitSpec(this, _y4, void 0);
     _classPrivateFieldInitSpec(this, _health, void 0);
-    _classPrivateFieldInitSpec(this, _index8, void 0);
+    _classPrivateFieldInitSpec(this, _index9, void 0);
     _classPrivateFieldSet(_x4, this, x);
     _classPrivateFieldSet(_y4, this, y);
-    _classPrivateFieldSet(_index8, this, index);
+    _classPrivateFieldSet(_index9, this, index);
     _classPrivateFieldSet(_health, this, treeHealth);
   }
   return _createClass(Tree, [{
     key: "index",
     get: function get() {
-      return _classPrivateFieldGet(_index8, this);
+      return _classPrivateFieldGet(_index9, this);
     }
   }, {
     key: "x",
