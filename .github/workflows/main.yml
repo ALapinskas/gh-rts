@@ -17,6 +17,9 @@ jobs:
     - name: Checkout code
 
       uses: actions/checkout@v2
+    - name: Install node modules
+      run: |
+        npm i
     - name: Run build
       run: |
         npm run build
