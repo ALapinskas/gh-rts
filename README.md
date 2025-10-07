@@ -28,7 +28,7 @@ npm start
 
 ## Metamask authentication and store
 1. Authenticate with ethereum wallet
-![Authenticate with ethereum wallet](/dist/assets/screeen1.png)
+![Authenticate with ethereum wallet](/dist/assets/screen1.png)
 2. Buy in game items
-![Buy in game items](/dist/assets/screeen2.png)
+![Buy in game items](/dist/assets/screen2.png)
 
