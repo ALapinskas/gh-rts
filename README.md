@@ -1,4 +1,4 @@
-# Classic rts game
+# Classic rts game includes metamask authentication
 ![Alt text](hvsg.gif?raw=true "screen")
 License: MIT \
 Platform: PC, Browser \
@@ -19,5 +19,16 @@ Render engine:
 Tilemaps: 
     * Tiled: https://www.mapeditor.org/
 
+Metamask sdk: https://metamask.io/
+    * Wallet authentication
+    * Store transactions with ethereum coins
+
 ## How build and run
 npm start
+
+## Metamask authentication and store
+1. Authenticate with ethereum wallet
+![Authenticate with ethereum wallet](/assets/screeen1.png)
+2. Buy in game items
+![Buy in game items](/assets/screeen2.png)
+

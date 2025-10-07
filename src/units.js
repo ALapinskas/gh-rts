@@ -56,6 +56,7 @@ class BaseEntity extends DrawImageObject {
 	set isSelected(value) {
 		this.#isSelected = value;
 		if(value === true) {
+			console.log("is selected: ", this);
 			if (this.circleBoundaries) {
 				this.#frame = this.#draw.circle(this.x, this.y, this.circleBoundaries.r, "rgba(255,255,255,0.2)");
 			} else {

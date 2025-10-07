@@ -1,7 +1,9 @@
-import { GameStage, CONST } from "jsge";
+import { GameStage, CONST } from "../node_modules/jsge/src/index.js";
 import { utils } from "jsge";
-import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT, KNIGHT, ATLAS, GAME_AUDIO_TYPES, GOBLIN_TORCH, GAME_STAGES, STAGE_TEXTS } from "./const.js";
+import { GAME_UNITS, GAME_EVENTS, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, TREE_FULL_HEALTH, PEASANT, KNIGHT, ATLAS, GAME_AUDIO_TYPES, GOBLIN_TORCH, GAME_STAGES, STAGE_TEXTS, UNIT_TACTIC, UNIT_VIEW_RANGE } from "./const.js";
 import { UnitPeasant, UnitBuilding, UnitGoblinTorch, UnitKnight, UnitGoblinHouse, UnitGoblinTower } from "./units.js";
+import { pointToCircleDistance } from "jsge/src/utils.js";
+import { DrawTiledLayer } from "jsge/src/base/2d/DrawTiledLayer.js";
 
 const isPointInsidePolygon = utils.isPointInsidePolygon,
 	countDistance = utils.countDistance, 
@@ -25,6 +27,9 @@ export class Stage1 extends GameStage {
 	#enemyUnits = [];
 	#enemyBuildings = [];
 
+	/**
+	 * @type {DrawTiledLayer}
+	 */
 	#treesLayer;
 	#treesCutHealth = new Map();
 	
@@ -169,7 +174,7 @@ export class Stage1 extends GameStage {
 		this.#createUserInterface();
 		setTimeout(() => {
 			const [w, h] = this.stageData.canvasDimensions;
-		},100);
+		}, 100);
 		this.#unitsCount = this.#playerUnits.length;
 		console.log("level1 started");
     }
@@ -314,7 +319,6 @@ export class Stage1 extends GameStage {
         const code = event.code;
 		
 		if (code === "Space") {
-			
 			const townCenter = this.#playerBuildings.find((building) => building.key === GAME_UNITS.TOWN_CENTER.name);
 			const newPeasant = new UnitPeasant(0, 0, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
 			const newPeasant2 = new UnitPeasant(0, 0, townCenter, this.draw, this.iSystem.systemSettings.gameOptions.showLifeLines, this.eventsAggregator);
@@ -850,22 +854,59 @@ export class Stage1 extends GameStage {
                 continue;
 			}
 			if (unit instanceof UnitGoblinTorch) {
-				const isCollisionUnit = this.isObjectsCollision(unit.x, unit.y, unit, this.#playerUnits),
-					isCollisionBuilding = this.isObjectsCollision(unit.x, unit.y, unit, this.#playerBuildings);
-				if (isCollisionUnit) {
-					const len = this.#playerUnits.length;
+				const action = unit.activeAction;
+				switch (action) {
+					case GOBLIN_TORCH.ACTIONS.MOVE:
+					
+						const isCollisionUnit = this.isObjectsCollision(unit.x, unit.y, unit, this.#playerUnits),
+							isCollisionBuilding = this.isObjectsCollision(unit.x, unit.y, unit, this.#playerBuildings);
+						if (isCollisionUnit) {
+							const len = this.#playerUnits.length;
 
-					let minDist, closeEnemy;
-					for (let index = 0; index < len; index++) {
-						const enemy = this.#playerUnits[index],
-							dist = countDistance(unit, enemy);
-						if (!minDist || minDist > dist) {
-							minDist = dist;
-							closeEnemy = enemy;
+							let minDist, closeEnemy;
+							for (let index = 0; index < len; index++) {
+								const enemy = this.#playerUnits[index],
+									dist = countDistance(unit, enemy);
+								if (!minDist || minDist > dist) {
+									minDist = dist;
+									closeEnemy = enemy;
+								}
+							}
+							//console.log("closest enemy:", closeEnemy);
+							unit.activateAttack(closeEnemy);
+						} else if (isCollisionBuilding) {
+
+						} else {
+							const {x, y} = unit.countNextStep();
+							if (this.isBoundariesCollision(x, y, unit)) {
+								unit.activateIdle();
+							} else {
+								unit.stepMove(x, y);
+							}	
 						}
-					}
-					//console.log("closest enemy:", closeEnemy);
-					unit.activateAttack(closeEnemy);
+						break;
+					case GOBLIN_TORCH.ACTIONS.IDLE:
+						if (unit.unitTactic === UNIT_TACTIC.AGGRESSIVE) {
+							const enemyObjects = this.#playerUnits,
+								len = enemyObjects.length;
+
+							let closestDistance,
+								closesUnit;
+							for (let i = 0; i < len; ++i) {
+								const object = enemyObjects[i],
+									distance = pointToCircleDistance(unit.x, unit.y, {x: object.x, y: object.y, r: object.width/2});
+								if (distance < UNIT_VIEW_RANGE) {
+									if (!closestDistance || distance < closestDistance) {
+										closestDistance = distance;
+										closesUnit = object;
+									}
+								}
+							}
+							if (closestDistance) {
+								unit.activateMoveToTargetPoint(closesUnit.x, closesUnit.y);
+							}
+						}
+						break;
 				}
 			}
 		}

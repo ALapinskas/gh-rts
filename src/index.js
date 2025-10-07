@@ -4,7 +4,6 @@ import { Stage2 } from "./stage2.js";
 import { GAME_STAGES } from "./const.js";
 import { StartStage } from "./start.js";
 
-console.log("index.js file");
 const app = new System(SystemSettings);
 
 const createGoldBag = (x, y) => {

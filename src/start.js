@@ -4,7 +4,8 @@ import { GAME_STAGES, GAME_EVENTS, STAGE_TEXTS } from "./const.js";
 import UiApp from "./ui/ui-init.js";
 import { createRoot } from 'react-dom/client';
 import React from "react";
-import { OptionsCard } from "./ui/options.js";
+import "./styles.css";
+
 
 const isPointRectIntersect = utils.isPointRectIntersect;
 const LEFT_SHIFT = -70;

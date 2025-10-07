@@ -742,7 +742,7 @@ export class Stage2 extends GameStage {
 		let crossLen = this.#crossArr.length;
 		for (let index = 0; index < crossLen; index++) {
 			const cross = this.#crossArr[index];
-			if (cross.imageIndex === 45) {
+			if (cross.imageIndex === 45) { // animation is ended
 				this.#crossArr.splice(index, 1);
             	index--;
                 crossLen--;

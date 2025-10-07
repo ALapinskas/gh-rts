@@ -1,0 +1,24 @@
+.auth-buttons {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+}
+.store-button {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+}
+
+.metamask-auth {
+    padding: 1rem;
+}
+
+.store h1 {
+    font-size: 2rem;
+    padding: 1rem;
+    padding-bottom: 0;
+}
+
+.store-card { 
+    padding: 1rem;
+}

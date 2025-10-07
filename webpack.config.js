@@ -1,5 +1,10 @@
 import * as path from "path";
 
+import webpack from 'webpack';
+import dotenv from 'dotenv'
+
+dotenv.config({ path: '../.env' });
+
 var config = {
     entry: "./src/index.js",
     //output: {
@@ -50,9 +55,20 @@ var config = {
                 use: {
                 loader: 'babel-loader',
                 },
-            }
+            },
+            {
+                test: /\.css$/i,
+                use: ["style-loader", "css-loader"],
+            },
             ],
     },
+    plugins: [
+        // ...
+        new webpack.DefinePlugin({
+            'process.env': JSON.stringify(process.env)
+        })
+        // ...
+    ]
     //presets: ["@babel/env", "@babel/react"],
     //target: "web"
 };
