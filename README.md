@@ -34,6 +34,7 @@ npm start
 1. Authenticate with ethereum wallet
 ![Authenticate with ethereum wallet](/dist/assets/screen1.png)
 2. Buy in game items
-![Buy in game items](/dist/assets/screen2.png)
+![Buy in game items](/dist/assets/screen_buy_1.png)
+![Buy in game items](/dist/assets/screen_buy_2.png)
 3. Information about transactions will be stored in the blockchain. 
    As the mappings user_id[] -> items_id[]
