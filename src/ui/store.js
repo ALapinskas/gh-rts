@@ -73,7 +73,7 @@ export const StoreDialog = ({eventManger}) => {
         setIsLoading(true);
         console.log("buy item: ", itemId);
         contract.purchaseItem(itemId, {
-            value: ethers.parseUnits("1", "wei")   // <-- attach the wei
+            value: ethers.parseUnits("2", "gwei")   // <-- attach the wei
         }).then((tx) => {
             console.log("result: ", tx);
             return tx.wait();
@@ -111,7 +111,7 @@ export const StoreDialog = ({eventManger}) => {
     return (
         <>
         <div className="store-button">
-            {user ? <Button onClick={openDialog}>Store</Button> : "Store will be available after login"}
+            {user ? <Button onClick={openDialog}>Demo store</Button> : "Store will be available after login"}
         </div>
         <Dialog.Root lazyMount open={isOpen}  size={"xl"}>
         <Portal>
@@ -137,7 +137,7 @@ export const StoreDialog = ({eventManger}) => {
                                 { items.has(STORE_ITEMS.KNIGHT_TRAINING.ID) ? 
                                   "item bought"
                                   :
-                                    <Button onClick={() => buyAction(STORE_ITEMS.KNIGHT_TRAINING.ID)}>Buy (1 wei)</Button>
+                                    <Button onClick={() => buyAction(STORE_ITEMS.KNIGHT_TRAINING.ID)}>Buy (2 gwei)</Button>
                                 }
                             </Card.Footer>
                         </Card.Root>
@@ -154,7 +154,7 @@ export const StoreDialog = ({eventManger}) => {
                                 { items.has(STORE_ITEMS.KNIGHT_SWORD_SHARPENING.ID) ? 
                                   "item bought"
                                   :
-                                    <Button onClick={() => buyAction(STORE_ITEMS.KNIGHT_SWORD_SHARPENING.ID)}>Buy (1 wei)</Button>
+                                    <Button onClick={() => buyAction(STORE_ITEMS.KNIGHT_SWORD_SHARPENING.ID)}>Buy (2 gwei)</Button>
                                 }
                             </Card.Footer>
                         </Card.Root>
@@ -171,7 +171,7 @@ export const StoreDialog = ({eventManger}) => {
                                 { items.has(STORE_ITEMS.ARCHER_FLAMING_ARROWS.ID) ? 
                                   "item bought"
                                   :
-                                    <Button onClick={() => buyAction(STORE_ITEMS.ARCHER_FLAMING_ARROWS.ID)}>Buy (1 wei)</Button>
+                                    <Button onClick={() => buyAction(STORE_ITEMS.ARCHER_FLAMING_ARROWS.ID)}>Buy (2 gwei)</Button>
                                 }
                             </Card.Footer>
                         </Card.Root>
