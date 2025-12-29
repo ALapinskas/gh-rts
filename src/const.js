@@ -39,9 +39,21 @@ const GAME_EVENTS = {
 }
 
 const STORE_ITEMS = {
-	KNIGHT_HIT_1: "Knight hit 1",
-	KNIGHT_SWORD_SHARPENING: "Knight sword sharpening",
-	ARCHER_FLAMING_ARROWS: "Archer flaming arrows" 
+	KNIGHT_TRAINING: {
+		ID: 1,
+		TITLE: "Knight training",
+		DESCRIPTION: "Additional melee hit for knight. +3 damage on every 3rd hit."
+	},
+	KNIGHT_SWORD_SHARPENING: {
+		ID: 2,
+		TITLE: "Knight sword sharpening",
+		DESCRIPTION: "Additional melee damage for knight. +1 damage on every hit."
+	},
+	ARCHER_FLAMING_ARROWS: {
+		ID: 3,
+		TITLE: "Archer flaming arrows",
+		DESCRIPTION: "Archer burning arrows. +5 damage for buildings."
+	} 
 }
 
 const UNIT_DIRECTION = {

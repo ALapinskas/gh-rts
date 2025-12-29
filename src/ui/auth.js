@@ -1,9 +1,12 @@
 import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react";
 import { GAME_EVENTS, STAGE_TEXTS } from "../const.js";
 import { useEffect, useState } from "react";
+import { Toaster, toaster } from "../components/ui/toaster.jsx"
 
-import { MetaMaskSDK } from "@metamask/sdk";
+//import { MetaMaskSDK } from "@metamask/sdk";
+import { ethers } from "ethers";
 
+/*
 const MMSDK = new MetaMaskSDK({
     dappMetadata: {
         name: "MetaMask SDK Demo",
@@ -12,7 +15,7 @@ const MMSDK = new MetaMaskSDK({
     },
     infuraAPIKey: process.env.VITE_INFURA_API_KEY || "",
 });
-
+*/
 export const Authentication = ({eventManger}) => {
     const [isOpen, setState] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
@@ -20,9 +23,20 @@ export const Authentication = ({eventManger}) => {
     const [account, setAccount] = useState();
     const [balance, setBalance] = useState();
 
-
     useEffect(() => {
-        setProvider(MMSDK.getProvider());
+        // setProvider(MMSDK.getProvider());
+        // metamask extension injects objects into window:
+        try {
+            const new_provider = new ethers.BrowserProvider(window.ethereum);
+            setProvider(new_provider);
+        } catch (err) {
+            console.error(err);
+            toaster.create({
+                description: "Authentication error. Probably, metamask extension doesn't installed",
+                type: "error",
+                closable: true,
+            });
+        }
     }, []);
 
     const closeDialog = () => {
@@ -36,17 +50,30 @@ export const Authentication = ({eventManger}) => {
 
     const connect = async () => {
         closeDialog();
-        const accounts = await MMSDK.connect();
-        setAccount(accounts[0]);
-        if (accounts.length > 0) {
-            setIsConnected(true);
-            eventManger.emit(GAME_EVENTS.USER_EVENTS.LOGIN, accounts[0]);
+        // const accounts = await MMSDK.connect();
+        // console.log("accounts: ", accounts);
+        // const account = account[0];
+        try {
+            const { address: account } = await provider.getSigner();
+            
+            setAccount(account);
+            if (account) {
+                setIsConnected(true);
+                eventManger.emit(GAME_EVENTS.USER_EVENTS.LOGIN, account);
+            }
+        } catch (err) {
+            console.error(err);
+
+            toaster.create({
+                description: "Authentication error. Probably, metamask extension doesn't installed",
+                type: "error",
+                closable: true,
+            });
         }
     };
-
     
     const terminate = async () => {
-        await MMSDK.terminate();
+        //await MMSDK.terminate();
         setIsConnected(false);
         setBalance(undefined);
         setAccount(undefined);
@@ -57,13 +84,20 @@ export const Authentication = ({eventManger}) => {
         if (!account || !provider) {
             return;
         }
+        /*
         const result = await provider?.request({
             method: "eth_getBalance",
             params: [account, "latest"],
         });
+        
         const decimal = BigInt(result);
-        const balance = (await Number(decimal)) / 10 ** 18;
+        const balance = ethers.formatEther(result);
         console.log(balance.toFixed(4));
+        */
+        const result = await provider.getBalance(account);
+        
+        const balance = ethers.formatEther(result);
+        
         setBalance(balance);
     };
 
@@ -98,7 +132,7 @@ export const Authentication = ({eventManger}) => {
                         {isConnected ? (
                         <>
                             <p>Connected to {account}</p>
-                            {balance && <p>Balance: {balance?.toFixed(4)} Sepolia ETH</p>}
+                            {balance && <p>Balance: {balance} Sepolia ETH</p>}
                             <Button onClick={getBalance}>Get Balance</Button>
                             {/* <button onClick={batchRequest}>Batch Request</button> */}
                             <Button onClick={terminate}>Disconnect</Button>
@@ -117,6 +151,7 @@ export const Authentication = ({eventManger}) => {
             </Dialog.Positioner>
         </Portal>
         </Dialog.Root>
+        <Toaster />
         </>
     )
 }

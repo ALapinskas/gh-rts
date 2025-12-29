@@ -1,4 +1,4 @@
-# Classic rts game includes metamask authentication
+# Classic rts game includes metamask authentication and in game store
 ![Alt text](hvsg.gif?raw=true "screen")
 License: MIT \
 Platform: PC, Browser \
@@ -19,9 +19,13 @@ Render engine:
 Tilemaps: 
     * Tiled: https://www.mapeditor.org/
 
-Metamask sdk: https://metamask.io/
-    * Wallet authentication
-    * Store transactions with ethereum coins
+Ethers v6: https://docs.ethers.org/v6
+    * Metamask wallet authentication
+    * Buy items
+
+Foundry: https://getfoundry.sh
+    * forge build/test/deploy contract
+    * anvil as a testnet
 
 ## How build and run
 npm start
@@ -31,4 +35,5 @@ npm start
 ![Authenticate with ethereum wallet](/dist/assets/screen1.png)
 2. Buy in game items
 ![Buy in game items](/dist/assets/screen2.png)
-
+3. Information about transactions will be stored in the blockchain. 
+   As the mappings user_id[] -> items_id[]
