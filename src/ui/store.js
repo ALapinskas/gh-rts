@@ -7,6 +7,8 @@ import { Toaster, toaster } from "../components/ui/toaster.jsx"
 
 import ContractArtifact from "../../GameStoreContract/contractArtifacts/Store.sol/Store.json";
 const abi = ContractArtifact.abi;
+
+const CONTRACT_ADDRESS = "0x8D0119F0b256fE86A57eEfCA7C09272c4ba6dc27";
 export const StoreDialog = ({eventManger}) => {
     const [isOpen, setState] = useState(false);
     const [user, setUser] = useState(false);
@@ -36,7 +38,7 @@ export const StoreDialog = ({eventManger}) => {
              */
             let contractLocal;
             
-            contractLocal = new ethers.Contract(process.env.CONTRACT_ADDRESS, abi, signerObj);
+            contractLocal = new ethers.Contract(CONTRACT_ADDRESS, abi, signerObj);
             //contractLocal.setNumber(0);
             setContract(contractLocal);
             /**
