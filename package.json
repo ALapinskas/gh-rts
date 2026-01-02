@@ -1,6 +1,6 @@
 {
   "name": "gh-rts",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "classic rts goblin/humans, jsge engine",
   "main": "index.js",
   "type": "module",
@@ -8,7 +8,7 @@
     "start": "webpack serve --mode=development",
     "build": "webpack --mode=development",
     "build-contract": "cd ./GameStoreContract && forge build",
-    "deploy": "cd ./GameStoreContract && forge create ./src/Store.sol:Store --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --broadcast --constructor-args 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "deploy": "cd ./GameStoreContract && forge create ./src/Store.sol:Store --private-key xxx --rpc-url http://127.0.0.1:8545 --broadcast --constructor-args 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     "testnet": "anvil",
     "test": "cd ./GameStoreContract && forge test"
   },

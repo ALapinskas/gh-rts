@@ -27,8 +27,8 @@ export const Authentication = ({eventManger}) => {
         // setProvider(MMSDK.getProvider());
         // metamask extension injects objects into window:
         try {
-            const new_provider = new ethers.BrowserProvider(window.ethereum);
-            setProvider(new_provider);
+            const provider = new ethers.BrowserProvider(window.ethereum); 
+            setProvider(provider);
         } catch (err) {
             console.error(err);
             toaster.create({
@@ -50,12 +50,8 @@ export const Authentication = ({eventManger}) => {
 
     const connect = async () => {
         closeDialog();
-        // const accounts = await MMSDK.connect();
-        // console.log("accounts: ", accounts);
-        // const account = account[0];
         try {
             const { address: account } = await provider.getSigner();
-            
             setAccount(account);
             if (account) {
                 setIsConnected(true);
@@ -82,6 +78,7 @@ export const Authentication = ({eventManger}) => {
 
     const getBalance = async () => {
         if (!account || !provider) {
+            console.error("provide or account not set");
             return;
         }
         /*

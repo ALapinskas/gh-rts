@@ -12,13 +12,10 @@
 .metamask-auth {
     padding: 1rem;
 }
-
-.store h1 {
-    font-size: 2rem;
+.store {
     padding: 1rem;
-    padding-bottom: 0;
 }
-
-.store-card { 
-    padding: 1rem;
+h1 {
+    font-size: 2rem;
+    padding-bottom: 1rem;
 }

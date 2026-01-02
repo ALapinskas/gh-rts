@@ -7,7 +7,6 @@ import { Toaster, toaster } from "../components/ui/toaster.jsx"
 
 import ContractArtifact from "../../GameStoreContract/contractArtifacts/Store.sol/Store.json";
 const abi = ContractArtifact.abi;
-
 export const StoreDialog = ({eventManger}) => {
     const [isOpen, setState] = useState(false);
     const [user, setUser] = useState(false);
@@ -37,18 +36,16 @@ export const StoreDialog = ({eventManger}) => {
              */
             let contractLocal;
             
-            contractLocal = new ethers.Contract("0x5FbDB2315678afecb367f032d93F642f64180aa3", abi, signerObj);
+            contractLocal = new ethers.Contract(process.env.CONTRACT_ADDRESS, abi, signerObj);
             //contractLocal.setNumber(0);
             setContract(contractLocal);
-            console.log("userPublic: ", userPublic);
             /**
              * @type {ethers}
              */
             const userItems = await contractLocal.getBoughtItems(userPublic);
-            console.log("bought items: ", userItems);
+            
             let itemsIds = new Set();
             for(const item of userItems) {
-                console.log("item id: ", Number(item));
                 itemsIds.add(Number(item));
             }
             setItems(itemsIds);
@@ -71,14 +68,12 @@ export const StoreDialog = ({eventManger}) => {
 
     const buyAction = async(itemId) => {
         setIsLoading(true);
-        console.log("buy item: ", itemId);
         contract.purchaseItem(itemId, {
-            value: ethers.parseUnits("2", "gwei")   // <-- attach the wei
+            value: ethers.parseUnits("2", "gwei"),   // <-- attach the wei
+            gasLimit: 100000,
         }).then((tx) => {
-            console.log("result: ", tx);
             return tx.wait();
         }).then((receipt) => {
-            console.log("Mined in block", receipt.blockNumber);
             const newItems = items.add(itemId);
             setItems(newItems);
             toaster.create({
@@ -120,6 +115,7 @@ export const StoreDialog = ({eventManger}) => {
             <Dialog.Content>
                 <div className="store">
                     <h1>Game Store</h1>
+                    <p>This is a demo store, to demonstrate smart contract work.</p>
                     <div className="store-card">
                         { isLoading ? 
                         <Spinner size="lg" /> :

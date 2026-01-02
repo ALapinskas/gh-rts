@@ -3,7 +3,7 @@ import * as path from "path";
 import webpack from 'webpack';
 import dotenv from 'dotenv'
 
-dotenv.config({ path: '../.env' });
+dotenv.config({ path: './.env' });
 
 var config = {
     entry: "./src/index.js",
@@ -81,6 +81,8 @@ export default (env, argv) => {
     if (argv.mode === "production") {
         config.output.filename = "index.es6.min.js";
     }
+    
+    config.dotenv = true;
     /*
     if (argv.mode === "production-es5") {
         config.output.filename = "index.es5.min.js";
