@@ -1,6 +1,6 @@
 {
   "name": "gh-rts",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "classic rts goblin/humans, jsge engine",
   "main": "index.js",
   "type": "module",
@@ -21,6 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "@chakra-ui/react": "3.17.0",
+    "ethers": "^6.16.0",
     "jsge": "1.5.11",
     "path": "^0.12.7",
     "react": "19.1.0",
