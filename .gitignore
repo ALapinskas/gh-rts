@@ -3,18 +3,3 @@ node_modules
 .vscode
 cache
 common_errors
-
-# Compiler files
-GameStoreContract/cache/
-GameStoreContract/out/
-
-# Ignores development broadcast logs
-!/GameStoreContract/broadcast
-/GameStoreContract/broadcast/*/31337/
-/GameStoreContract/broadcast/**/dry-run/
-
-# Docs
-GameStoreContract/docs/
-
-# Dotenv file
-GameStoreContract/.env
