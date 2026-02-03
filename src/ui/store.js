@@ -84,17 +84,17 @@ export const StoreDialog = ({eventManger}) => {
                 closable: true,
             });
         })
-        .catch((err) => {
-            console.error(err);
-            toaster.create({
-                description: "Transaction failed",
-                type: "error",
-                closable: true,
+            .catch((err) => {
+                console.error(err);
+                toaster.create({
+                    description: "Transaction failed",
+                    type: "error",
+                    closable: true,
+                });
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
-        })
-        .finally(() => {
-            setIsLoading(false);
-        });
     }
 
     const viewAction = async(itemId) => {
@@ -107,83 +107,83 @@ export const StoreDialog = ({eventManger}) => {
 
     return (
         <>
-        <div className="store-button">
-            {user ? <Button onClick={openDialog}>Demo store</Button> : "Store will be available after login"}
-        </div>
-        <Dialog.Root lazyMount open={isOpen}  size={"xl"}>
-        <Portal>
-            <Dialog.Backdrop />
-            <Dialog.Positioner>
-            <Dialog.Content>
-                <div className="store">
-                    <h1>Game Store</h1>
-                    <p>This is a demo store, to demonstrate smart contract work.</p>
-                    <div className="store-card">
-                        { isLoading ? 
-                        <Spinner size="lg" /> :
-                        <Stack gap="4" direction="row" wrap="wrap">
-                        <Card.Root width="320px" key={1}>
-                            <Card.Body gap="2">
-                            <Avatar.Root size="lg" shape="rounded">
-                                <Avatar.Image src="./assets/tool_sword_b.png" />
-                                <Avatar.Fallback name={STORE_ITEMS.KNIGHT_TRAINING.TITLE} />
-                            </Avatar.Root>
-                            <Card.Title mb="2">{STORE_ITEMS.KNIGHT_TRAINING.TITLE}</Card.Title>
-                            <Card.Description>{STORE_ITEMS.KNIGHT_TRAINING.DESCRIPTION}</Card.Description>
-                            </Card.Body>
-                            <Card.Footer justifyContent="flex-end">
-                                { items.has(STORE_ITEMS.KNIGHT_TRAINING.ID) ? 
-                                  "item bought"
-                                  :
-                                    <Button onClick={() => buyAction(STORE_ITEMS.KNIGHT_TRAINING.ID)}>Buy (2 gwei)</Button>
-                                }
-                            </Card.Footer>
-                        </Card.Root>
-                        <Card.Root width="320px" key={2}>
-                            <Card.Body gap="2">
-                            <Avatar.Root size="lg" shape="rounded">
-                                <Avatar.Image src="./assets/tool_sword_b.png" />
-                                <Avatar.Fallback name={STORE_ITEMS.KNIGHT_SWORD_SHARPENING.TITLE} />
-                            </Avatar.Root>
-                            <Card.Title mb="2">{STORE_ITEMS.KNIGHT_SWORD_SHARPENING.TITLE}</Card.Title>
-                            <Card.Description>{STORE_ITEMS.KNIGHT_SWORD_SHARPENING.DESCRIPTION}</Card.Description>
-                            </Card.Body>
-                            <Card.Footer justifyContent="flex-end">
-                                { items.has(STORE_ITEMS.KNIGHT_SWORD_SHARPENING.ID) ? 
-                                  "item bought"
-                                  :
-                                    <Button onClick={() => buyAction(STORE_ITEMS.KNIGHT_SWORD_SHARPENING.ID)}>Buy (2 gwei)</Button>
-                                }
-                            </Card.Footer>
-                        </Card.Root>
-                        <Card.Root width="320px" key={3}>
-                            <Card.Body gap="2">
-                            <Avatar.Root size="lg" shape="rounded">
-                                <Avatar.Image src="./assets/tool_sword_b.png" />
-                                <Avatar.Fallback name={STORE_ITEMS.ARCHER_FLAMING_ARROWS.TITLE} />
-                            </Avatar.Root>
-                            <Card.Title mb="2">{STORE_ITEMS.ARCHER_FLAMING_ARROWS.TITLE}</Card.Title>
-                            <Card.Description>{STORE_ITEMS.ARCHER_FLAMING_ARROWS.DESCRIPTION}</Card.Description>
-                            </Card.Body>
-                            <Card.Footer justifyContent="flex-end">
-                                { items.has(STORE_ITEMS.ARCHER_FLAMING_ARROWS.ID) ? 
-                                  "item bought"
-                                  :
-                                    <Button onClick={() => buyAction(STORE_ITEMS.ARCHER_FLAMING_ARROWS.ID)}>Buy (2 gwei)</Button>
-                                }
-                            </Card.Footer>
-                        </Card.Root>
-                        </Stack>}
-                    </div>
-                </div>
-                <Dialog.CloseTrigger asChild>
-                <CloseButton onClick={() => closeDialog()} size="sm"  />
-                </Dialog.CloseTrigger>
-            </Dialog.Content>
-            </Dialog.Positioner>
-        </Portal>
-        </Dialog.Root>
-        <Toaster />
+            <div className="store-button">
+                {user ? <Button onClick={openDialog}>Demo store</Button> : "Store will be available after login"}
+            </div>
+            <Dialog.Root lazyMount open={isOpen}  size={"xl"}>
+                <Portal>
+                    <Dialog.Backdrop />
+                    <Dialog.Positioner>
+                        <Dialog.Content>
+                            <div className="store">
+                                <h1>Game Store</h1>
+                                <p>This is a demo store, to demonstrate smart contract work.</p>
+                                <div className="store-card">
+                                    { isLoading ? 
+                                        <Spinner size="lg" /> :
+                                        <Stack gap="4" direction="row" wrap="wrap">
+                                            <Card.Root width="320px" key={1}>
+                                                <Card.Body gap="2">
+                                                    <Avatar.Root size="lg" shape="rounded">
+                                                        <Avatar.Image src="./assets/tool_sword_b.png" />
+                                                        <Avatar.Fallback name={STORE_ITEMS.KNIGHT_TRAINING.TITLE} />
+                                                    </Avatar.Root>
+                                                    <Card.Title mb="2">{STORE_ITEMS.KNIGHT_TRAINING.TITLE}</Card.Title>
+                                                    <Card.Description>{STORE_ITEMS.KNIGHT_TRAINING.DESCRIPTION}</Card.Description>
+                                                </Card.Body>
+                                                <Card.Footer justifyContent="flex-end">
+                                                    { items.has(STORE_ITEMS.KNIGHT_TRAINING.ID) ? 
+                                                        "item bought"
+                                                        :
+                                                        <Button onClick={() => buyAction(STORE_ITEMS.KNIGHT_TRAINING.ID)}>Buy (2 gwei)</Button>
+                                                    }
+                                                </Card.Footer>
+                                            </Card.Root>
+                                            <Card.Root width="320px" key={2}>
+                                                <Card.Body gap="2">
+                                                    <Avatar.Root size="lg" shape="rounded">
+                                                        <Avatar.Image src="./assets/tool_sword_b.png" />
+                                                        <Avatar.Fallback name={STORE_ITEMS.KNIGHT_SWORD_SHARPENING.TITLE} />
+                                                    </Avatar.Root>
+                                                    <Card.Title mb="2">{STORE_ITEMS.KNIGHT_SWORD_SHARPENING.TITLE}</Card.Title>
+                                                    <Card.Description>{STORE_ITEMS.KNIGHT_SWORD_SHARPENING.DESCRIPTION}</Card.Description>
+                                                </Card.Body>
+                                                <Card.Footer justifyContent="flex-end">
+                                                    { items.has(STORE_ITEMS.KNIGHT_SWORD_SHARPENING.ID) ? 
+                                                        "item bought"
+                                                        :
+                                                        <Button onClick={() => buyAction(STORE_ITEMS.KNIGHT_SWORD_SHARPENING.ID)}>Buy (2 gwei)</Button>
+                                                    }
+                                                </Card.Footer>
+                                            </Card.Root>
+                                            <Card.Root width="320px" key={3}>
+                                                <Card.Body gap="2">
+                                                    <Avatar.Root size="lg" shape="rounded">
+                                                        <Avatar.Image src="./assets/tool_sword_b.png" />
+                                                        <Avatar.Fallback name={STORE_ITEMS.ARCHER_FLAMING_ARROWS.TITLE} />
+                                                    </Avatar.Root>
+                                                    <Card.Title mb="2">{STORE_ITEMS.ARCHER_FLAMING_ARROWS.TITLE}</Card.Title>
+                                                    <Card.Description>{STORE_ITEMS.ARCHER_FLAMING_ARROWS.DESCRIPTION}</Card.Description>
+                                                </Card.Body>
+                                                <Card.Footer justifyContent="flex-end">
+                                                    { items.has(STORE_ITEMS.ARCHER_FLAMING_ARROWS.ID) ? 
+                                                        "item bought"
+                                                        :
+                                                        <Button onClick={() => buyAction(STORE_ITEMS.ARCHER_FLAMING_ARROWS.ID)}>Buy (2 gwei)</Button>
+                                                    }
+                                                </Card.Footer>
+                                            </Card.Root>
+                                        </Stack>}
+                                </div>
+                            </div>
+                            <Dialog.CloseTrigger asChild>
+                                <CloseButton onClick={() => closeDialog()} size="sm"  />
+                            </Dialog.CloseTrigger>
+                        </Dialog.Content>
+                    </Dialog.Positioner>
+                </Portal>
+            </Dialog.Root>
+            <Toaster />
         </>
     )
 }
