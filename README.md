@@ -11,8 +11,7 @@ Assets:
     * Kenney: https://kenney.nl/assets/cursor-pack
 
 Ui:
-    * next.js: https://nextjs.org/
-    * chakra-ui: https://chakra-ui.com/
+    * jsx + reactjs + chakra-ui: https://chakra-ui.com/
 
 Render engine: 
     * Jsge: https://github.com/ALapinskas/jsge

@@ -26,27 +26,27 @@ export const LevelDialog = ({eventManger}) => {
     }
     return (
         <Dialog.Root lazyMount open={isOpen}>
-            <Portal>
-                <Dialog.Backdrop />
-                <Dialog.Positioner>
-                    <Dialog.Content>
-                        <Dialog.Header>
-                            <Dialog.Title>{title}</Dialog.Title>
-                        </Dialog.Header>
-                        <Dialog.Body>
-                            <p>
-                                {text}
-                            </p>
-                        </Dialog.Body>
-                        <Dialog.Footer>
-                            <Button onClick={() => closeDialog()}>Понятно</Button>
-                        </Dialog.Footer>
-                        <Dialog.CloseTrigger asChild>
-                            <CloseButton onClick={() => closeDialog()} size="sm"  />
-                        </Dialog.CloseTrigger>
-                    </Dialog.Content>
-                </Dialog.Positioner>
-            </Portal>
+        <Portal>
+            <Dialog.Backdrop />
+            <Dialog.Positioner>
+            <Dialog.Content>
+                <Dialog.Header>
+                <Dialog.Title>{title}</Dialog.Title>
+                </Dialog.Header>
+                <Dialog.Body>
+                <p>
+                    {text}
+                </p>
+                </Dialog.Body>
+                <Dialog.Footer>
+                <Button onClick={() => closeDialog()}>Понятно</Button>
+                </Dialog.Footer>
+                <Dialog.CloseTrigger asChild>
+                <CloseButton onClick={() => closeDialog()} size="sm"  />
+                </Dialog.CloseTrigger>
+            </Dialog.Content>
+            </Dialog.Positioner>
+        </Portal>
         </Dialog.Root>
     )
 }

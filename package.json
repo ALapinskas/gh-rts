@@ -1,18 +1,16 @@
 {
   "name": "gh-rts",
-  "version": "0.3.0",
+  "version": "0.2.3",
   "description": "classic rts goblin/humans, jsge engine",
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "webpack serve --mode=development",
+    "build": "webpack --mode=development",
     "build-contract": "cd ./GameStoreContract && forge build",
     "deploy": "cd ./GameStoreContract && forge create ./src/Store.sol:Store --private-key xxx --rpc-url http://127.0.0.1:8545 --broadcast --constructor-args 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     "testnet": "anvil",
-    "test": "cd ./GameStoreContract && forge test",
-    "dev-next": "next dev",
-    "build-next": "next build",
-    "start-next": "next start",
-    "lint": "eslint"
+    "test": "cd ./GameStoreContract && forge test"
   },
   "keywords": [
     "rts",
@@ -26,22 +24,18 @@
     "ethers": "^6.16.0",
     "jsge": "1.5.11",
     "path": "^0.12.7",
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@babel/core": "7.27.1",
     "@babel/preset-env": "7.27.2",
     "@babel/preset-react": "7.27.1",
     "babel-loader": "10.0.0",
-
+    "css-loader": "^7.1.2",
     "dotenv": "^17.2.3",
-
-    "@tailwindcss/postcss": "^4",
-    "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4"
+    "style-loader": "^4.0.0",
+    "webpack-cli": "6.0.1",
+    "webpack-dev-server": "5.2.0"
   }
 }

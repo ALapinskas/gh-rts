@@ -1,9 +1,6 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "maxNodeModuleJsDepth": 3,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "maxNodeModuleJsDepth": 3
   }
 }
