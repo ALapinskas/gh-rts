@@ -9,8 +9,8 @@ import ContractArtifact from "../../GameStoreContract/contractArtifacts/Store.so
 const abi = ContractArtifact.abi;
 import OracleArtifact from "../../GameStoreContract/contractArtifacts/MockAggregator.sol/MockAggregator.json";
 
-const CONTRACT_ADDRESS = process.env.MODE === "development" ? process.env.DEV_CONTRACT_ADDRESS : process.env.PROD_LOCAL_CONTRACT_ADDRESS;
-const ORACLE_ADDRESS = process.env.MODE === "development" ? process.env.DEV_ORACLE_ADDRESS : process.env.PROD_LOCAL_ORACLE_ADDRESS;
+const CONTRACT_ADDRESS = process.env.MODE === "development" ? process.env.DEV_CONTRACT_ADDRESS : process.env.PROD_CONTRACT_ADDRESS;
+const ORACLE_ADDRESS = process.env.MODE === "development" ? process.env.DEV_ORACLE_ADDRESS : process.env.PROD_ORACLE_ADDRESS;
 export const StoreDialog = ({eventManger}) => {
     const [isOpen, setState] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
