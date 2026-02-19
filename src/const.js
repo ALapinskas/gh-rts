@@ -1,3 +1,7 @@
+const ENV = {
+	DEV: "development",
+	PROD: "production"
+}
 
 const BUILDING_STATE = {
     READY: "READY",
@@ -40,20 +44,23 @@ const GAME_EVENTS = {
 
 const STORE_ITEMS = {
 	KNIGHT_TRAINING: {
-		ID: 1,
+		ID: 4,
 		TITLE: "Knight training",
-		DESCRIPTION: "Additional melee hit for knight. +3 damage on every 3rd hit."
+		DESCRIPTION: "Additional melee hit for knight. +3 damage on every 3rd hit.",
+		PRICE: 0.1 // USD 
 	},
 	KNIGHT_SWORD_SHARPENING: {
-		ID: 2,
+		ID: 5,
 		TITLE: "Knight sword sharpening",
-		DESCRIPTION: "Additional melee damage for knight. +1 damage on every hit."
-	},
+		DESCRIPTION: "Additional melee damage for knight. +1 damage on every hit.",
+		PRICE: 0.2 // 0.2 USD
+ 	},
 	ARCHER_FLAMING_ARROWS: {
-		ID: 3,
+		ID: 6,
 		TITLE: "Archer flaming arrows",
-		DESCRIPTION: "Archer burning arrows. +5 damage for buildings."
-	} 
+		DESCRIPTION: "Archer burning arrows. +5 damage for buildings.",
+		PRICE: 0.3 // 0.3 USD
+	}
 }
 
 const UNIT_DIRECTION = {
@@ -313,4 +320,4 @@ const UNIT_TACTIC = {
 	RUN_AWAY: "run_away"
 }
 
-export { UNIT_DIRECTION, UNIT_VIEW_RANGE, UNIT_TACTIC, GAME_EVENTS, GAME_UNITS, GAME_OBJECTS, GAME_AUDIO_TYPES, ATLAS, PEASANT, KNIGHT, ARCHER, GOBLIN_TORCH, GOBLIN_TOWER, TREE_FULL_HEALTH, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, BUILDING_STATE, GAME_STAGES, STAGE_TEXTS, STORE_ITEMS }
+export { ENV, UNIT_DIRECTION, UNIT_VIEW_RANGE, UNIT_TACTIC, GAME_EVENTS, GAME_UNITS, GAME_OBJECTS, GAME_AUDIO_TYPES, ATLAS, PEASANT, KNIGHT, ARCHER, GOBLIN_TORCH, GOBLIN_TOWER, TREE_FULL_HEALTH, GOLD_MINE_GOLD_AMOUNT, TREE_STUB_INDEX, BUILDING_STATE, GAME_STAGES, STAGE_TEXTS, STORE_ITEMS }

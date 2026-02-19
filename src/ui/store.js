@@ -1,27 +1,41 @@
 import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react";
 import { Avatar, Card, For, Stack, Spinner } from "@chakra-ui/react"
-import { GAME_EVENTS, STORE_ITEMS } from "../const.js";
+import { GAME_EVENTS, STORE_ITEMS, ENV } from "../const.js";
 import { useEffect, useState } from "react";
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import { Toaster, toaster } from "../components/ui/toaster.jsx"
 
 import ContractArtifact from "../../GameStoreContract/contractArtifacts/Store.sol/Store.json";
 const abi = ContractArtifact.abi;
+import OracleArtifact from "../../GameStoreContract/contractArtifacts/MockAggregator.sol/MockAggregator.json";
 
-const CONTRACT_ADDRESS = "0x8D0119F0b256fE86A57eEfCA7C09272c4ba6dc27";
+const CONTRACT_ADDRESS = process.env.MODE === "development" ? process.env.DEV_CONTRACT_ADDRESS : process.env.PROD_LOCAL_CONTRACT_ADDRESS;
+const ORACLE_ADDRESS = process.env.MODE === "development" ? process.env.DEV_ORACLE_ADDRESS : process.env.PROD_LOCAL_ORACLE_ADDRESS;
 export const StoreDialog = ({eventManger}) => {
     const [isOpen, setState] = useState(false);
-    const [user, setUser] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const [user, setUser] = useState(null);
     const [provider, setProvider] = useState();
+    const [oracleContract, setOracleContract] = useState(null);
     const [contract, setContract] = useState();
     const [items, setItems] = useState(new Set());
-    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (window.ethereum) {
-            setProvider(new ethers.BrowserProvider(window.ethereum));
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            setProvider(provider);
+
+            // in dev mode our oracle mock
+            // deployed on separate address in anvil testnet
+            if (process.env.MODE === ENV.DEV) {
+                const oracleContract = new ethers.Contract(ORACLE_ADDRESS, OracleArtifact.abi, provider);
+                setOracleContract(oracleContract);
+            } else if (process.env.MODE === ENV.PROD) {
+                const oracleContract = new ethers.Contract(ORACLE_ADDRESS, OracleArtifact.abi, provider);
+                setOracleContract(oracleContract);
+            }
         }
-        
     }, []);
 
     eventManger.addEventListener(GAME_EVENTS.USER_EVENTS.LOGIN, async(e) => {
@@ -68,12 +82,18 @@ export const StoreDialog = ({eventManger}) => {
         setState(true);
     }
 
-    const buyAction = async(itemId) => {
+    const buyAction = async(itemKey) => {
         setIsLoading(true);
+        const itemPriceUsd = STORE_ITEMS[itemKey].PRICE,
+            itemId = STORE_ITEMS[itemKey].ID,
+            priceInWei = (await getPriceInWei(itemPriceUsd)).toFixed(0);
+        console.log("price in wei: ", priceInWei);
+        // console.log("correct price 1: 1305653");
         contract.purchaseItem(itemId, {
-            value: ethers.parseUnits("2", "gwei"),   // <-- attach the wei
-            gasLimit: 100000,
+            value: ethers.parseUnits(priceInWei, "wei"),   // <-- attach the wei
+            gasLimit: 300_000,
         }).then((tx) => {
+
             return tx.wait();
         }).then((receipt) => {
             const newItems = items.add(itemId);
@@ -105,6 +125,27 @@ export const StoreDialog = ({eventManger}) => {
         }
     }
 
+    async function getPriceInWei(priceUsd) {
+        const roundData = await oracleContract.latestRoundData(),
+            { 
+                roundId,         // uint80: ID раунда
+                answer,          // int256: Цена (со всеми знаками после запятой)
+                startedAt,       // uint256: Метка времени начала
+                updatedAt,       // uint256: Метка времени обновления
+                answeredInRound  // uint80: ID раунда, в котором был получен ответ
+            } = roundData,
+            currentSolUsdPrice = Number(BigInt(answer)),
+            solDecimals = Number(BigInt(await oracleContract.decimals())),
+            resultDecimals = 9; // 1 SOL = 10⁹ wei
+        console.log(solDecimals);
+        console.log("currentSolUsdPrice: ", currentSolUsdPrice)
+        const itemPriceWithResultDecimalsUsd = priceUsd * (10 ** resultDecimals) * (10 ** solDecimals);
+        const itemCostWei = itemPriceWithResultDecimalsUsd / currentSolUsdPrice;
+        console.log(itemCostWei);
+        return parseInt(itemCostWei);
+    }
+
+
     return (
         <>
         <div className="store-button">
@@ -122,57 +163,25 @@ export const StoreDialog = ({eventManger}) => {
                         { isLoading ? 
                         <Spinner size="lg" /> :
                         <Stack gap="4" direction="row" wrap="wrap">
-                        <Card.Root width="320px" key={1}>
-                            <Card.Body gap="2">
-                            <Avatar.Root size="lg" shape="rounded">
-                                <Avatar.Image src="./assets/tool_sword_b.png" />
-                                <Avatar.Fallback name={STORE_ITEMS.KNIGHT_TRAINING.TITLE} />
-                            </Avatar.Root>
-                            <Card.Title mb="2">{STORE_ITEMS.KNIGHT_TRAINING.TITLE}</Card.Title>
-                            <Card.Description>{STORE_ITEMS.KNIGHT_TRAINING.DESCRIPTION}</Card.Description>
-                            </Card.Body>
-                            <Card.Footer justifyContent="flex-end">
-                                { items.has(STORE_ITEMS.KNIGHT_TRAINING.ID) ? 
-                                  "item bought"
-                                  :
-                                    <Button onClick={() => buyAction(STORE_ITEMS.KNIGHT_TRAINING.ID)}>Buy (2 gwei)</Button>
-                                }
-                            </Card.Footer>
-                        </Card.Root>
-                        <Card.Root width="320px" key={2}>
-                            <Card.Body gap="2">
-                            <Avatar.Root size="lg" shape="rounded">
-                                <Avatar.Image src="./assets/tool_sword_b.png" />
-                                <Avatar.Fallback name={STORE_ITEMS.KNIGHT_SWORD_SHARPENING.TITLE} />
-                            </Avatar.Root>
-                            <Card.Title mb="2">{STORE_ITEMS.KNIGHT_SWORD_SHARPENING.TITLE}</Card.Title>
-                            <Card.Description>{STORE_ITEMS.KNIGHT_SWORD_SHARPENING.DESCRIPTION}</Card.Description>
-                            </Card.Body>
-                            <Card.Footer justifyContent="flex-end">
-                                { items.has(STORE_ITEMS.KNIGHT_SWORD_SHARPENING.ID) ? 
-                                  "item bought"
-                                  :
-                                    <Button onClick={() => buyAction(STORE_ITEMS.KNIGHT_SWORD_SHARPENING.ID)}>Buy (2 gwei)</Button>
-                                }
-                            </Card.Footer>
-                        </Card.Root>
-                        <Card.Root width="320px" key={3}>
-                            <Card.Body gap="2">
-                            <Avatar.Root size="lg" shape="rounded">
-                                <Avatar.Image src="./assets/tool_sword_b.png" />
-                                <Avatar.Fallback name={STORE_ITEMS.ARCHER_FLAMING_ARROWS.TITLE} />
-                            </Avatar.Root>
-                            <Card.Title mb="2">{STORE_ITEMS.ARCHER_FLAMING_ARROWS.TITLE}</Card.Title>
-                            <Card.Description>{STORE_ITEMS.ARCHER_FLAMING_ARROWS.DESCRIPTION}</Card.Description>
-                            </Card.Body>
-                            <Card.Footer justifyContent="flex-end">
-                                { items.has(STORE_ITEMS.ARCHER_FLAMING_ARROWS.ID) ? 
-                                  "item bought"
-                                  :
-                                    <Button onClick={() => buyAction(STORE_ITEMS.ARCHER_FLAMING_ARROWS.ID)}>Buy (2 gwei)</Button>
-                                }
-                            </Card.Footer>
-                        </Card.Root>
+                        {Object.keys(STORE_ITEMS).map((itemKey, idx) => (
+                            <Card.Root width="320px" key={idx}>
+                                <Card.Body gap="2">
+                                <Avatar.Root size="lg" shape="rounded">
+                                    <Avatar.Image src="./assets/tool_sword_b.png" />
+                                    <Avatar.Fallback name={STORE_ITEMS[itemKey].TITLE} />
+                                </Avatar.Root>
+                                <Card.Title mb="2">{STORE_ITEMS[itemKey].TITLE}</Card.Title>
+                                <Card.Description>{STORE_ITEMS[itemKey].DESCRIPTION}</Card.Description>
+                                </Card.Body>
+                                <Card.Footer justifyContent="flex-end">
+                                    { items.has(STORE_ITEMS[itemKey].ID) ? 
+                                    "item bought"
+                                    :
+                                        <Button onClick={() => buyAction(itemKey)}>Buy ({STORE_ITEMS[itemKey].PRICE} USD)</Button>
+                                    }
+                                </Card.Footer>
+                            </Card.Root>
+                        ))}
                         </Stack>}
                     </div>
                 </div>

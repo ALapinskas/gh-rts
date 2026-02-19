@@ -1,21 +1,9 @@
 import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react";
 import { GAME_EVENTS, STAGE_TEXTS } from "../const.js";
 import { useEffect, useState } from "react";
-import { Toaster, toaster } from "../components/ui/toaster.jsx"
-
-//import { MetaMaskSDK } from "@metamask/sdk";
+import { Toaster, toaster } from "../components/ui/toaster.jsx";
 import { ethers } from "ethers";
 
-/*
-const MMSDK = new MetaMaskSDK({
-    dappMetadata: {
-        name: "MetaMask SDK Demo",
-        url: window.location.href,
-        iconUrl: "https://docs.metamask.io/img/metamask-logo.svg",
-    },
-    infuraAPIKey: process.env.VITE_INFURA_API_KEY || "",
-});
-*/
 export const Authentication = ({eventManger}) => {
     const [isOpen, setState] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
@@ -81,38 +69,14 @@ export const Authentication = ({eventManger}) => {
             console.error("provide or account not set");
             return;
         }
-        /*
-        const result = await provider?.request({
-            method: "eth_getBalance",
-            params: [account, "latest"],
-        });
-        
-        const decimal = BigInt(result);
-        const balance = ethers.formatEther(result);
-        console.log(balance.toFixed(4));
-        */
+
         const result = await provider.getBalance(account);
         
         const balance = ethers.formatEther(result);
         
         setBalance(balance);
     };
-
-    // const batchRequest = async () => {
-    //   if (!account || !provider) {
-    //     return;
-    //   }
-    //   const batchResults = await provider.request({
-    //     method: "metamask_batch",
-    //     params: [
-    //       { method: "eth_accounts" },
-    //       { method: "eth_getBalance", params: [account, "latest"] },
-    //       { method: "eth_chainId" },
-    //     ],
-    //   });
-    //   console.log(batchResults);
-    // };
-
+    
     return (
         <>
         <div className="auth-buttons">

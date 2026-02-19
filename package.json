@@ -1,17 +1,19 @@
 {
   "name": "gh-rts",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "classic rts goblin/humans, jsge engine",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "webpack serve --mode=development",
-    "build": "webpack --mode=development",
-    "build-contract": "cd ./GameStoreContract && forge build",
-    "deploy": "cd ./GameStoreContract && forge create ./src/Store.sol:Store --private-key xxx --rpc-url http://127.0.0.1:8545 --broadcast --constructor-args 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "test-gas-cost": "cd ./GameStoreContract && forge test --gas-report", 
-    "testnet": "anvil",
-    "test": "cd ./GameStoreContract && forge test"
+    "build": "webpack --mode=production",
+    "build-contract": "forge build",
+    "deploy-mock": "forge create ./GameStoreContract/mocks/mockAggregator.sol:MockAggregator --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --broadcast --constructor-args 7659000000 8 'Mock SOL/USD' 1",
+    "deploy-testnet": "forge create ./GameStoreContract/src/Store.sol:Store --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --broadcast --constructor-args 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 0x5FbDB2315678afecb367f032d93F642f64180aa3 '[4,5,6]' '[10, 20, 30]'",
+    "test": "forge test",
+    "test-gas-cost": "forge test --gas-report",
+    "deploy-prod": "forge create ./GameStoreContract/src/Store.sol:Store --private-key contract_private_key --rpc-url http://127.0.0.1:8545 --broadcast --constructor-args store_address chainlink_data_feed_address [items_ids] [items_prices]",
+    "testnet": "anvil"
   },
   "keywords": [
     "rts",
@@ -21,6 +23,7 @@
   "author": "Arturas-Alfredas Lapinskas",
   "license": "MIT",
   "dependencies": {
+    "@chainlink/contracts": "^1.5.0",
     "@chakra-ui/react": "3.17.0",
     "ethers": "^6.16.0",
     "jsge": "1.5.11",
@@ -34,7 +37,6 @@
     "@babel/preset-react": "7.27.1",
     "babel-loader": "10.0.0",
     "css-loader": "^7.1.2",
-    "dotenv": "^17.2.3",
     "style-loader": "^4.0.0",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.0"

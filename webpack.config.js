@@ -1,19 +1,10 @@
-import * as path from "path";
+import { loadEnvFile } from 'node:process';
 
+loadEnvFile("./.env");
 import webpack from 'webpack';
-import dotenv from 'dotenv'
-
-dotenv.config({ path: './.env' });
 
 var config = {
     entry: "./src/index.js",
-    //output: {
-    //    path: path.resolve("dist"),
-    //    filename: "index.js",
-    //    chunkFormat: "module",
-    //    module: true,
-        //libraryTarget: 'umd',
-    //},
     output: {
         filename: "index.es6.js",
         library: {
@@ -61,18 +52,27 @@ var config = {
                 use: ["style-loader", "css-loader"],
             },
             ],
-    },
-    plugins: [
-        // ...
-        new webpack.DefinePlugin({
-            'process.env': JSON.stringify(process.env)
-        })
-        // ...
-    ]
+    }
     //presets: ["@babel/env", "@babel/react"],
     //target: "web"
 };
 
+/**
+ * Remove system environments
+ * @param {Object} env 
+ * @param {string} mode 
+ * @returns {Object}
+ */
+function filterProcessEnv (env, mode) {
+    let resultEnv = {}
+    Object.keys(env).forEach((key) => {
+        if (key.includes("PROD_") || key.includes("DEV_")) {
+            resultEnv[key] = env[key];
+        }
+    });
+    resultEnv.MODE = mode;
+    return resultEnv;
+}
 export default (env, argv) => {
     if (argv.mode === "development") {
         config.devtool = "source-map";
@@ -81,8 +81,16 @@ export default (env, argv) => {
     if (argv.mode === "production") {
         config.output.filename = "index.es6.min.js";
     }
-    
-    config.dotenv = true;
+
+    config.plugins = [
+        // ...
+        new webpack.DefinePlugin({
+            'process.env': JSON.stringify(filterProcessEnv(process.env, argv.mode))
+        }),
+        
+        // ...
+    ]
+    //config.dotenv = true;
     /*
     if (argv.mode === "production-es5") {
         config.output.filename = "index.es5.min.js";

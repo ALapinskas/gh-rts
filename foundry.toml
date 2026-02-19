@@ -1,0 +1,6 @@
+[profile.default]
+src = "GameStoreContract/src"
+out = "GameStoreContract/contractArtifacts"
+test = "GameStoreContract/test"
+libs = ["GameStoreContract/lib", "node_modules"]
+solc = "0.8.24"
