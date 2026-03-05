@@ -36,7 +36,7 @@ npm start
 ## Metamask authentication and store
 1. Authenticate with ethereum wallet
 ![Authenticate with ethereum wallet](/dist/assets/screen1.png)
-2. Switch the payment type Ethereum/Polygon(Matic)
+2. Switch the payment type
 3. Suggest user to add custom RPC endpoint
 4. Store prices are in USDT, converts USDT to user payment type(2)
 5. Buy in game items(ERC-1155 token)
