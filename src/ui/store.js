@@ -9,6 +9,7 @@ import ContractArtifact from "../../GameStoreContract/contractArtifacts/Store.so
 const abi = ContractArtifact.abi;
 import OracleArtifact from "../../GameStoreContract/contractArtifacts/MockAggregator.sol/MockAggregator.json";
 
+console.log("process.env: ", process.env);
 const CONTRACT_ADDRESS = process.env.MODE === "development" ? JSON.parse(process.env.DEV_CONTRACT_ADDRESS) : JSON.parse(process.env.PROD_CONTRACT_ADDRESS);
 const ORACLE_ADDRESSES = process.env.MODE === "development" ? JSON.parse(process.env.DEV_ORACLES) : JSON.parse(process.env.PROD_ORACLES);
 const OracleKeys = Object.keys(ORACLE_ADDRESSES);

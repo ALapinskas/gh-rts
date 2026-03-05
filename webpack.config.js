@@ -81,7 +81,7 @@ export default (env, argv) => {
     }
 
     //if (argv.mode === "production") {
-    //    config.output.filename = "index.es6.js";
+    //    config.output.filename = "index.es6.min.js";
     //}
 
     config.plugins = [
