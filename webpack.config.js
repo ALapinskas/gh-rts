@@ -66,8 +66,10 @@ var config = {
 function filterProcessEnv (env, mode) {
     let resultEnv = {}
     Object.keys(env).forEach((key) => {
+        
         if (key.includes("PROD_") || key.includes("DEV_")) {
             resultEnv[key] = env[key];
+            console.log("include process env: ", key);
         }
     });
     resultEnv.MODE = mode;
@@ -78,9 +80,9 @@ export default (env, argv) => {
         config.devtool = "source-map";
     }
 
-    if (argv.mode === "production") {
-        config.output.filename = "index.es6.min.js";
-    }
+    //if (argv.mode === "production") {
+    //    config.output.filename = "index.es6.js";
+    //}
 
     config.plugins = [
         // ...
