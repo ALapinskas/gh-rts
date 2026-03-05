@@ -1,6 +1,6 @@
 import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react";
 import { Avatar, Card, For, Stack, Spinner } from "@chakra-ui/react"
-import { GAME_EVENTS, STORE_ITEMS, ENV } from "../const.js";
+import { GAME_EVENTS, STORE_ITEMS, ENV, APP_ERRORS } from "../const.js";
 import { useEffect, useState } from "react";
 import { ethers, BigNumber } from "ethers";
 import { Toaster, toaster } from "../components/ui/toaster.jsx"
@@ -9,34 +9,53 @@ import ContractArtifact from "../../GameStoreContract/contractArtifacts/Store.so
 const abi = ContractArtifact.abi;
 import OracleArtifact from "../../GameStoreContract/contractArtifacts/MockAggregator.sol/MockAggregator.json";
 
-const CONTRACT_ADDRESS = process.env.MODE === "development" ? process.env.DEV_CONTRACT_ADDRESS : process.env.PROD_CONTRACT_ADDRESS;
-const ORACLE_ADDRESS = process.env.MODE === "development" ? process.env.DEV_ORACLE_ADDRESS : process.env.PROD_ORACLE_ADDRESS;
+const CONTRACT_ADDRESS = process.env.MODE === "development" ? JSON.parse(process.env.DEV_CONTRACT_ADDRESS) : JSON.parse(process.env.PROD_CONTRACT_ADDRESS);
+const ORACLE_ADDRESSES = process.env.MODE === "development" ? JSON.parse(process.env.DEV_ORACLES) : JSON.parse(process.env.PROD_ORACLES);
+const OracleKeys = Object.keys(ORACLE_ADDRESSES);
+
 export const StoreDialog = ({eventManger}) => {
     const [isOpen, setState] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const [user, setUser] = useState(null);
     const [provider, setProvider] = useState();
+    const [isContractAvailable, setIsContractAvailable] = useState(false);
     const [oracleContract, setOracleContract] = useState(null);
+    const [tokenType, setTokenType] = useState(OracleKeys[0]);
+    const [contractAddress, setContractAddress] = useState(CONTRACT_ADDRESS[tokenType]);
     const [contract, setContract] = useState();
     const [items, setItems] = useState(new Set());
 
     useEffect(() => {
-        if (window.ethereum) {
+        if (window.ethereum && tokenType) {
             const provider = new ethers.BrowserProvider(window.ethereum);
             setProvider(provider);
+        }
+    }, [window.ethereum]);
 
+    useEffect(() => {
+        if(user && contract) {
+            retrieveBoughtItems();
+        }
+    }, [user, contract])
+
+    useEffect(() => {
+        if (provider && tokenType) {
             // in dev mode our oracle mock
             // deployed on separate address in anvil testnet
-            if (process.env.MODE === ENV.DEV) {
-                const oracleContract = new ethers.Contract(ORACLE_ADDRESS, OracleArtifact.abi, provider);
-                setOracleContract(oracleContract);
-            } else if (process.env.MODE === ENV.PROD) {
-                const oracleContract = new ethers.Contract(ORACLE_ADDRESS, OracleArtifact.abi, provider);
-                setOracleContract(oracleContract);
-            }
+            const oracleAddress = ORACLE_ADDRESSES[tokenType];
+            const oracleContract = new ethers.Contract(oracleAddress, OracleArtifact.abi, provider);
+            setOracleContract(oracleContract);
         }
-    }, []);
+
+    }, [provider])
+
+    eventManger.addEventListener(GAME_EVENTS.USER_EVENTS.SET_TOKEN, e => {
+        const tokenSelected = e.data;
+        console.log("===>>>>>>>>>>>>>>>set tokenType: ", tokenSelected);
+        setTokenType(tokenSelected);
+        setContractAddress(CONTRACT_ADDRESS[tokenSelected]);
+    })
 
     eventManger.addEventListener(GAME_EVENTS.USER_EVENTS.LOGIN, async(e) => {
         const accountArray = e.data;
@@ -44,28 +63,14 @@ export const StoreDialog = ({eventManger}) => {
         setUser(userPublic);
 
         if (provider) {
-            setIsLoading(true);
             const signerObj = await provider.getSigner();
             
             /**
              * @type {ethers.Contract}
              */
-            let contractLocal;
-            
-            contractLocal = new ethers.Contract(CONTRACT_ADDRESS, abi, signerObj);
+            const contractLocal = new ethers.Contract(contractAddress, abi, signerObj);
             //contractLocal.setNumber(0);
             setContract(contractLocal);
-            /**
-             * @type {ethers}
-             */
-            const userItems = await contractLocal.getBoughtItems(userPublic);
-            
-            let itemsIds = new Set();
-            for(const item of userItems) {
-                itemsIds.add(Number(item));
-            }
-            setItems(itemsIds);
-            setIsLoading(false);
         }
     });
 
@@ -79,7 +84,11 @@ export const StoreDialog = ({eventManger}) => {
     }
 
     const openDialog = () => {
-        setState(true);
+        if (isContractAvailable) {
+            setState(true);
+        } else {
+            retrieveBoughtItems();
+        }
     }
 
     const buyAction = async(itemKey) => {
@@ -88,12 +97,13 @@ export const StoreDialog = ({eventManger}) => {
             itemId = STORE_ITEMS[itemKey].ID,
             priceInWei = (await getPriceInWei(itemPriceUsd)).toFixed(0);
         console.log("price in wei: ", priceInWei);
+        console.log("itemId: ", itemId);
+        console.log("contract address: ", contractAddress);
         // console.log("correct price 1: 1305653");
         contract.purchaseItem(itemId, {
             value: ethers.parseUnits(priceInWei, "wei"),   // <-- attach the wei
             gasLimit: 300_000,
         }).then((tx) => {
-
             return tx.wait();
         }).then((receipt) => {
             const newItems = items.add(itemId);
@@ -145,6 +155,133 @@ export const StoreDialog = ({eventManger}) => {
         return parseInt(itemCostWei);
     }
 
+     const addRpcLocalhost = async () => {
+        const { ethereum } = window;
+
+        toaster.create({
+            description: "Contract method issue. Consider to add localhost RPC to your wallet",
+            type: "waring",
+            closable: true,
+        });
+        
+        const target = {
+            chainId: '0x7A69',                     // 31337 in hex
+            chainName: 'AnvilTestnet',
+            rpcUrls: ['http://127.0.0.1:8545'],
+            nativeCurrency: { name: 'Testnet', symbol: 'ETH', decimals: 18 }
+        };
+
+        try {
+            await ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [target]
+            });
+            // If the network already exists, MetaMask will simply update the RPC list.
+            eventManger.emit(GAME_EVENTS.USER_EVENTS.RPC_ADDED);
+        } catch (err) {
+            // User rejected or wallet doesn’t support the call.
+            console.warn('Could not update RPC automatically:', err);
+        }
+    }
+    
+    const addRpcPolygon = async () => {
+        const { ethereum } = window;
+
+        toaster.create({
+            description: "Contract method issue. Consider to add polygon RPC to your wallet",
+            type: "waring",
+            closable: true,
+        });
+
+        const target = {
+            chainId: '0x89',                     // 137 in hex
+            chainName: 'Polygon (GetBlock)',
+            rpcUrls: ['https://go.getblock.io/149789a985534855a03e4de8bb8edd50'],
+            nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
+            blockExplorerUrls: ['https://polygonscan.com']
+        };
+
+        try {
+            await ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [target]
+            });
+            // If the network already exists, MetaMask will simply update the RPC list.
+            eventManger.emit(GAME_EVENTS.USER_EVENTS.RPC_ADDED);
+        } catch (err) {
+            // User rejected or wallet doesn’t support the call.
+            console.warn('Could not update RPC automatically:', err);
+        }
+    }
+
+    async function addRpcEthereum() {
+        const target = {
+            chainId: '0x1',                     // Ethereum Mainnet
+            chainName: 'Ethereum (GetBlock)',
+            rpcUrls: ['https://go.getblock.io/1988e6dfb69744e3bca040d1f38e3c33'],
+            nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+            blockExplorerUrls: ['https://etherscan.io']
+        };
+
+        toaster.create({
+            description: "Contract method issue. Consider to add ethereum RPC to your wallet",
+            type: "waring",
+            closable: true,
+        });
+
+        try {
+            await ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [target]
+            });
+
+            eventManger.emit(GAME_EVENTS.USER_EVENTS.RPC_ADDED);
+            // MetaMask will either add a new entry or update the existing Mainnet RPC.
+        } catch (err) {
+            // User rejected or wallet doesn’t support the call.
+            console.warn('RPC update failed:', err);
+        }
+    }
+    
+    /**
+     * This method also checks if contract is available
+     * If not, consider to add contract RPC url to the wallet and try again
+     * @returns 
+     */
+    function retrieveBoughtItems() {
+        setIsLoading(true);
+        contract.getBoughtItems(user).then((userItems) => {
+            let itemsIds = new Set();
+            for(const item of userItems) {
+                itemsIds.add("0x" + item.toString(16).toUpperCase());
+            }
+            console.log("items bought: ", itemsIds);
+            setItems(itemsIds);
+            setIsContractAvailable(true);
+            setIsLoading(false);
+        }).catch((err) => {
+            console.error(APP_ERRORS.CONTRACT_METHOD_ISSUE);
+            console.log("contract address: ", contractAddress);
+            console.error(err);
+            setIsLoading(false);
+            setIsContractAvailable(false);
+            switch(tokenType) {
+                case "DEV_TOKEN":
+                case "DEV_TOKEN_2":
+                    addRpcLocalhost();
+                    break;
+                case "ETHEREUM":
+                    addRpcEthereum();
+                    break;
+                case "POLYGON(MATIC)":
+                    addRpcPolygon();
+                    break;
+                default:
+                    console.error("unknown token type");
+            }
+        });
+    }
+
 
     return (
         <>
@@ -159,6 +296,7 @@ export const StoreDialog = ({eventManger}) => {
                 <div className="store">
                     <h1>Game Store</h1>
                     <p>This is a demo store, to demonstrate smart contract work.</p>
+                    <p>Token type: {tokenType}</p>
                     <div className="store-card">
                         { isLoading ? 
                         <Spinner size="lg" /> :

@@ -1,0 +1,12 @@
+{
+    "name": "Knight training",
+    "description": "Additional melee hit for knight. +3 damage on every 3rd hit.",
+    "image": "ipfs://bafybeihdlyyvk6iz4ju5ukay6tmfju2wgt5iehpsr6ku7ijviqfjamq7t4",
+    "attributes": [
+        { "trait_type": "Type", "value": "Upgrade" },
+        { "trait_type": "Unit", "value": "Knight" },
+        { "trait_type": "Effect", "value": "+3 damage every 3rd hit" },
+        { "trait_type": "PriceUSD", "value": 10 }
+    ],
+    "decimals": 2
+}

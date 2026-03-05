@@ -2,28 +2,41 @@
 pragma solidity ^0.8.13;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import { GameItemsERC1155 } from "./GameItems.sol";
 import { console } from "forge-std/console.sol";
 
 /**
  * An in game store contract
- * 1. buy items, transferring money to store wallet
- * 2. store/retrieve information about bought items
+ * 1. buy items, transferring money to store wallet and mint the item
+ * 2. translate usd item price to eth, or matic using oracle feeds
+ * 3. store/retrieve information about bought items
  */
 contract Store {
-    mapping(uint => uint) private itemIdsPrice; // itemId => usd cent(0.xx) price
-    mapping(address => uint[]) private boughtItems;
+    //mapping(address => uint[]) private boughtItems;
     AggregatorV3Interface internal priceFeed;
+    GameItemsERC1155 private gameItemsContract;
     address public immutable STORE_ADDRESS;
 
-    constructor(address _store, address _aggregatorAddress, uint[] memory itemsIds, uint[] memory itemsPrices) {
+    constructor(
+        address _store, 
+        address _aggregatorAddress,
+        uint[] memory itemsIds, 
+        uint[] memory itemsPrices,
+        // https://gateway.pinata.cloud/ipfs/bafybeibvehy3km54e2ed2d3lmzqrijzbsawiwj244foqivtjeqlqblxiie/{id}.json
+        // https://ivory-key-whitefish-770.mypinata.cloud/ipfs/bafybeibvehy3km54e2ed2d3lmzqrijzbsawiwj244foqivtjeqlqblxiie/{id}.json
+        string memory itemsJsonUrl) {
         STORE_ADDRESS = _store;
-        // MATIC/USDT 0xAB594600376Ec9fD91F8e885dADF0CE036862dE0
         priceFeed = AggregatorV3Interface(_aggregatorAddress);
 
         require(itemsIds.length > 0, "Invalid constructor params");
         require(itemsIds.length == itemsPrices.length, "Invalid constructor params");
+        require(bytes(itemsJsonUrl).length > 0, "Invalid constructor params");
+        // initiate items example param: "https://game.example/api/item/{id}.json"
+        gameItemsContract = new GameItemsERC1155(itemsJsonUrl, address(this));
+        
+        // устанавливаем ids и цены
         for (uint256 index = 0; index < itemsIds.length; index++) {
-            itemIdsPrice[itemsIds[index]] = itemsPrices[index];
+            gameItemsContract.setPrice(itemsIds[index], itemsPrices[index]);
         }
     }
 
@@ -41,7 +54,7 @@ contract Store {
     }
 
     function purchaseItem(uint _itemId) external payable {
-        uint itemPriceUsdCents = itemIdsPrice[_itemId];
+        uint itemPriceUsdCents = gameItemsContract.priceOf(_itemId);
         // If the key has never been assigned, `price` will be 0.
         // Assuming a price of 0 is never valid, revert the call.
         require(itemPriceUsdCents != 0, "Transfer failed");
@@ -68,7 +81,14 @@ contract Store {
         (bool success, ) = STORE_ADDRESS.call{value: itemCost}("");
         require(success, "Transfer failed");
 
-        boughtItems[msg.sender].push(_itemId);
+        // Если транзацкция прошла, минтим предмет покупателю
+        gameItemsContract.mint(msg.sender, _itemId, 1, "");
+        
+        // если нужно вернуть сдачу покупателю
+        if (msg.value > itemCost) {
+            (bool refundOk, ) = msg.sender.call{value: msg.value - itemCost}("");
+            require(refundOk, "Refund failed");
+        }
     }
 
     // Function to retrieve all items bought by a specific user
@@ -77,6 +97,25 @@ contract Store {
             // Return an empty array – callers can treat it as “no purchases”
             return new uint[](0);
         }
-        return boughtItems[_user];
+
+        uint[] memory items = gameItemsContract.items();
+        uint itemsBoughtCount = 0;
+        for (uint256 i = 0; i < items.length; ++i) {
+            uint256 itemId = items[i];
+            uint256 itemsAmount = gameItemsContract.balanceOf(_user, itemId);
+            if (itemsAmount > 0) {
+                itemsBoughtCount++;
+            }
+        }
+        uint[] memory itemsBought = new uint[](itemsBoughtCount);
+        uint counter = 0;
+        for (uint256 i = 0; i < items.length; ++i) {
+            uint256 itemId = items[i];
+            if (gameItemsContract.balanceOf(_user, itemId) > 0) {
+                itemsBought[counter] = itemId;
+                counter++;
+            }
+        }
+        return itemsBought;
     }
 }

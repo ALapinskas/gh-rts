@@ -1,0 +1,12 @@
+{
+    "name": "Knight sword sharpening",
+    "description": "Additional melee damage for knight. +1 damage on every hit.",
+    "image": "ipfs://bafkreibqzrqoikn5febaxgfgwtnz5mnawgr6z4rdxymytgqnf5dpuz65qu",
+    "attributes": [
+        { "trait_type": "Type", "value": "Upgrade" },
+        { "trait_type": "Unit", "value": "Knight" },
+        { "trait_type": "Effect", "value": "+1 damage per hit" },
+        { "trait_type": "PriceUSD", "value": 20 }
+    ],
+    "decimals": 2
+}

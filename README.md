@@ -1,4 +1,4 @@
-# Classic rts game includes metamask authentication and in game store
+# Classic rts game includes metamask authentication and in game store with ERC1155 fungible tokens
 ![Alt text](hvsg.gif?raw=true "screen")
 License: MIT \
 Platform: PC, Browser \
@@ -27,14 +27,19 @@ Foundry: https://getfoundry.sh
     * forge build/test/deploy contract
     * anvil as a testnet
 
+IPFS filestorage: 
+    Pinata: https://pinata.cloud/
+
 ## How build and run
 npm start
 
 ## Metamask authentication and store
 1. Authenticate with ethereum wallet
 ![Authenticate with ethereum wallet](/dist/assets/screen1.png)
-2. Buy in game items
+2. Switch the payment type Ethereum/Polygon(Matic)
+3. Suggest user to add custom RPC endpoint
+4. Store prices are in USDT, converts USDT to user payment type(2)
+5. Buy in game items(ERC-1155 token)
 ![Buy in game items](/dist/assets/screen_buy_1.png)
 ![Buy in game items](/dist/assets/screen_buy_2.png)
-3. Information about transactions will be stored in the blockchain. 
-   As the mappings user_id[] -> items_id[]
+6. Information about transactions will be stored in the blockchain.

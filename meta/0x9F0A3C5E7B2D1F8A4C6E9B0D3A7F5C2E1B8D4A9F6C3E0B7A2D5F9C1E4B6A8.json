@@ -1,0 +1,12 @@
+{
+    "name": "Archer flaming arrows",
+    "description": "Archer burning arrows. +5 damage for buildings.",
+    "image": "ipfs://bafkreibl6ulpafqj3gb6mhqs7n552g4p2t6qvvtes6mzxrxlevbmji73li",
+    "attributes": [
+        { "trait_type": "Type", "value": "Upgrade" },
+        { "trait_type": "Unit", "value": "Archer" },
+        { "trait_type": "Effect", "value": "+5 damage vs buildings" },
+        { "trait_type": "PriceUSD", "value": 30 }
+    ],
+    "decimals": 2
+}
