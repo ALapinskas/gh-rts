@@ -67,7 +67,7 @@ function filterProcessEnv (env, mode) {
     let resultEnv = {}
     Object.keys(env).forEach((key) => {
         
-        if (key.includes("PROD_") || key.includes("DEV_")) {
+        if ((mode === "production" && key.includes("PROD_")) || (mode === "development" && key.includes("DEV_"))) {
             resultEnv[key] = env[key];
             console.log("include process env: ", key);
         }
