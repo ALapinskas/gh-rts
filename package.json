@@ -1,6 +1,6 @@
 {
   "name": "gh-rts",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "description": "classic rts goblin/humans, jsge engine",
   "main": "index.js",
   "type": "module",
