@@ -56,6 +56,7 @@ export const StoreDialog = ({eventManger}) => {
         console.log("===>>>>>>>>>>>>>>>set tokenType: ", tokenSelected);
         setTokenType(tokenSelected);
         setContractAddress(CONTRACT_ADDRESS[tokenSelected]);
+        setOracleContract(ORACLE_ADDRESSES[tokenSelected]);
     })
 
     eventManger.addEventListener(GAME_EVENTS.USER_EVENTS.LOGIN, async(e) => {
