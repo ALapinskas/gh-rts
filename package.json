@@ -1,6 +1,6 @@
 {
   "name": "gh-rts",
-  "version": "0.3.15",
+  "version": "0.3.2",
   "description": "classic rts goblin/humans, jsge engine",
   "main": "index.js",
   "type": "module",
@@ -13,7 +13,9 @@
     "test": "forge test",
     "test-gas-cost": "forge test --gas-report",
     "deploy-prod": "forge create ./GameStoreContract/src/Store.sol:Store --private-key contract_private_key --rpc-url http://127.0.0.1:8545 --broadcast --constructor-args store_address chainlink_data_feed_address [items_ids] [items_prices]",
-    "testnet": "anvil"
+    "testnet": "anvil",
+    "testnet-debug": "anvil --print-traces",
+    "testnet-request": "cast call contract_address 'method(uint256)' argument"
   },
   "keywords": [
     "rts",

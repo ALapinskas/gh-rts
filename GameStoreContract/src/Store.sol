@@ -22,6 +22,9 @@ contract Store {
         address _aggregatorAddress,
         uint[] memory itemsIds, 
         uint[] memory itemsPrices,
+        // url вида
+        // в контракте хранится часть до {id} 
+        // {id} десятичное число
         // https://gateway.pinata.cloud/ipfs/bafybeibvehy3km54e2ed2d3lmzqrijzbsawiwj244foqivtjeqlqblxiie/{id}.json
         // https://ivory-key-whitefish-770.mypinata.cloud/ipfs/bafybeibvehy3km54e2ed2d3lmzqrijzbsawiwj244foqivtjeqlqblxiie/{id}.json
         string memory itemsJsonUrl) {
@@ -91,7 +94,10 @@ contract Store {
         }
     }
 
-    // Function to retrieve all items bought by a specific user
+    /**
+     * Function to retrieve all items bought by a specific user
+     * It returns an Array itemId, boughtCount
+     */
     function getBoughtItems(address _user) public view returns (uint[] memory) {
         if (_user == address(0)) {
             // Return an empty array – callers can treat it as “no purchases”
@@ -107,15 +113,32 @@ contract Store {
                 itemsBoughtCount++;
             }
         }
-        uint[] memory itemsBought = new uint[](itemsBoughtCount);
+        uint[] memory itemsBought = new uint[](itemsBoughtCount * 2);
         uint counter = 0;
         for (uint256 i = 0; i < items.length; ++i) {
             uint256 itemId = items[i];
-            if (gameItemsContract.balanceOf(_user, itemId) > 0) {
+            uint256 boughtCount = gameItemsContract.balanceOf(_user, itemId);
+            if (boughtCount > 0) {
                 itemsBought[counter] = itemId;
+                counter++;
+                itemsBought[counter] = boughtCount;
                 counter++;
             }
         }
         return itemsBought;
+    }
+
+    /** */
+    function supportsInterface(bytes4 /*interfaceId*/) external pure returns (bool) {
+        return false;
+    }
+    function symbol() external pure returns (string memory) {
+        revert("Function not supported");
+    }
+    function decimals() external pure returns (uint8) {
+        revert("Function not supported");
+    }
+    function balanceOf(address /*account*/) external pure returns (uint256) {
+        revert("Function not supported");
     }
 }

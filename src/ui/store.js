@@ -25,7 +25,7 @@ export const StoreDialog = ({eventManger}) => {
     const [tokenType, setTokenType] = useState(OracleKeys[0]);
     const [contractAddress, setContractAddress] = useState(CONTRACT_ADDRESS[tokenType]);
     const [contract, setContract] = useState();
-    const [items, setItems] = useState(new Set());
+    const [items, setItems] = useState(new Map());
 
     useEffect(() => {
         if (window.ethereum && tokenType) {
@@ -107,7 +107,12 @@ export const StoreDialog = ({eventManger}) => {
         }).then((tx) => {
             return tx.wait();
         }).then((receipt) => {
-            const newItems = items.add(itemId);
+            const newItems = items;
+            if (newItems.has(itemId)) {
+                newItems.set(itemId, newItems.get(itemId) + 1);
+            } else {
+                newItems.set(itemId, 1);
+            }
             setItems(newItems);
             toaster.create({
                 description: "Transaction succeeded",
@@ -252,12 +257,22 @@ export const StoreDialog = ({eventManger}) => {
     function retrieveBoughtItems() {
         setIsLoading(true);
         contract.getBoughtItems(user).then((userItems) => {
-            let itemsIds = new Set();
-            for(const item of userItems) {
-                itemsIds.add("0x" + item.toString(16).toUpperCase());
+            const len = userItems.length;
+            if (len > 0) {
+                let itemsIds = new Map();
+                for (let i = 0; i < len; i+=2) {
+                    const item = userItems[i],
+                        count = userItems[i + 1];
+                    let hex = item.toString(16).toUpperCase();
+                    if (hex.length % 2 === 1) hex = '0' + hex;
+                    hex = '0x' + hex;      
+                    itemsIds.set(hex, Number(count));
+                    console.log("item: ", item);
+                    console.log("hex: ", hex);
+                }
+                console.log("items bought: ", itemsIds);
+                setItems(itemsIds);
             }
-            console.log("items bought: ", itemsIds);
-            setItems(itemsIds);
             setIsContractAvailable(true);
             setIsLoading(false);
         }).catch((err) => {
@@ -314,7 +329,9 @@ export const StoreDialog = ({eventManger}) => {
                                 </Card.Body>
                                 <Card.Footer justifyContent="flex-end">
                                     { items.has(STORE_ITEMS[itemKey].ID) ? 
-                                    "item bought"
+                                    <>
+                                        items: {items.get(STORE_ITEMS[itemKey].ID)}
+                                    </>
                                     :
                                         <Button onClick={() => buyAction(itemKey)}>Buy ({STORE_ITEMS[itemKey].PRICE} USD)</Button>
                                     }

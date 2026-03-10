@@ -16,6 +16,7 @@ contract GameItemsERC1155Test is Test {
         nonOwner = address(0x456);
 
         // Развертывание контракта
+        // url вида https://example.com/api/{id}.json
         gameItems = new GameItemsERC1155("https://example.com/api/", owner);
     }
 

@@ -42,15 +42,16 @@ contract StoreTest is StdTest.Test {
         vm.prank(testAccount);
         store.purchaseItem{value: 3916969 wei}(3);
         uint[] memory boughtItems = store.getBoughtItems(testAccount);
-        assertEq(boughtItems.length, 1);
+        assertEq(boughtItems.length, 2);
         assertEq(boughtItems[0], 3);
+        assertEq(boughtItems[1], 1);
         vm.prank(testAccount);
         store.purchaseItem{value: 2611306 wei}(2);
 
         boughtItems = store.getBoughtItems(testAccount);
-        assertEq(boughtItems.length, 2);
+        assertEq(boughtItems.length, 4);
         assertEq(boughtItems[0], 2);
-        assertEq(boughtItems[1], 3);
+        assertEq(boughtItems[2], 3);
     }
 
     function testBuyItemFewSameTimes() public {
@@ -61,8 +62,9 @@ contract StoreTest is StdTest.Test {
         store.purchaseItem{value: 2611306 wei}(1);
 
         uint[] memory boughtItems = store.getBoughtItems(testAccount3);
-        assertEq(boughtItems.length, 1);
+        assertEq(boughtItems.length, 2);
         assertEq(boughtItems[0], 1);
+        assertEq(boughtItems[1], 2);
     }
 
     function testBuyItemWithInsufficientFounds() public {

@@ -43,3 +43,6 @@ npm start
 ![Buy in game items](/dist/assets/screen_buy_1.png)
 ![Buy in game items](/dist/assets/screen_buy_2.png)
 6. Information about transactions will be stored in the blockchain.
+7. Items can be found in the wallet
+![Bought game items in the wallet](/dist/assets/screen_buy_3.png)
+
